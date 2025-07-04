@@ -1,30 +1,37 @@
 # NL-solar
 
-This repository contains a dataset of Dutch solar parks and a helper script to look up their coordinates via OpenStreetMap's Nominatim API.
+This repository contains a small dataset of Dutch solar parks and scripts to generate GeoJSON layers for use with Windy.com.
 
 ## Files
 
-- `solar_parks.csv` – list of Dutch solar parks with capacity information
-- `fetch_coordinates.py` – script that appends latitude and longitude to the CSV
+- `data/parks.csv` – list of Dutch solar parks with capacity information
+- `src/geocode.py` – geocode parks via OpenStreetMap and cache the results
+- `src/regions.py` – aggregate capacities per 10 regions
 
 ## Installation
 
-Install the required dependency:
-
 ```bash
-pip install requests
+pip install -r requirements.txt
 ```
 
 ## Usage
 
-Run the script:
+1. Geocode the park list (adds latitude/longitude columns and caches queries):
 
 ```bash
-python fetch_coordinates.py
+python src/geocode.py --csv data/parks.csv --output data/parks_geocoded.csv \
+       --user-agent "nl-solar-dev/0.1 (me@example.com)" --sleep 1.1 \
+       --export-geojson parks.geojson
 ```
 
-By default the script reads `solar_parks.csv` and creates `solar_parks_with_coords.csv` containing latitude/longitude columns. You can specify custom input and output files:
+2. Summarise capacity per region and write a polygon GeoJSON file:
 
 ```bash
-python fetch_coordinates.py input.csv output.csv
+python src/regions.py --parks data/parks_geocoded.csv \
+                      --regions data/regions_10.geojson \
+                      --output regions_capacity.geojson
 ```
+
+The generated `parks.geojson` and `regions_capacity.geojson` can be uploaded to the [Windy uploader](https://windy.com/uploader) for visualisation.
+
+The geocoding script stores responses in `data/nominatim_cache.sqlite` so that reruns are faster and gentler on the API. This cache file is ignored by Git.
