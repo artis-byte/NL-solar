@@ -1,5 +1,5 @@
 const __pluginConfig =  {
-  "name": "windy-plugin-my-plugin",
+  "name": "windy-plugin-knmi-qg-regions",
   "version": "0.1.0",
   "icon": "🔌",
   "title": "This is my first plugin",
@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "rhpane",
   "mobileUI": "fullscreen",
   "routerPath": "/my-plugin",
-  "built": 1751981051773,
-  "builtReadable": "2025-07-08T13:24:11.773Z",
+  "built": 1751983371069,
+  "builtReadable": "2025-07-08T14:02:51.069Z",
   "screenshot": "screenshot.jpg"
 };
 
