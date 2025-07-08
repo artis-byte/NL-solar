@@ -35,3 +35,40 @@ python src/regions.py --parks data/parks_geocoded.csv \
 The generated `parks.geojson` and `regions_capacity.geojson` can be uploaded to the [Windy uploader](https://windy.com/uploader) for visualisation.
 
 The geocoding script stores responses in `data/nominatim_cache.sqlite` so that reruns are faster and gentler on the API. This cache file is ignored by Git.
+
+## Windy plugin
+
+This repository contains a Windy plugin in `knmi-windy-plugin`.
+Make sure you run the commands from the repository root (you can use
+`cd $(git rev-parse --show-toplevel)` to be certain). You'll also need a
+**Windy plugin API key** (keys for the Maps Forecast API will not work).
+To build and upload it manually:
+
+```bash
+cd knmi-windy-plugin
+npm install
+npm run build  # creates knmi-windy-plugin/dist/
+
+cd dist  # contains plugin.js and plugin.json
+# (the path is knmi-windy-plugin/dist/plugin.json)
+commit_sha=$(git rev-parse HEAD)
+printf '{"repositoryName":"artis-byte/NL-solar","commitSha":"%s","repositoryOwner":"artis-byte"}\n' "$commit_sha" > /tmp/plugin-info.json
+cp plugin.json /tmp/orig-plugin.json
+jq -s '.[0] * .[1]' /tmp/orig-plugin.json /tmp/plugin-info.json > plugin.json
+
+tar cf ../plugin.tar .
+
+# Optionally update the version served from GitHub Pages
+cp plugin.* screenshot.jpg ../../docs/
+
+curl -X POST 'https://node.windy.com/plugins/v1.0/upload' \
+     -H "x-windy-api-key: $WINDY_API_KEY" \
+     -F "plugin_archive=@../plugin.tar"
+```
+
+The built plugin files are also committed under `docs/` so they can be loaded by Windy at:
+
+```
+https://raw.githubusercontent.com/artis-byte/NL-solar/main/docs/plugin.js
+```
+You can also run `./publish_plugin.sh` to automate these steps.

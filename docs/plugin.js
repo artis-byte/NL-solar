@@ -9,8 +9,8 @@ const __pluginConfig =  {
   "desktopUI": "rhpane",
   "mobileUI": "fullscreen",
   "routerPath": "/my-plugin",
-  "built": 1751983371069,
-  "builtReadable": "2025-07-08T14:02:51.069Z",
+  "built": 1751987761601,
+  "builtReadable": "2025-07-08T15:16:01.601Z",
   "screenshot": "screenshot.jpg"
 };
 
