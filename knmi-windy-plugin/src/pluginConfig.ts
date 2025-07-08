@@ -1,7 +1,7 @@
 import type { ExternalPluginConfig } from '@windy/interfaces';
 
 const config: ExternalPluginConfig = {
-    name: 'windy-plugin-my-plugin',
+    name: 'windy-plugin-knmi-qg-regions',
     version: '0.1.0',
     icon: '🔌',
     title: 'This is my first plugin',
