@@ -35,3 +35,16 @@ python src/regions.py --parks data/parks_geocoded.csv \
 The generated `parks.geojson` and `regions_capacity.geojson` can be uploaded to the [Windy uploader](https://windy.com/uploader) for visualisation.
 
 The geocoding script stores responses in `data/nominatim_cache.sqlite` so that reruns are faster and gentler on the API. This cache file is ignored by Git.
+
+## Hosting QG GeoJSON for Windy
+
+The `knmi_qg_regions.py` script writes its outputs to the `docs/` folder by
+default. Enabling GitHub Pages for this repository exposes files in `docs/` at a
+predictable URL such as:
+
+```
+https://<username>.github.io/NL-solar/qg_regions.geojson
+```
+
+Configure your Windy plugin to load the GeoJSON from that URL so it always has
+the latest data.
