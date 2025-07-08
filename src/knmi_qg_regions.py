@@ -1,42 +1,69 @@
 #!/usr/bin/env python3
 """
-Fetch 10‑minute global irradiance (QG) from KNMI Open Data and export per‑station and
-per‑region GeoJSON files.
+KNMI → GeoJSON publisher (S3 **or** GitHub)
+=========================================
+Fetch 10-minute KNMI irradiance, aggregate by region, and publish the result as a
+public GeoJSON file that a Windy plug-in (or any Leaflet app) can poll.
 
-Changes in this revision (v0.2)
---------------------------------
-* **Fixed KeyError** – lat/lon were not part of the DataFrame; now they are
-  explicitly selected (`ds[[qg_var, lat_name, lon_name]]`).
-* **Deduplicate by time** – if the dataset contains multiple time steps we keep
-  only the latest record per station.
-* **Clearer error messages** – include the filename that failed.
+This revision adds **native GitHub upload** so you don’t have to pay for S3:
+
+```
+python knmi_qg_regions.py --api-key $KNMI_KEY \
+       --regions data/regions_10.geojson \
+       --gh-repo  USER/REPO \
+       --gh-path  live/qg_regions.geojson \
+       --loop
+```
+
+Requirements
+------------
+* `boto3` only if you use S3 upload.
+* `requests` for GitHub upload.
+* A GitHub **fine-grained personal access token** with *contents:write* scope.
+  Supply it via `GITHUB_TOKEN` env var **or** the `--gh-token` flag.
+
+Windy plug-in fetch URL (GitHub Pages/raw):
+```
+https://raw.githubusercontent.com/USER/REPO/BRANCH/live/qg_regions.geojson
+```
+That domain already sends `Access-Control-Allow-Origin: *`, so Leaflet fetches
+it without CORS issues.
 """
 from __future__ import annotations
 
 import argparse
+import base64
 import io
+import os
 import sys
 import time
 from datetime import datetime
-from typing import Any
+from typing import Optional
 
 import geopandas as gpd
 import pandas as pd
 import requests
 import xarray as xr
-from shapely.geometry import Point  # noqa: F401 – used implicitly by GeoPandas
+
+# Optional S3 deps -------------------------------------------------------------
+try:
+    import boto3
+    from botocore.exceptions import BotoCoreError, ClientError
+except ImportError:  # S3 upload will be disabled automatically
+    boto3 = None  # type: ignore
 
 # -----------------------------------------------------------------------------
 # CONFIGURATION CONSTANTS
 # -----------------------------------------------------------------------------
 BASE_URL = "https://api.dataplatform.knmi.nl/open-data/v1"
-DATASET = "Actuele10mindataKNMIstations"  # deprecated Sep‑2025 → switch soon
+DATASET = "Actuele10mindataKNMIstations"  # v2 (deprecates Sep-2025)
 VERSION = "2"
+
+# -----------------------------------------------------------------------------
+# KNMI HELPERS
 # -----------------------------------------------------------------------------
 
-
 def latest_file(api_key: str) -> str:
-    """Return the most recently created NetCDF filename in the dataset."""
     headers = {"Authorization": api_key}
     params = {"maxKeys": 1, "orderBy": "created", "sorting": "desc"}
     r = requests.get(
@@ -50,9 +77,7 @@ def latest_file(api_key: str) -> str:
 
 
 def download_file(api_key: str, filename: str) -> bytes:
-    """Download *filename* from KNMI and return raw bytes."""
     headers = {"Authorization": api_key}
-    # Step 1 – obtain a temporary download URL
     r = requests.get(
         f"{BASE_URL}/datasets/{DATASET}/versions/{VERSION}/files/{filename}/url",
         headers=headers,
@@ -60,7 +85,6 @@ def download_file(api_key: str, filename: str) -> bytes:
     )
     r.raise_for_status()
     url = r.json()["temporaryDownloadUrl"]
-    # Step 2 – fetch the file itself
     resp = requests.get(url, timeout=30)
     resp.raise_for_status()
     return resp.content
@@ -70,135 +94,187 @@ def download_file(api_key: str, filename: str) -> bytes:
 # DATA PARSING
 # -----------------------------------------------------------------------------
 
-def _find(ds: xr.Dataset, substr: str) -> str | None:
-    """Return first name that contains *substr* (case‑insensitive).
-
-    Searches coordinates first, then all variables.
-    """
-    substr_l = substr.lower()
-    for name in ds.coords:
-        if substr_l in name.lower():
-            return name
-    for name in ds.variables:
-        if substr_l in name.lower():
-            return name
+def _find(ds: xr.Dataset, substr: str) -> Optional[str]:
+    low = substr.lower()
+    for n in ds.coords:
+        if low in n.lower():
+            return n
+    for n in ds.variables:
+        if low in n.lower():
+            return n
     return None
 
 
-def parse_qg(data: bytes) -> pd.DataFrame:
-    """Extract (station, lat, lon, qg) from raw NetCDF bytes."""
-    with xr.open_dataset(io.BytesIO(data)) as ds:
-        lat_name = _find(ds, "lat")
-        lon_name = _find(ds, "lon")
-        station_dim = next(
-            (d for d in ds.dims if "station" in d.lower() or d.lower() == "stn"),
-            None,
-        )
-        qg_var = next((v for v in ds.data_vars if v.lower().startswith("qg")), None)
+def parse_qg(raw: bytes) -> pd.DataFrame:
+    with xr.open_dataset(io.BytesIO(raw)) as ds:
+        lat = _find(ds, "lat")
+        lon = _find(ds, "lon")
+        stn = next((d for d in ds.dims if "station" in d.lower() or d == "stn"), None)
+        qg = next((v for v in ds.data_vars if v.lower().startswith("qg")), None)
+        if not (lat and lon and stn and qg):
+            raise ValueError("Missing expected variables")
 
-        if not (lat_name and lon_name and station_dim and qg_var):
-            raise ValueError(
-                "Required names not found → "
-                f"lat:{lat_name}, lon:{lon_name}, station_dim:{station_dim}, qg:{qg_var}"
-            )
-
-        subset = ds[[qg_var, lat_name, lon_name]]
-        df: pd.DataFrame = subset.to_dataframe().reset_index()
-
-        # If multiple time steps exist, keep the most recent per station
+        df = ds[[qg, lat, lon]].to_dataframe().reset_index()
         if "time" in df.columns:
-            df = (
-                df.sort_values("time")
-                .drop_duplicates(subset=station_dim, keep="last")
-                .drop(columns="time")
-            )
-
-        df = df[[station_dim, lat_name, lon_name, qg_var]].dropna()
+            df = df.sort_values("time").drop_duplicates(subset=stn, keep="last").drop(columns="time")
+        df = df[[stn, lat, lon, qg]].dropna()
         df.columns = ["station", "lat", "lon", "qg"]
     return df
 
 
 # -----------------------------------------------------------------------------
-# GEO SPATIAL HELPERS
+# GEO SPATIAL
 # -----------------------------------------------------------------------------
 
-def station_geojson(df: pd.DataFrame, path: str) -> gpd.GeoDataFrame:
-    """Write point GeoJSON for stations and return GeoDataFrame."""
-    gdf = gpd.GeoDataFrame(
-        df,
-        geometry=gpd.points_from_xy(df["lon"], df["lat"]),
-        crs="EPSG:4326",
-    )
-    gdf.to_file(path, driver="GeoJSON")
-    return gdf
-
-
-def aggregate_regions(gdf: gpd.GeoDataFrame, regions_path: str) -> gpd.GeoDataFrame:
-    """Spatial join → mean QG per region; optional PV output estimate."""
+def aggregate_regions(df: pd.DataFrame, regions_path: str) -> gpd.GeoDataFrame:
+    stations = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df["lon"], df["lat"]), crs="EPSG:4326")
     regions = gpd.read_file(regions_path)
+    regions = regions.to_crs(epsg=4326) if regions.crs else regions.set_crs(epsg=4326, allow_override=True)
 
-    # Harmonise CRS
-    if regions.crs is None:
-        regions = regions.set_crs(epsg=4326, allow_override=True)
-    elif regions.crs.to_epsg() != 4326:
-        regions = regions.to_crs(epsg=4326)
-
-    joined = gpd.sjoin(gdf, regions, how="left", predicate="within")
+    joined = gpd.sjoin(stations, regions, predicate="within", how="left")
     agg = joined.groupby("name")["qg"].mean().reset_index(name="qg_mean")
     out = regions.merge(agg, on="name", how="left")
     out["qg_mean"].fillna(0.0, inplace=True)
 
     if "solar_capacity_mw" in out.columns:
         out["estimated_output_mw"] = out["solar_capacity_mw"] * out["qg_mean"] / 1000.0
-
     return out
 
 
 # -----------------------------------------------------------------------------
-# RUNTIME WRAPPER
+# UPLOAD HELPERS
 # -----------------------------------------------------------------------------
 
-def run_once(api_key: str, regions_path: str, stations_out: str, regions_out: str) -> None:
-    """Fetch newest file, regenerate GeoJSONs, print timestamp."""
+def upload_s3(local: str, bucket: str, key: str) -> str:
+    if boto3 is None:
+        raise RuntimeError("boto3 not installed; S3 upload unavailable")
+    s3 = boto3.client("s3")
+    extra = {
+        "ContentType": "application/geo+json",
+        "CacheControl": "max-age=30",
+        "ACL": "public-read",
+    }
+    try:
+        s3.upload_file(local, bucket, key, ExtraArgs=extra)
+    except (BotoCoreError, ClientError) as exc:
+        raise RuntimeError(f"S3 upload failed: {exc}") from exc
+    return f"https://{bucket}.s3.amazonaws.com/{key}"
+
+
+def upload_github(local: str, repo: str, path: str, branch: str, token: str) -> str:
+    api = f"https://api.github.com/repos/{repo}/contents/{path}"
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github+json",
+    }
+
+    # Check if file exists to get its SHA (needed for update)
+    sha: Optional[str] = None
+    r = requests.get(api, headers=headers, params={"ref": branch})
+    if r.status_code == 200:
+        sha = r.json()["sha"]
+    elif r.status_code not in (404, 422):  # 422 → repo empty
+        r.raise_for_status()
+
+    with open(local, "rb") as f:
+        content_b64 = base64.b64encode(f.read()).decode()
+
+    payload = {
+        "message": f"auto: update {path} ({datetime.utcnow().isoformat(timespec='seconds')}Z)",
+        "branch": branch,
+        "content": content_b64,
+    }
+    if sha:
+        payload["sha"] = sha
+
+    r = requests.put(api, headers=headers, json=payload)
+    if r.status_code not in (200, 201):
+        raise RuntimeError(f"GitHub upload failed: {r.text[:200]}")
+
+    raw_url = f"https://raw.githubusercontent.com/{repo}/{branch}/{path}"
+    return raw_url
+
+
+# -----------------------------------------------------------------------------
+# ORCHESTRATION
+# -----------------------------------------------------------------------------
+
+def run_once(
+    api_key: str,
+    regions_path: str,
+    local_out: str,
+    s3_bucket: Optional[str] = None,
+    s3_key: Optional[str] = None,
+    gh_repo: Optional[str] = None,
+    gh_path: Optional[str] = None,
+    gh_branch: str = "main",
+    gh_token: Optional[str] = None,
+) -> None:
     fname = latest_file(api_key)
     raw = download_file(api_key, fname)
+    df = parse_qg(raw)
+    geo = aggregate_regions(df, regions_path)
+    geo.to_file(local_out, driver="GeoJSON")
 
-    try:
-        df = parse_qg(raw)
-    except Exception as exc:
-        raise RuntimeError(f"Failed parsing {fname}: {exc}") from exc
+    if s3_bucket and s3_key:
+        url = upload_s3(local_out, s3_bucket, s3_key)
+        print("S3 →", url)
 
-    gdf = station_geojson(df, stations_out)
-    agg = aggregate_regions(gdf, regions_path)
-    agg.to_file(regions_out, driver="GeoJSON")
+    if gh_repo and gh_path:
+        gh_token = gh_token or os.getenv("GITHUB_TOKEN")
+        if not gh_token:
+            raise RuntimeError("GitHub token not provided (flag or GITHUB_TOKEN env var)")
+        url = upload_github(local_out, gh_repo, gh_path, gh_branch, gh_token)
+        print("GitHub →", url)
+
     ts = datetime.utcnow().isoformat(timespec="seconds") + "Z"
-    print(f"Updated {stations_out} and {regions_out} at {ts}")
+    print(f"Generated {local_out} at {ts}\n")
 
 
 # -----------------------------------------------------------------------------
-# CLI ENTRYPOINT
+# CLI
 # -----------------------------------------------------------------------------
 
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(
-        description="Fetch KNMI QG data and update GeoJSON files",
+    p = argparse.ArgumentParser(
+        description="KNMI QG → GeoJSON publisher (S3 or GitHub)",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--api-key", required=True, help="KNMI API key")
-    parser.add_argument("--regions", default="data/regions_with_capacity.geojson")
-    parser.add_argument("--stations-out", default="data/qg_stations.geojson")
-    parser.add_argument("--regions-out", default="data/qg_regions.geojson")
-    parser.add_argument("--loop", action="store_true", help="Run every 10 minutes")
-    args = parser.parse_args(argv)
+    p.add_argument("--api-key", required=True, help="KNMI API key")
+    p.add_argument("--regions", default="data/regions_10.geojson")
+    p.add_argument("--out", dest="local_out", default="qg_regions.geojson")
+
+    # S3 options
+    p.add_argument("--s3-bucket")
+    p.add_argument("--s3-key")
+
+    # GitHub options
+    p.add_argument("--gh-repo", help="owner/repo")
+    p.add_argument("--gh-path", help="path within repo e.g. live/foo.geojson")
+    p.add_argument("--gh-branch", default="main")
+    p.add_argument("--gh-token", help="GitHub PAT (or set GITHUB_TOKEN env var)")
+
+    p.add_argument("--loop", action="store_true", help="Repeat every 10 min")
+    args = p.parse_args(argv)
 
     while True:
         try:
-            run_once(args.api_key, args.regions, args.stations_out, args.regions_out)
+            run_once(
+                api_key=args.api_key,
+                regions_path=args.regions,
+                local_out=args.local_out,
+                s3_bucket=args.s3_bucket,
+                s3_key=args.s3_key,
+                gh_repo=args.gh_repo,
+                gh_path=args.gh_path,
+                gh_branch=args.gh_branch,
+                gh_token=args.gh_token,
+            )
         except Exception as exc:
-            print(f"Error: {exc}", file=sys.stderr)
+            print("Error:", exc, file=sys.stderr)
         if not args.loop:
             break
-        time.sleep(600)  # 10 minutes
+        time.sleep(600)
 
 
 if __name__ == "__main__":
