@@ -63,4 +63,4 @@ The built plugin files are also committed under `docs/` so they can be loaded by
 ```
 https://raw.githubusercontent.com/artis-byte/NL-solar/main/docs/plugin.js
 ```
-You can also run `./publish_plugin.sh` to automate these steps.
+You can also run `./publish_plugin.sh` from the repository root to automate these steps. The script requires `WINDY_API_KEY` to be set.
