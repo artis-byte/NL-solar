@@ -39,11 +39,12 @@
 
   function ensureMapAvailable() {
     const current = getWindyMap();
-    if (current) {
-      map = current;
-      return true;
+    if (!current) {
+      return false;
     }
-    return false;
+    // Windy exposes a wrapper around the underlying Leaflet map.
+    map = current.leafletMap ? current.leafletMap : current;
+    return Boolean(map);
   }
 
   function ensureLeaflet() {
@@ -195,10 +196,13 @@
   }
 
   function removeLayer() {
-    if (overlayLayer && map) {
-      map.removeLayer(overlayLayer);
-      overlayLayer = null;
+    if (!overlayLayer || !ensureLeaflet()) {
+      return;
     }
+    if (map && typeof map.removeLayer === 'function') {
+      map.removeLayer(overlayLayer);
+    }
+    overlayLayer = null;
   }
 
   function renderLayer(geojson) {

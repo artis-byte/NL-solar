@@ -1,6 +1,6 @@
 const __pluginConfig =  {
   "name": "windy-plugin-knmi-qg-regions",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "icon": "☀",
   "title": "KNMI Solar Radiation",
   "description": "Overlay KNMI 10 minute irradiance (qg) averaged per Dutch region.",
@@ -10,8 +10,8 @@ const __pluginConfig =  {
   "mobileUI": "fullscreen",
   "routerPath": "/knmi-solar",
   "private": false,
-  "built": 1760117994558,
-  "builtReadable": "2025-10-10T17:39:54.558Z",
+  "built": 1760118383607,
+  "builtReadable": "2025-10-10T17:46:23.607Z",
   "screenshot": "screenshot.jpg"
 };
 
@@ -684,7 +684,7 @@ function get_each_context_1(ctx, list, i) {
 	return child_ctx;
 }
 
-// (407:2) {#if metricKeys.length}
+// (411:2) {#if metricKeys.length}
 function create_if_block_5(ctx) {
 	let label;
 	let t1;
@@ -779,7 +779,7 @@ function create_if_block_5(ctx) {
 	};
 }
 
-// (410:6) {#each metricKeys as key}
+// (414:6) {#each metricKeys as key}
 function create_each_block_1(ctx) {
 	let option;
 	let t_value = /*metrics*/ ctx[4][/*key*/ ctx[32]].label + "";
@@ -813,7 +813,7 @@ function create_each_block_1(ctx) {
 	};
 }
 
-// (420:24) 
+// (424:24) 
 function create_if_block_4(ctx) {
 	let p;
 	let t0;
@@ -843,7 +843,7 @@ function create_if_block_4(ctx) {
 	};
 }
 
-// (418:25) 
+// (422:25) 
 function create_if_block_3(ctx) {
 	let p;
 	let t0;
@@ -872,7 +872,7 @@ function create_if_block_3(ctx) {
 	};
 }
 
-// (416:2) {#if loading}
+// (420:2) {#if loading}
 function create_if_block_2(ctx) {
 	let p;
 
@@ -894,7 +894,7 @@ function create_if_block_2(ctx) {
 	};
 }
 
-// (424:2) {#if legendStops.length}
+// (428:2) {#if legendStops.length}
 function create_if_block(ctx) {
 	let div1;
 	let div0;
@@ -979,7 +979,7 @@ function create_if_block(ctx) {
 	};
 }
 
-// (428:8) {#if item.label}
+// (432:8) {#if item.label}
 function create_if_block_1(ctx) {
 	let div;
 	let span0;
@@ -1025,7 +1025,7 @@ function create_if_block_1(ctx) {
 	};
 }
 
-// (427:6) {#each legendStops as item}
+// (431:6) {#each legendStops as item}
 function create_each_block(ctx) {
 	let if_block_anchor;
 	let if_block = /*item*/ ctx[29].label && create_if_block_1(ctx);
@@ -1288,12 +1288,14 @@ function instance($$self, $$props, $$invalidate) {
 	function ensureMapAvailable() {
 		const current = getWindyMap();
 
-		if (current) {
-			map = current;
-			return true;
+		if (!current) {
+			return false;
 		}
 
-		return false;
+		// Windy exposes a wrapper around the underlying Leaflet map.
+		map = current.leafletMap ? current.leafletMap : current;
+
+		return Boolean(map);
 	}
 
 	function ensureLeaflet() {
@@ -1452,10 +1454,15 @@ function instance($$self, $$props, $$invalidate) {
 	}
 
 	function removeLayer() {
-		if (overlayLayer && map) {
-			map.removeLayer(overlayLayer);
-			overlayLayer = null;
+		if (!overlayLayer || !ensureLeaflet()) {
+			return;
 		}
+
+		if (map && typeof map.removeLayer === 'function') {
+			map.removeLayer(overlayLayer);
+		}
+
+		overlayLayer = null;
 	}
 
 	function renderLayer(geojson) {
