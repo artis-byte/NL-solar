@@ -97,7 +97,7 @@ def _find_name(candidates: Iterable[str], needle: str) -> Optional[str]:
 
 
 def _parse_dataset(raw: bytes) -> pd.DataFrame:
-    with xr.open_dataset(io.BytesIO(raw)) as ds:
+    with xr.open_dataset(io.BytesIO(raw), engine="netcdf4") as ds:
         station_dim = next((d for d in ds.dims if "station" in d.lower()), None)
         if station_dim is None:
             raise ValueError("Could not locate station dimension in dataset.")
