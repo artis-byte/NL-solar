@@ -1,42 +1,59 @@
-# .github/workflows/publish-plugin.yml
 name: Publish Windy Plugin
 
-# Run on every push to main, or manually in the Actions UI
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      WINDY_API_KEY: ${{ secrets.WINDY_API_KEY }}
     steps:
-      # 1. Check out your code
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # 2. Set up Node (for the Svelte build)
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '18'
 
-      # 3. Build your Windy plugin
-      - name: Build Windy plugin
+      - name: Install dependencies
         working-directory: knmi-windy-plugin
-        run: |
-          npm install
-          npm run build
+        run: npm ci
 
-      # 4. Publish to Windy’s plugin registry
+      - name: Build plugin bundle
+        working-directory: knmi-windy-plugin
+        run: npm run build
+
       - name: Publish to Windy
-        uses: windycom/publish-plugin-action@v1
-        with:
-          apiKey: ${{ secrets.WINDY_API_KEY }}
-          # relative path from repo root to the built plugin folder
-          pluginDistDir: knmi-windy-plugin/dist
-          # a unique plugin slug (must start with "windy-plugin-")
-          pluginName: windy-plugin-knmi-qg-regions
-          # semver version; bump this to trigger a new release
-          version: 0.2.0
+        working-directory: knmi-windy-plugin/dist
+        run: |
+          if [ -z "$WINDY_API_KEY" ]; then
+            echo "Secret WINDY_API_KEY is not configured" >&2
+            exit 1
+          fi
+
+          echo "Embedding repository metadata..."
+          cat <<'JSON' > /tmp/plugin-info.json
+          {
+            "repositoryName": "${{ github.repository }}",
+            "commitSha": "${{ github.sha }}",
+            "repositoryOwner": "${{ github.repository_owner }}"
+          }
+          JSON
+
+          mv plugin.json /tmp/plugin.json.orig
+          jq -s '.[0] * .[1]' /tmp/plugin.json.orig /tmp/plugin-info.json > plugin.json
+
+          echo "Packaging plugin..."
+          tar cf ../plugin.tar .
+
+          echo "Uploading to Windy..."
+          curl -sS --fail-with-body \
+            -X POST 'https://node.windy.com/plugins/v1.0/upload' \
+            -H "x-windy-api-key: ${WINDY_API_KEY}" \
+            -F "plugin_archive=@../plugin.tar"
+
+      - name: Reminder
+        run: |
+          echo "::notice ::Upload complete. The Windy API responded above with a JSON payload containing the installation URL."
