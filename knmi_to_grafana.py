@@ -101,8 +101,12 @@ def _bootstrap() -> None:
     _schedule_next_refresh()
 
 
-if __name__ == "__main__":
+def main() -> None:
     logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
     app.logger.setLevel(logging.getLogger().level)
     _bootstrap()
     app.run(host=HOST, port=PORT)
+
+
+if __name__ == "__main__":
+    main()
