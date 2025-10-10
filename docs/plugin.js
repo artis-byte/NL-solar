@@ -9,8 +9,9 @@ const __pluginConfig =  {
   "desktopUI": "rhpane",
   "mobileUI": "fullscreen",
   "routerPath": "/knmi-solar",
-  "built": 1760112711477,
-  "builtReadable": "2025-10-10T16:11:51.477Z",
+  "private": false,
+  "built": 1760114922304,
+  "builtReadable": "2025-10-10T16:48:42.304Z",
   "screenshot": "screenshot.jpg"
 };
 
