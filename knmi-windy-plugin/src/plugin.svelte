@@ -1,5 +1,6 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
+  import { map as windyMap } from '@windy/map';
 
   const DATA_URL = 'https://raw.githubusercontent.com/artis-byte/NL-solar/main/qg_regions.geojson';
   const REFRESH_MS = 600_000;
@@ -33,8 +34,7 @@
   let latestGeoJSON = null;
 
   function getWindyMap() {
-    const windy = typeof window !== 'undefined' ? window.W : null;
-    return windy && windy.map ? windy.map : null;
+    return windyMap;
   }
 
   function ensureMapAvailable() {
@@ -42,9 +42,8 @@
     if (!current) {
       return false;
     }
-    // Windy exposes a wrapper around the underlying Leaflet map.
-    map = current.leafletMap ? current.leafletMap : current;
-    return Boolean(map);
+    map = current;
+    return typeof map.addLayer === 'function';
   }
 
   function ensureLeaflet() {
@@ -199,7 +198,9 @@
     if (!overlayLayer || !ensureLeaflet()) {
       return;
     }
-    if (map && typeof map.removeLayer === 'function') {
+    if (typeof overlayLayer.remove === 'function') {
+      overlayLayer.remove();
+    } else if (map && typeof map.removeLayer === 'function') {
       map.removeLayer(overlayLayer);
     }
     overlayLayer = null;
@@ -248,7 +249,16 @@
           layer.bindPopup(html);
         }
       }
-    }).addTo(map);
+    });
+
+    if (typeof overlayLayer.addTo === 'function') {
+      overlayLayer.addTo(map);
+    } else if (typeof map.addLayer === 'function') {
+      map.addLayer(overlayLayer);
+    } else {
+      errorMessage = 'Unable to attach layer to Windy map.';
+      overlayLayer = null;
+    }
   }
 
   async function fetchData() {

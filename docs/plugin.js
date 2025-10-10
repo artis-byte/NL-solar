@@ -1,6 +1,6 @@
 const __pluginConfig =  {
   "name": "windy-plugin-knmi-qg-regions",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "icon": "☀",
   "title": "KNMI Solar Radiation",
   "description": "Overlay KNMI 10 minute irradiance (qg) averaged per Dutch region.",
@@ -10,10 +10,14 @@ const __pluginConfig =  {
   "mobileUI": "fullscreen",
   "routerPath": "/knmi-solar",
   "private": false,
-  "built": 1760118383607,
-  "builtReadable": "2025-10-10T17:46:23.607Z",
+  "built": 1760118838161,
+  "builtReadable": "2025-10-10T17:53:58.161Z",
   "screenshot": "screenshot.jpg"
 };
+
+// transformCode: import { map } from '@windy/map';
+const { map } = W.map;
+
 
 /** @returns {void} */
 function noop() {}
@@ -674,17 +678,17 @@ function add_css(target) {
 
 function get_each_context(ctx, list, i) {
 	const child_ctx = ctx.slice();
-	child_ctx[29] = list[i];
+	child_ctx[30] = list[i];
 	return child_ctx;
 }
 
 function get_each_context_1(ctx, list, i) {
 	const child_ctx = ctx.slice();
-	child_ctx[32] = list[i];
+	child_ctx[33] = list[i];
 	return child_ctx;
 }
 
-// (411:2) {#if metricKeys.length}
+// (421:2) {#if metricKeys.length}
 function create_if_block_5(ctx) {
 	let label;
 	let t1;
@@ -779,10 +783,10 @@ function create_if_block_5(ctx) {
 	};
 }
 
-// (414:6) {#each metricKeys as key}
+// (424:6) {#each metricKeys as key}
 function create_each_block_1(ctx) {
 	let option;
-	let t_value = /*metrics*/ ctx[4][/*key*/ ctx[32]].label + "";
+	let t_value = /*metrics*/ ctx[4][/*key*/ ctx[33]].label + "";
 	let t;
 	let option_value_value;
 
@@ -790,7 +794,7 @@ function create_each_block_1(ctx) {
 		c() {
 			option = element("option");
 			t = text(t_value);
-			option.__value = option_value_value = /*key*/ ctx[32];
+			option.__value = option_value_value = /*key*/ ctx[33];
 			set_input_value(option, option.__value);
 		},
 		m(target, anchor) {
@@ -798,9 +802,9 @@ function create_each_block_1(ctx) {
 			append(option, t);
 		},
 		p(ctx, dirty) {
-			if (dirty[0] & /*metrics, metricKeys*/ 48 && t_value !== (t_value = /*metrics*/ ctx[4][/*key*/ ctx[32]].label + "")) set_data(t, t_value);
+			if (dirty[0] & /*metrics, metricKeys*/ 48 && t_value !== (t_value = /*metrics*/ ctx[4][/*key*/ ctx[33]].label + "")) set_data(t, t_value);
 
-			if (dirty[0] & /*metricKeys*/ 32 && option_value_value !== (option_value_value = /*key*/ ctx[32])) {
+			if (dirty[0] & /*metricKeys*/ 32 && option_value_value !== (option_value_value = /*key*/ ctx[33])) {
 				option.__value = option_value_value;
 				set_input_value(option, option.__value);
 			}
@@ -813,7 +817,7 @@ function create_each_block_1(ctx) {
 	};
 }
 
-// (424:24) 
+// (434:24) 
 function create_if_block_4(ctx) {
 	let p;
 	let t0;
@@ -843,7 +847,7 @@ function create_if_block_4(ctx) {
 	};
 }
 
-// (422:25) 
+// (432:25) 
 function create_if_block_3(ctx) {
 	let p;
 	let t0;
@@ -872,7 +876,7 @@ function create_if_block_3(ctx) {
 	};
 }
 
-// (420:2) {#if loading}
+// (430:2) {#if loading}
 function create_if_block_2(ctx) {
 	let p;
 
@@ -894,7 +898,7 @@ function create_if_block_2(ctx) {
 	};
 }
 
-// (428:2) {#if legendStops.length}
+// (438:2) {#if legendStops.length}
 function create_if_block(ctx) {
 	let div1;
 	let div0;
@@ -979,14 +983,14 @@ function create_if_block(ctx) {
 	};
 }
 
-// (432:8) {#if item.label}
+// (442:8) {#if item.label}
 function create_if_block_1(ctx) {
 	let div;
 	let span0;
 	let span0_style_value;
 	let t0;
 	let span1;
-	let t1_value = /*item*/ ctx[29].label + "";
+	let t1_value = /*item*/ ctx[30].label + "";
 	let t1;
 	let t2;
 
@@ -999,7 +1003,7 @@ function create_if_block_1(ctx) {
 			t1 = text(t1_value);
 			t2 = space();
 			attr(span0, "class", "legend-swatch svelte-19uuc02");
-			attr(span0, "style", span0_style_value = `background:${/*item*/ ctx[29].color}`);
+			attr(span0, "style", span0_style_value = `background:${/*item*/ ctx[30].color}`);
 			attr(div, "class", "legend-row svelte-19uuc02");
 		},
 		m(target, anchor) {
@@ -1011,11 +1015,11 @@ function create_if_block_1(ctx) {
 			append(div, t2);
 		},
 		p(ctx, dirty) {
-			if (dirty[0] & /*legendStops*/ 64 && span0_style_value !== (span0_style_value = `background:${/*item*/ ctx[29].color}`)) {
+			if (dirty[0] & /*legendStops*/ 64 && span0_style_value !== (span0_style_value = `background:${/*item*/ ctx[30].color}`)) {
 				attr(span0, "style", span0_style_value);
 			}
 
-			if (dirty[0] & /*legendStops*/ 64 && t1_value !== (t1_value = /*item*/ ctx[29].label + "")) set_data(t1, t1_value);
+			if (dirty[0] & /*legendStops*/ 64 && t1_value !== (t1_value = /*item*/ ctx[30].label + "")) set_data(t1, t1_value);
 		},
 		d(detaching) {
 			if (detaching) {
@@ -1025,10 +1029,10 @@ function create_if_block_1(ctx) {
 	};
 }
 
-// (431:6) {#each legendStops as item}
+// (441:6) {#each legendStops as item}
 function create_each_block(ctx) {
 	let if_block_anchor;
-	let if_block = /*item*/ ctx[29].label && create_if_block_1(ctx);
+	let if_block = /*item*/ ctx[30].label && create_if_block_1(ctx);
 
 	return {
 		c() {
@@ -1040,7 +1044,7 @@ function create_each_block(ctx) {
 			insert(target, if_block_anchor, anchor);
 		},
 		p(ctx, dirty) {
-			if (/*item*/ ctx[29].label) {
+			if (/*item*/ ctx[30].label) {
 				if (if_block) {
 					if_block.p(ctx, dirty);
 				} else {
@@ -1197,11 +1201,6 @@ const DATA_URL = 'https://raw.githubusercontent.com/artis-byte/NL-solar/main/qg_
 const REFRESH_MS = 600_000;
 const DEFAULT_METRIC = 'qg_mean';
 
-function getWindyMap() {
-	const windy = typeof window !== 'undefined' ? window.W : null;
-	return windy && windy.map ? windy.map : null;
-}
-
 function formatNumber(value) {
 	if (typeof value !== 'number' || !Number.isFinite(value)) {
 		return 'n/a';
@@ -1270,7 +1269,7 @@ function instance($$self, $$props, $$invalidate) {
 		solar_capacity_mw: 'MW'
 	};
 
-	let map = null;
+	let map$1 = null;
 	let leafletLib = null;
 	let overlayLayer = null;
 	let refreshTimer = null;
@@ -1285,6 +1284,10 @@ function instance($$self, $$props, $$invalidate) {
 	let legendUnits = '';
 	let latestGeoJSON = null;
 
+	function getWindyMap() {
+		return map;
+	}
+
 	function ensureMapAvailable() {
 		const current = getWindyMap();
 
@@ -1292,10 +1295,8 @@ function instance($$self, $$props, $$invalidate) {
 			return false;
 		}
 
-		// Windy exposes a wrapper around the underlying Leaflet map.
-		map = current.leafletMap ? current.leafletMap : current;
-
-		return Boolean(map);
+		map$1 = current;
+		return typeof map$1.addLayer === 'function';
 	}
 
 	function ensureLeaflet() {
@@ -1458,8 +1459,10 @@ function instance($$self, $$props, $$invalidate) {
 			return;
 		}
 
-		if (map && typeof map.removeLayer === 'function') {
-			map.removeLayer(overlayLayer);
+		if (typeof overlayLayer.remove === 'function') {
+			overlayLayer.remove();
+		} else if (map$1 && typeof map$1.removeLayer === 'function') {
+			map$1.removeLayer(overlayLayer);
 		}
 
 		overlayLayer = null;
@@ -1514,7 +1517,16 @@ function instance($$self, $$props, $$invalidate) {
 					layer.bindPopup(html);
 				}
 			}
-		}).addTo(map);
+		});
+
+		if (typeof overlayLayer.addTo === 'function') {
+			overlayLayer.addTo(map$1);
+		} else if (typeof map$1.addLayer === 'function') {
+			map$1.addLayer(overlayLayer);
+		} else {
+			$$invalidate(1, errorMessage = 'Unable to attach layer to Windy map.');
+			overlayLayer = null;
+		}
 	}
 
 	async function fetchData() {
@@ -1571,7 +1583,7 @@ function instance($$self, $$props, $$invalidate) {
 		if (!mapPollTimer) {
 			mapPollTimer = setInterval(
 				() => {
-					if (!map && ensureMapAvailable() && latestGeoJSON) {
+					if (!map$1 && ensureMapAvailable() && latestGeoJSON) {
 						renderLayer(latestGeoJSON);
 						clearInterval(mapPollTimer);
 						mapPollTimer = null;
