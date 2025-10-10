@@ -103,7 +103,7 @@ export default {
         }),
         commonjs(),
         transformCodeToESMPlugin(),
-        process.env.SERVE !== 'false' &&
+        process.env.SERVE === 'true' &&
             serve({
                 contentBase: 'dist',
                 host: '0.0.0.0',

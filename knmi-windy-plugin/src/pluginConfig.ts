@@ -2,15 +2,15 @@ import type { ExternalPluginConfig } from '@windy/interfaces';
 
 const config: ExternalPluginConfig = {
     name: 'windy-plugin-knmi-qg-regions',
-    version: '0.1.0',
-    icon: '🔌',
-    title: 'This is my first plugin',
-    description: 'This is my first plugin.',
-    author: 'John Doe (optional company name)',
-    repository: 'https://github.com/windycom/windy-plugin-template',
+    version: '0.2.0',
+    icon: '☀',
+    title: 'KNMI Solar Radiation',
+    description: 'Overlay KNMI 10 minute irradiance (qg) averaged per Dutch region.',
+    author: 'Artis Byte',
+    repository: 'https://github.com/artis-byte/NL-solar',
     desktopUI: 'rhpane',
     mobileUI: 'fullscreen',
-    routerPath: '/my-plugin',
+    routerPath: '/knmi-solar',
 };
 
 export default config;
