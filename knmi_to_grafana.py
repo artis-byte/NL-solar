@@ -11,6 +11,7 @@ from typing import Optional
 
 import pandas as pd
 from flask import Flask, jsonify
+from flask_cors import CORS
 
 from knmi_station_data.fetch_station_metrics import (
     API_KEY as DEFAULT_API_KEY,
@@ -22,6 +23,7 @@ PORT = int(os.getenv("PORT", "5000"))
 HOST = os.getenv("HOST", "0.0.0.0")
 
 app = Flask(__name__)
+CORS(app)
 
 _data_lock = Lock()
 _latest_df: pd.DataFrame = pd.DataFrame()
