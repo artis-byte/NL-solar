@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import io
 from pathlib import Path
+import tempfile
 from typing import Dict, Iterable, Optional
 
 import pandas as pd
@@ -97,7 +98,12 @@ def _find_name(candidates: Iterable[str], needle: str) -> Optional[str]:
 
 
 def _parse_dataset(raw: bytes) -> pd.DataFrame:
-    with xr.open_dataset(io.BytesIO(raw), engine="netcdf4") as ds:
+    tmp = tempfile.NamedTemporaryFile(suffix=".nc")
+    tmp.write(raw)
+    tmp.flush()
+    tmp.seek(0)
+
+    with xr.open_dataset(tmp.name, engine="netcdf4") as ds:
         station_dim = next((d for d in ds.dims if "station" in d.lower()), None)
         if station_dim is None:
             raise ValueError("Could not locate station dimension in dataset.")
