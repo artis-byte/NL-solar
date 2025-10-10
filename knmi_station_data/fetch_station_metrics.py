@@ -19,6 +19,7 @@ from __future__ import annotations
 import io
 from pathlib import Path
 import tempfile
+import os
 from typing import Dict, Iterable, Optional
 
 import pandas as pd
@@ -98,57 +99,67 @@ def _find_name(candidates: Iterable[str], needle: str) -> Optional[str]:
 
 
 def _parse_dataset(raw: bytes) -> pd.DataFrame:
-    tmp = tempfile.NamedTemporaryFile(suffix=".nc")
-    tmp.write(raw)
-    tmp.flush()
-    tmp.seek(0)
+    tmp = tempfile.NamedTemporaryFile(suffix=".nc", delete=False)
+    try:
+        tmp.write(raw)
+        tmp.flush()
+        tmp.close()
 
-    with xr.open_dataset(tmp.name, engine="netcdf4") as ds:
-        station_dim = next((d for d in ds.dims if "station" in d.lower()), None)
-        if station_dim is None:
-            raise ValueError("Could not locate station dimension in dataset.")
+        with xr.open_dataset(tmp.name, engine="netcdf4") as ds:
+            station_dim = next((d for d in ds.dims if "station" in d.lower()), None)
+            if station_dim is None:
+                raise ValueError("Could not locate station dimension in dataset.")
 
-        lat_name = _find_name(ds.coords, "lat") or _find_name(ds.data_vars, "lat")
-        lon_name = _find_name(ds.coords, "lon") or _find_name(ds.data_vars, "lon")
-        if not lat_name or not lon_name:
-            raise ValueError("Could not locate latitude/longitude variables.")
+            lat_name = _find_name(ds.coords, "lat") or _find_name(ds.data_vars, "lat")
+            lon_name = _find_name(ds.coords, "lon") or _find_name(ds.data_vars, "lon")
+            if not lat_name or not lon_name:
+                raise ValueError("Could not locate latitude/longitude variables.")
 
-        var_names: Dict[str, str] = {}
-        missing: list[str] = []
-        for code in TARGET_VARIABLES:
-            match = _find_name(ds.data_vars, code)
-            if match:
-                var_names[code] = match
-            else:
-                missing.append(code)
-        if missing:
-            raise ValueError(f"Dataset missing expected variables: {', '.join(missing)}")
+            var_names: Dict[str, str] = {}
+            missing: list[str] = []
+            for code in TARGET_VARIABLES:
+                match = _find_name(ds.data_vars, code)
+                if match:
+                    var_names[code] = match
+                else:
+                    missing.append(code)
+            if missing:
+                raise ValueError(
+                    f"Dataset missing expected variables: {', '.join(missing)}"
+                )
 
-        frame = ds.to_dataframe().reset_index()
+            frame = ds.to_dataframe().reset_index()
 
-        if "time" in frame.columns:
-            frame = (
-                frame.sort_values("time")
-                .drop_duplicates(subset=station_dim, keep="last")
-                .drop(columns="time")
+            if "time" in frame.columns:
+                frame = (
+                    frame.sort_values("time")
+                    .drop_duplicates(subset=station_dim, keep="last")
+                    .drop(columns="time")
+                )
+
+            required_cols = [station_dim, lat_name, lon_name] + list(var_names.values())
+            for col in required_cols:
+                if col not in frame.columns:
+                    raise ValueError(f"Expected column '{col}' missing from dataset.")
+
+            result = frame.rename(
+                columns={
+                    station_dim: "station",
+                    lat_name: "latitude",
+                    lon_name: "longitude",
+                    **{v: k for k, v in var_names.items()},
+                }
             )
 
-        required_cols = [station_dim, lat_name, lon_name] + list(var_names.values())
-        for col in required_cols:
-            if col not in frame.columns:
-                raise ValueError(f"Expected column '{col}' missing from dataset.")
-
-        result = frame.rename(
-            columns={
-                station_dim: "station",
-                lat_name: "latitude",
-                lon_name: "longitude",
-                **{v: k for k, v in var_names.items()},
-            }
-        )
-
-        ordered_cols = ["station", "latitude", "longitude"] + list(TARGET_VARIABLES.keys())
-        return result[ordered_cols]
+            ordered_cols = ["station", "latitude", "longitude"] + list(
+                TARGET_VARIABLES.keys()
+            )
+            return result[ordered_cols]
+    finally:
+        try:
+            os.remove(tmp.name)
+        except OSError:
+            pass
 
 
 def fetch_station_metrics(api_key: str) -> pd.DataFrame:
