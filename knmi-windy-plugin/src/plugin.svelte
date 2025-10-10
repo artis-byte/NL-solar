@@ -1,6 +1,5 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
-  import * as L from 'leaflet';
 
   const DATA_URL = 'https://raw.githubusercontent.com/artis-byte/NL-solar/main/qg_regions.geojson';
   const REFRESH_MS = 600_000;
@@ -18,6 +17,7 @@
   const DEFAULT_METRIC = 'qg_mean';
 
   let map = null;
+  let leafletLib = null;
   let overlayLayer = null;
   let refreshTimer = null;
   let mapPollTimer = null;
@@ -44,6 +44,13 @@
       return true;
     }
     return false;
+  }
+
+  function ensureLeaflet() {
+    if (!leafletLib && typeof window !== 'undefined') {
+      leafletLib = window.L || null;
+    }
+    return leafletLib;
   }
 
   function formatNumber(value) {
@@ -205,6 +212,13 @@
       removeLayer();
       return;
     }
+
+    const L = ensureLeaflet();
+    if (!L) {
+      errorMessage = 'Leaflet library is not available in Windy.';
+      removeLayer();
+      return;
+    }
     if (!ensureMapAvailable()) {
       return;
     }
@@ -284,6 +298,7 @@
   }
 
   onMount(() => {
+    ensureLeaflet();
     ensureMapAvailable();
     fetchData();
     refreshTimer = setInterval(fetchData, REFRESH_MS);

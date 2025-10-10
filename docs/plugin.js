@@ -1,6 +1,6 @@
 const __pluginConfig =  {
   "name": "windy-plugin-knmi-qg-regions",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "icon": "☀",
   "title": "KNMI Solar Radiation",
   "description": "Overlay KNMI 10 minute irradiance (qg) averaged per Dutch region.",
@@ -10,12 +10,10 @@ const __pluginConfig =  {
   "mobileUI": "fullscreen",
   "routerPath": "/knmi-solar",
   "private": false,
-  "built": 1760117279734,
-  "builtReadable": "2025-10-10T17:27:59.734Z",
+  "built": 1760117994558,
+  "builtReadable": "2025-10-10T17:39:54.558Z",
   "screenshot": "screenshot.jpg"
 };
-
-import * as L from 'leaflet';
 
 /** @returns {void} */
 function noop() {}
@@ -676,17 +674,17 @@ function add_css(target) {
 
 function get_each_context(ctx, list, i) {
 	const child_ctx = ctx.slice();
-	child_ctx[27] = list[i];
+	child_ctx[29] = list[i];
 	return child_ctx;
 }
 
 function get_each_context_1(ctx, list, i) {
 	const child_ctx = ctx.slice();
-	child_ctx[30] = list[i];
+	child_ctx[32] = list[i];
 	return child_ctx;
 }
 
-// (392:2) {#if metricKeys.length}
+// (407:2) {#if metricKeys.length}
 function create_if_block_5(ctx) {
 	let label;
 	let t1;
@@ -781,10 +779,10 @@ function create_if_block_5(ctx) {
 	};
 }
 
-// (395:6) {#each metricKeys as key}
+// (410:6) {#each metricKeys as key}
 function create_each_block_1(ctx) {
 	let option;
-	let t_value = /*metrics*/ ctx[4][/*key*/ ctx[30]].label + "";
+	let t_value = /*metrics*/ ctx[4][/*key*/ ctx[32]].label + "";
 	let t;
 	let option_value_value;
 
@@ -792,7 +790,7 @@ function create_each_block_1(ctx) {
 		c() {
 			option = element("option");
 			t = text(t_value);
-			option.__value = option_value_value = /*key*/ ctx[30];
+			option.__value = option_value_value = /*key*/ ctx[32];
 			set_input_value(option, option.__value);
 		},
 		m(target, anchor) {
@@ -800,9 +798,9 @@ function create_each_block_1(ctx) {
 			append(option, t);
 		},
 		p(ctx, dirty) {
-			if (dirty[0] & /*metrics, metricKeys*/ 48 && t_value !== (t_value = /*metrics*/ ctx[4][/*key*/ ctx[30]].label + "")) set_data(t, t_value);
+			if (dirty[0] & /*metrics, metricKeys*/ 48 && t_value !== (t_value = /*metrics*/ ctx[4][/*key*/ ctx[32]].label + "")) set_data(t, t_value);
 
-			if (dirty[0] & /*metricKeys*/ 32 && option_value_value !== (option_value_value = /*key*/ ctx[30])) {
+			if (dirty[0] & /*metricKeys*/ 32 && option_value_value !== (option_value_value = /*key*/ ctx[32])) {
 				option.__value = option_value_value;
 				set_input_value(option, option.__value);
 			}
@@ -815,7 +813,7 @@ function create_each_block_1(ctx) {
 	};
 }
 
-// (405:24) 
+// (420:24) 
 function create_if_block_4(ctx) {
 	let p;
 	let t0;
@@ -845,7 +843,7 @@ function create_if_block_4(ctx) {
 	};
 }
 
-// (403:25) 
+// (418:25) 
 function create_if_block_3(ctx) {
 	let p;
 	let t0;
@@ -874,7 +872,7 @@ function create_if_block_3(ctx) {
 	};
 }
 
-// (401:2) {#if loading}
+// (416:2) {#if loading}
 function create_if_block_2(ctx) {
 	let p;
 
@@ -896,7 +894,7 @@ function create_if_block_2(ctx) {
 	};
 }
 
-// (409:2) {#if legendStops.length}
+// (424:2) {#if legendStops.length}
 function create_if_block(ctx) {
 	let div1;
 	let div0;
@@ -981,14 +979,14 @@ function create_if_block(ctx) {
 	};
 }
 
-// (413:8) {#if item.label}
+// (428:8) {#if item.label}
 function create_if_block_1(ctx) {
 	let div;
 	let span0;
 	let span0_style_value;
 	let t0;
 	let span1;
-	let t1_value = /*item*/ ctx[27].label + "";
+	let t1_value = /*item*/ ctx[29].label + "";
 	let t1;
 	let t2;
 
@@ -1001,7 +999,7 @@ function create_if_block_1(ctx) {
 			t1 = text(t1_value);
 			t2 = space();
 			attr(span0, "class", "legend-swatch svelte-19uuc02");
-			attr(span0, "style", span0_style_value = `background:${/*item*/ ctx[27].color}`);
+			attr(span0, "style", span0_style_value = `background:${/*item*/ ctx[29].color}`);
 			attr(div, "class", "legend-row svelte-19uuc02");
 		},
 		m(target, anchor) {
@@ -1013,11 +1011,11 @@ function create_if_block_1(ctx) {
 			append(div, t2);
 		},
 		p(ctx, dirty) {
-			if (dirty[0] & /*legendStops*/ 64 && span0_style_value !== (span0_style_value = `background:${/*item*/ ctx[27].color}`)) {
+			if (dirty[0] & /*legendStops*/ 64 && span0_style_value !== (span0_style_value = `background:${/*item*/ ctx[29].color}`)) {
 				attr(span0, "style", span0_style_value);
 			}
 
-			if (dirty[0] & /*legendStops*/ 64 && t1_value !== (t1_value = /*item*/ ctx[27].label + "")) set_data(t1, t1_value);
+			if (dirty[0] & /*legendStops*/ 64 && t1_value !== (t1_value = /*item*/ ctx[29].label + "")) set_data(t1, t1_value);
 		},
 		d(detaching) {
 			if (detaching) {
@@ -1027,10 +1025,10 @@ function create_if_block_1(ctx) {
 	};
 }
 
-// (412:6) {#each legendStops as item}
+// (427:6) {#each legendStops as item}
 function create_each_block(ctx) {
 	let if_block_anchor;
-	let if_block = /*item*/ ctx[27].label && create_if_block_1(ctx);
+	let if_block = /*item*/ ctx[29].label && create_if_block_1(ctx);
 
 	return {
 		c() {
@@ -1042,7 +1040,7 @@ function create_each_block(ctx) {
 			insert(target, if_block_anchor, anchor);
 		},
 		p(ctx, dirty) {
-			if (/*item*/ ctx[27].label) {
+			if (/*item*/ ctx[29].label) {
 				if (if_block) {
 					if_block.p(ctx, dirty);
 				} else {
@@ -1273,6 +1271,7 @@ function instance($$self, $$props, $$invalidate) {
 	};
 
 	let map = null;
+	let leafletLib = null;
 	let overlayLayer = null;
 	let refreshTimer = null;
 	let mapPollTimer = null;
@@ -1295,6 +1294,14 @@ function instance($$self, $$props, $$invalidate) {
 		}
 
 		return false;
+	}
+
+	function ensureLeaflet() {
+		if (!leafletLib && typeof window !== 'undefined') {
+			leafletLib = window.L || null;
+		}
+
+		return leafletLib;
 	}
 
 	function thresholdsFor(key, stats) {
@@ -1465,6 +1472,14 @@ function instance($$self, $$props, $$invalidate) {
 			return;
 		}
 
+		const L = ensureLeaflet();
+
+		if (!L) {
+			$$invalidate(1, errorMessage = 'Leaflet library is not available in Windy.');
+			removeLayer();
+			return;
+		}
+
 		if (!ensureMapAvailable()) {
 			return;
 		}
@@ -1541,6 +1556,7 @@ function instance($$self, $$props, $$invalidate) {
 	}
 
 	onMount(() => {
+		ensureLeaflet();
 		ensureMapAvailable();
 		fetchData();
 		refreshTimer = setInterval(fetchData, REFRESH_MS);
