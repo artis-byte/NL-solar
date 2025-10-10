@@ -92,6 +92,8 @@ def serve_data():
     if df.empty:
         return jsonify([])
 
+    df = df.where(pd.notnull(df), None)
+
     if refreshed_at:
         df["refreshed_at"] = refreshed_at
 
