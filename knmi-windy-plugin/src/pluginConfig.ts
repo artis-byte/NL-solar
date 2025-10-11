@@ -5,7 +5,7 @@ const config: ExternalPluginConfig = {
     version: '0.2.4',
     icon: '\u2600',
     title: 'KNMI Solar Radiation',
-    description: 'Overlay KNMI 10 minute irradiance (qg) averaged per Dutch region.',
+    description: 'Overlay KNMI 10 minute irradiance and wind metrics for Dutch regions and stations.',
     author: 'Artis Byte',
     repository: 'https://github.com/artis-byte/NL-solar',
     desktopUI: 'rhpane',

@@ -59,6 +59,11 @@ BASE_URL = "https://api.dataplatform.knmi.nl/open-data/v1"
 DATASET = "Actuele10mindataKNMIstations"  # v2 (deprecates Sep-2025)
 VERSION = "2"
 
+METRIC_PREFIXES: dict[str, str] = {
+    "qg": "qg",
+    "ff": "ff",  # 10 m wind speed average
+}
+
 # -----------------------------------------------------------------------------
 # KNMI HELPERS
 # -----------------------------------------------------------------------------
@@ -105,7 +110,7 @@ def _find(ds: xr.Dataset, substr: str) -> Optional[str]:
     return None
 
 
-def parse_qg(raw: bytes) -> pd.DataFrame:
+def parse_metrics(raw: bytes) -> pd.DataFrame:
     last_error: Optional[Exception] = None
     for engine in ("h5netcdf", "netcdf4", None):
         kwargs = {"engine": engine} if engine else {}
@@ -114,15 +119,30 @@ def parse_qg(raw: bytes) -> pd.DataFrame:
                 lat = _find(ds, "lat")
                 lon = _find(ds, "lon")
                 stn = next((d for d in ds.dims if "station" in d.lower() or d == "stn"), None)
-                qg = next((v for v in ds.data_vars if v.lower().startswith("qg")), None)
-                if not (lat and lon and stn and qg):
+                if not (lat and lon and stn):
                     raise ValueError("Missing expected variables")
 
-                df = ds[[qg, lat, lon]].to_dataframe().reset_index()
+                var_map: dict[str, str] = {}
+                for prefix in METRIC_PREFIXES:
+                    var = next((v for v in ds.data_vars if v.lower().startswith(prefix)), None)
+                    if var:
+                        var_map[prefix] = var
+                if not var_map:
+                    raise ValueError("No recognised metrics present in dataset")
+
+                df = ds.to_dataframe().reset_index()
                 if "time" in df.columns:
                     df = df.sort_values("time").drop_duplicates(subset=stn, keep="last").drop(columns="time")
-                df = df[[stn, lat, lon, qg]].dropna()
-                df.columns = ["station", "lat", "lon", "qg"]
+                columns = [stn, lat, lon] + list(var_map.values())
+                df = df[columns].dropna()
+                rename_map = {
+                    stn: "station",
+                    lat: "lat",
+                    lon: "lon",
+                    **{v: key for key, v in var_map.items()}
+                }
+                df = df.rename(columns=rename_map)
+                df["station"] = df["station"].astype(str)
                 return df
         except ValueError as exc:
             last_error = exc
@@ -142,11 +162,15 @@ def aggregate_regions(df: pd.DataFrame, regions_path: str) -> gpd.GeoDataFrame:
     regions = regions.to_crs(epsg=4326) if regions.crs else regions.set_crs(epsg=4326, allow_override=True)
 
     joined = gpd.sjoin(stations, regions, predicate="within", how="left")
-    agg = joined.groupby("name")["qg"].mean().reset_index(name="qg_mean")
-    out = regions.merge(agg, on="name", how="left")
-    out["qg_mean"].fillna(0.0, inplace=True)
 
-    if "solar_capacity_mw" in out.columns:
+    out = regions.copy()
+    metric_cols = [col for col in METRIC_PREFIXES.keys() if col in joined.columns]
+    for metric in metric_cols:
+        agg = joined.groupby("name")[metric].mean().reset_index(name=f"{metric}_mean")
+        out = out.merge(agg, on="name", how="left")
+        out[f"{metric}_mean"].fillna(0.0, inplace=True)
+
+    if "solar_capacity_mw" in out.columns and "qg_mean" in out.columns:
         out["estimated_output_mw"] = out["solar_capacity_mw"] * out["qg_mean"] / 1000.0
     return out
 
@@ -219,27 +243,40 @@ def run_once(
     gh_path: Optional[str] = None,
     gh_branch: str = "main",
     gh_token: Optional[str] = None,
+    stations_out: Optional[str] = None,
+    gh_stations_path: Optional[str] = None,
 ) -> None:
     fname = latest_file(api_key)
     raw = download_file(api_key, fname)
-    df = parse_qg(raw)
+    df = parse_metrics(raw)
     geo = aggregate_regions(df, regions_path)
     geo.to_file(local_out, driver="GeoJSON")
 
+    if stations_out:
+        stations_geo = gpd.GeoDataFrame(
+            df,
+            geometry=gpd.points_from_xy(df["lon"], df["lat"]),
+            crs="EPSG:4326",
+        )
+        stations_geo.to_file(stations_out, driver="GeoJSON")
+
     if s3_bucket and s3_key:
         url = upload_s3(local_out, s3_bucket, s3_key)
-        print("S3 →", url)
+        print("S3 ->", url)
 
+    gh_token = gh_token or os.getenv("GITHUB_TOKEN")
     if gh_repo and gh_path:
-        gh_token = gh_token or os.getenv("GITHUB_TOKEN")
         if not gh_token:
             raise RuntimeError("GitHub token not provided (flag or GITHUB_TOKEN env var)")
         url = upload_github(local_out, gh_repo, gh_path, gh_branch, gh_token)
-        print("GitHub →", url)
+        print("GitHub ->", url)
+        if stations_out and gh_stations_path:
+            upload_github(stations_out, gh_repo, gh_stations_path, gh_branch, gh_token)
 
     ts = datetime.utcnow().isoformat(timespec="seconds") + "Z"
-    print(f"Generated {local_out} at {ts}\n")
-
+    print(f"Generated {local_out} at {ts}")
+    if stations_out:
+        print(f"Generated {stations_out} at {ts}")
 
 # -----------------------------------------------------------------------------
 # CLI
@@ -253,6 +290,8 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--api-key", required=True, help="KNMI API key")
     p.add_argument("--regions", default="data/regions_10.geojson")
     p.add_argument("--out", dest="local_out", default="qg_regions.geojson")
+    p.add_argument("--stations-out", help="Optional path to write station-level GeoJSON")
+    p.add_argument("--gh-stations-path", help="Repository path for posted station GeoJSON")
 
     # S3 options
     p.add_argument("--s3-bucket")
@@ -279,6 +318,8 @@ def main(argv: list[str] | None = None) -> None:
                 gh_path=args.gh_path,
                 gh_branch=args.gh_branch,
                 gh_token=args.gh_token,
+                stations_out=args.stations_out,
+                gh_stations_path=args.gh_stations_path,
             )
         except Exception as exc:
             print("Error:", exc, file=sys.stderr)

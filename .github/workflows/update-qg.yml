@@ -13,6 +13,7 @@ jobs:
       GITHUB_PAT: ${{ secrets.REPO_UPLOAD_TOKEN }}
       REGIONS_FILE: data/regions_10.geojson
       OUTPUT_FILE: qg_regions.geojson
+      STATIONS_FILE: stations_live.geojson
       REPO_SLUG: artis-byte/NL-solar
     steps:
       - name: Checkout repository
@@ -35,14 +36,17 @@ jobs:
             exit 1
           fi
           if [ -z "$GITHUB_PAT" ]; then
-            echo "::error::Secret GITHUB_TOKEN_UPLOAD is not configured"
+            echo "::error::Secret REPO_UPLOAD_TOKEN is not configured"
             exit 1
           fi
 
           python src/knmi_qg_regions.py \
             --api-key "$KNMI_API_KEY" \
             --regions "$REGIONS_FILE" \
+            --out "$OUTPUT_FILE" \
+            --stations-out "$STATIONS_FILE" \
             --gh-repo "$REPO_SLUG" \
             --gh-path "$OUTPUT_FILE" \
+            --gh-stations-path "$STATIONS_FILE" \
             --gh-branch main \
             --gh-token "$GITHUB_PAT"
