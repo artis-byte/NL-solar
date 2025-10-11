@@ -106,20 +106,30 @@ def _find(ds: xr.Dataset, substr: str) -> Optional[str]:
 
 
 def parse_qg(raw: bytes) -> pd.DataFrame:
-    with xr.open_dataset(io.BytesIO(raw)) as ds:
-        lat = _find(ds, "lat")
-        lon = _find(ds, "lon")
-        stn = next((d for d in ds.dims if "station" in d.lower() or d == "stn"), None)
-        qg = next((v for v in ds.data_vars if v.lower().startswith("qg")), None)
-        if not (lat and lon and stn and qg):
-            raise ValueError("Missing expected variables")
+    last_error: Optional[Exception] = None
+    for engine in ("netcdf4", None):
+        kwargs = {"engine": engine} if engine else {}
+        try:
+            with xr.open_dataset(io.BytesIO(raw), **kwargs) as ds:
+                lat = _find(ds, "lat")
+                lon = _find(ds, "lon")
+                stn = next((d for d in ds.dims if "station" in d.lower() or d == "stn"), None)
+                qg = next((v for v in ds.data_vars if v.lower().startswith("qg")), None)
+                if not (lat and lon and stn and qg):
+                    raise ValueError("Missing expected variables")
 
-        df = ds[[qg, lat, lon]].to_dataframe().reset_index()
-        if "time" in df.columns:
-            df = df.sort_values("time").drop_duplicates(subset=stn, keep="last").drop(columns="time")
-        df = df[[stn, lat, lon, qg]].dropna()
-        df.columns = ["station", "lat", "lon", "qg"]
-    return df
+                df = ds[[qg, lat, lon]].to_dataframe().reset_index()
+                if "time" in df.columns:
+                    df = df.sort_values("time").drop_duplicates(subset=stn, keep="last").drop(columns="time")
+                df = df[[stn, lat, lon, qg]].dropna()
+                df.columns = ["station", "lat", "lon", "qg"]
+                return df
+        except ValueError as exc:
+            last_error = exc
+            continue
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError("Failed to parse KNMI dataset with any supported engine")
 
 
 # -----------------------------------------------------------------------------
