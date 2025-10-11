@@ -8,12 +8,40 @@
   const COLORS = ['#800026', '#BD0026', '#E31A1C', '#FC4E2A', '#FD8D3C', '#FEB24C', '#FED976', '#FFEDA0'];
   const WIND_THRESHOLDS = [20, 15, 10, 7, 5, 3, 1];
 
-  const MODES = [
-    { id: 'region-qg', label: 'Region irradiance', type: 'region', metric: 'qg_mean', units: 'W/m^2', legend: 'qg' },
-    { id: 'region-wind', label: 'Region wind', type: 'region', metric: 'ff_mean', units: 'm/s', legend: 'wind' },
-    { id: 'stations-qg', label: 'Stations irradiance', type: 'stations', metric: 'qg', units: 'W/m^2', legend: 'qg' },
-    { id: 'stations-wind', label: 'Stations wind', type: 'stations', metric: 'ff', units: 'm/s', legend: 'wind' }
-  ];
+const MODES = [
+  {
+    id: 'region-qg',
+    label: 'Region irradiance',
+    type: 'region',
+    metric: 'qg_mean',
+    units: 'W/m^2',
+    legend: 'qg'
+  },
+  {
+    id: 'region-wind',
+    label: 'Region wind speed (10 min avg)',
+    type: 'region',
+    metric: 'ff_mean',
+    units: 'm/s (10 min avg)',
+    legend: 'wind'
+  },
+  {
+    id: 'stations-qg',
+    label: 'Station irradiance',
+    type: 'stations',
+    metric: 'qg',
+    units: 'W/m^2',
+    legend: 'qg'
+  },
+  {
+    id: 'stations-wind',
+    label: 'Station wind speed (10 min avg)',
+    type: 'stations',
+    metric: 'ff',
+    units: 'm/s (10 min avg)',
+    legend: 'wind'
+  }
+];
 
   let map = null;
   let leafletLib = null;
@@ -29,13 +57,15 @@
   let legendUnits = '';
   let selectedMode = MODES[0].id;
 
-  let regionData = null;
-  let stationData = null;
-  let metricStats = {};
+let regionData = null;
+let stationData = null;
+let metricStats = {};
+let stationFilter = '';
+let stationOptions = [];
 
-  function getMode(id) {
-    return MODES.find((mode) => mode.id === id);
-  }
+function getMode(id) {
+  return MODES.find((mode) => mode.id === id);
+}
 
   function ensureLeaflet() {
     if (!leafletLib && typeof window !== 'undefined') {
@@ -163,11 +193,11 @@
     clearStationLayer();
   }
 
-  function renderRegion(mode) {
-    const L = ensureLeaflet();
-    if (!L || !ensureMapAvailable() || !regionData) {
-      return;
-    }
+function renderRegion(mode) {
+  const L = ensureLeaflet();
+  if (!L || !ensureMapAvailable() || !regionData) {
+    return;
+  }
     const stats = metricStats[mode.metric];
     if (!stats) {
       errorMessage = 'Selected region metric is not available in the dataset.';
@@ -201,61 +231,73 @@
         }
         const wind = props.ff_mean;
         if (Number.isFinite(wind)) {
-          lines.push(`Wind: ${formatNumber(wind)} m/s`);
+      lines.push(`Wind (10 min avg): ${formatNumber(wind)} m/s`);
         }
         if (Number.isFinite(props.estimated_output_mw)) {
           lines.push(`Estimated PV output: ${formatNumber(props.estimated_output_mw)} MW`);
         }
-        layer.bindPopup(lines.join('<br>'));
+        const popupHtml = lines.join('<br>');
+        layer.bindPopup(popupHtml);
+        layer.bindTooltip(popupHtml, {
+          permanent: true,
+          direction: 'center',
+          className: 'region-tooltip'
+        });
       }
     }).addTo(map);
   }
 
-  function renderStations(mode) {
+function renderStations(mode) {
     const L = ensureLeaflet();
     if (!L || !ensureMapAvailable() || !stationData) {
       return;
     }
-    const stats = metricStats[mode.metric];
-    if (!stats) {
-      errorMessage = 'Station dataset does not include the selected metric.';
-      clearAllLayers();
-      legendStops = [];
-      return;
-    }
-    const thresholds = getThresholds(mode, stats);
-    legendUnits = mode.units;
-    legendStops = buildLegend(thresholds, mode);
-
+  const stats = metricStats[mode.metric];
+  if (!stats) {
+    errorMessage = 'Station dataset does not include the selected metric.';
     clearAllLayers();
-    stationLayer = L.layerGroup();
-    const features = Array.isArray(stationData?.features) ? stationData.features : [];
-    for (const feature of features) {
-      const props = feature?.properties || {};
-      const coords = feature?.geometry?.coordinates;
-      if (!Array.isArray(coords) || coords.length < 2) {
-        continue;
-      }
-      const lat = coords[1];
-      const lon = coords[0];
-      const value = props[mode.metric];
-      const color = colorForValue(value, thresholds);
-      const marker = L.circleMarker([lat, lon], {
-        radius: 6,
-        color: '#1c1c1c',
-        weight: 1,
-        fillColor: color,
-        fillOpacity: 0.85
-      });
-      const tooltip = [
-        `<strong>Station ${props.station ?? ''}</strong>`,
-        `Irradiance: ${formatNumber(props.qg)} W/m^2`,
-        `Wind: ${formatNumber(props.ff)} m/s`
-      ].join('<br>');
-      marker.bindTooltip(tooltip, { permanent: true, direction: 'top', className: 'station-tooltip' });
-      marker.addTo(stationLayer);
+    legendStops = [];
+    return;
+  }
+  const thresholds = getThresholds(mode, stats);
+  legendUnits = mode.units;
+  legendStops = buildLegend(thresholds, mode);
+
+  clearAllLayers();
+  stationLayer = L.layerGroup();
+  const features = Array.isArray(stationData?.features) ? stationData.features : [];
+  const filter = stationFilter.trim().toLowerCase();
+  for (const feature of features) {
+    const props = feature?.properties || {};
+    const coords = feature?.geometry?.coordinates;
+    if (!Array.isArray(coords) || coords.length < 2) {
+      continue;
     }
-    stationLayer.addTo(map);
+    const stationId = String(props.station ?? '');
+    if (filter && !stationId.toLowerCase().includes(filter)) {
+      continue;
+    }
+    const lat = coords[1];
+    const lon = coords[0];
+    const value = props[mode.metric];
+    const color = colorForValue(value, thresholds);
+    const radius = filter ? 8 : 6;
+    const marker = L.circleMarker([lat, lon], {
+      radius,
+      color: '#1c1c1c',
+      weight: 1,
+      fillColor: color,
+      fillOpacity: 0.85
+    });
+    const tooltip = [
+      `<strong>Station ${stationId}</strong>`,
+      `Irradiance: ${formatNumber(props.qg)} W/m^2`,
+      `Wind (10 min avg): ${formatNumber(props.ff)} m/s`
+    ].join('<br>');
+    marker.bindTooltip(tooltip, { permanent: true, direction: 'top', className: 'station-tooltip' });
+    marker.addTo(stationLayer);
+  }
+  stationLayer.addTo(map);
   }
 
   function renderCurrentMode() {
@@ -271,7 +313,7 @@
     }
   }
 
-  async function refreshData() {
+async function refreshData() {
     loading = true;
     errorMessage = '';
     try {
@@ -285,12 +327,20 @@
       if (!stationResp.ok) {
         throw new Error(`Failed to fetch station data (${stationResp.status})`);
       }
-      regionData = await regionResp.json();
-      stationData = await stationResp.json();
-      recomputeStats(regionData, stationData);
-      lastUpdated = new Date().toISOString();
-      renderCurrentMode();
-    } catch (err) {
+    regionData = await regionResp.json();
+    stationData = await stationResp.json();
+    recomputeStats(regionData, stationData);
+    stationOptions = Array.from(
+      new Set(
+        (stationData?.features || [])
+          .map((feature) => feature?.properties?.station)
+          .filter((code) => code !== undefined && code !== null)
+          .map((code) => String(code))
+      )
+    ).sort((a, b) => a.localeCompare(b));
+    lastUpdated = new Date().toISOString();
+    renderCurrentMode();
+  } catch (err) {
       console.error('Failed to refresh KNMI data', err);
       errorMessage = err?.message || String(err);
       clearAllLayers();
@@ -300,15 +350,22 @@
     }
   }
 
-  function handleModeClick(id) {
-    if (selectedMode === id) {
-      return;
-    }
-    selectedMode = id;
+function handleModeClick(id) {
+  if (selectedMode === id) {
+    return;
+  }
+  selectedMode = id;
+  renderCurrentMode();
+}
+
+function handleStationFilter(event) {
+  stationFilter = event.currentTarget.value;
+  if (getMode(selectedMode)?.type === 'stations') {
     renderCurrentMode();
   }
+}
 
-  function formatTimestamp(ts) {
+function formatTimestamp(ts) {
     if (!ts) {
       return '';
     }
@@ -392,6 +449,23 @@
     border-color: #1f6fb2;
   }
 
+  .filter-group {
+    margin: 0.5em 0 0.75em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35em;
+  }
+
+  .filter-group label {
+    font-weight: 600;
+  }
+
+  .station-input {
+    padding: 0.35em 0.45em;
+    border-radius: 4px;
+    border: 1px solid rgba(40, 40, 40, 0.35);
+  }
+
   .status {
     margin: 0.75em 0 0;
   }
@@ -444,6 +518,17 @@
     border-radius: 3px;
     box-shadow: none;
   }
+
+  .region-tooltip {
+    background: rgba(20, 20, 20, 0.5);
+    color: #f5f5f5;
+    border: none;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-align: center;
+    font-weight: 600;
+    box-shadow: none;
+  }
 </style>
 
 <section>
@@ -460,6 +545,24 @@
       </button>
     {/each}
   </div>
+
+  {#if getMode(selectedMode)?.type === 'stations'}
+    <div class="filter-group">
+      <label for="station-filter">Show station (ID contains)</label>
+      <input
+        id="station-filter"
+        class="station-input"
+        list="station-options"
+        placeholder="e.g. 06280"
+        value={stationFilter}
+        on:input={handleStationFilter} />
+      <datalist id="station-options">
+        {#each stationOptions as code}
+          <option value={code}></option>
+        {/each}
+      </datalist>
+    </div>
+  {/if}
 
   {#if loading}
     <p class="status">Loading latest data...</p>
