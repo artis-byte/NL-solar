@@ -56,8 +56,8 @@ except ImportError:  # S3 upload will be disabled automatically
 # CONFIGURATION CONSTANTS
 # -----------------------------------------------------------------------------
 BASE_URL = "https://api.dataplatform.knmi.nl/open-data/v1"
-DATASET = "Actuele10mindataKNMIstations"  # v2 (deprecates Sep-2025)
-VERSION = "2"
+DATASET = "10-minute-in-situ-meteorological-observations"
+VERSION = "1.0"
 
 METRIC_PREFIXES: dict[str, str] = {
     "qg": "qg",
