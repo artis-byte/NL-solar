@@ -107,7 +107,7 @@ def _find(ds: xr.Dataset, substr: str) -> Optional[str]:
 
 def parse_qg(raw: bytes) -> pd.DataFrame:
     last_error: Optional[Exception] = None
-    for engine in ("netcdf4", None):
+    for engine in ("h5netcdf", "netcdf4", None):
         kwargs = {"engine": engine} if engine else {}
         try:
             with xr.open_dataset(io.BytesIO(raw), **kwargs) as ds:
