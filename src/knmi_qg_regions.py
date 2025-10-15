@@ -1,183 +1,231 @@
 #!/usr/bin/env python3
-"""
-KNMI → GeoJSON publisher (S3 **or** GitHub)
-=========================================
-Fetch 10-minute KNMI irradiance, aggregate by region, and publish the result as a
-public GeoJSON file that a Windy plug-in (or any Leaflet app) can poll.
+"""KNMI -> GeoJSON publisher with rolling history for Windy timelines.
 
-This revision adds **native GitHub upload** so you don’t have to pay for S3:
+This script ingests the latest 10-minute KNMI station metrics, aggregates
+them over user-provided regions, stores the current snapshot as GeoJSON,
+and keeps a rolling history (default: 12 observations ~ 2 hours) for use
+in timeline visualisations such as the KNMI Windy plug-in.
 
-```
-python knmi_qg_regions.py --api-key $KNMI_KEY \
-       --regions data/regions_10.geojson \
-       --gh-repo  USER/REPO \
-       --gh-path  live/qg_regions.geojson \
-       --loop
-```
-
-Requirements
-------------
-* `boto3` only if you use S3 upload.
-* `requests` for GitHub upload.
-* A GitHub **fine-grained personal access token** with *contents:write* scope.
-  Supply it via `GITHUB_TOKEN` env var **or** the `--gh-token` flag.
-
-Windy plug-in fetch URL (GitHub Pages/raw):
-```
-https://raw.githubusercontent.com/USER/REPO/BRANCH/live/qg_regions.geojson
-```
-That domain already sends `Access-Control-Allow-Origin: *`, so Leaflet fetches
-it without CORS issues.
+Features
+--------
+* Aggregates radiation (qg) and wind metrics (ff, dd) per region.
+* Writes the immediate snapshot (default: qg_regions.geojson).
+* Maintains a history GeoJSON with one feature per region containing the
+  most recent N observations (timeline ready).
+* Optional uploads to S3 or GitHub for both snapshot and history files.
 """
 from __future__ import annotations
 
 import argparse
 import base64
-import io
+import json
+import math
 import os
 import sys
 import time
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Optional, Tuple
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 import requests
-import xarray as xr
+from shapely.geometry import mapping
 
-# Optional S3 deps -------------------------------------------------------------
+from knmi_station_data.fetch_station_metrics import (
+    API_KEY as DEFAULT_STATION_API_KEY,
+    fetch_station_metrics,
+)
+
 try:
     import boto3
     from botocore.exceptions import BotoCoreError, ClientError
-except ImportError:  # S3 upload will be disabled automatically
+except ImportError:  # pragma: no cover - optional dependency
     boto3 = None  # type: ignore
 
-# -----------------------------------------------------------------------------
-# CONFIGURATION CONSTANTS
-# -----------------------------------------------------------------------------
-BASE_URL = "https://api.dataplatform.knmi.nl/open-data/v1"
-DATASET = "10-minute-in-situ-meteorological-observations"
-VERSION = "1.0"
-
-METRIC_PREFIXES: dict[str, str] = {
-    "qg": "qg",
-    "ff": "ff",  # 10 m wind speed average
-}
-
-# -----------------------------------------------------------------------------
-# KNMI HELPERS
-# -----------------------------------------------------------------------------
-
-def latest_file(api_key: str) -> str:
-    headers = {"Authorization": api_key}
-    params = {"maxKeys": 1, "orderBy": "created", "sorting": "desc"}
-    r = requests.get(
-        f"{BASE_URL}/datasets/{DATASET}/versions/{VERSION}/files",
-        headers=headers,
-        params=params,
-        timeout=30,
-    )
-    r.raise_for_status()
-    return r.json()["files"][0]["filename"]
+DEFAULT_API_KEY = DEFAULT_STATION_API_KEY
+DEFAULT_HISTORY_OUT = "qg_regions_history.geojson"
+MAX_HISTORY_POINTS = 12
 
 
-def download_file(api_key: str, filename: str) -> bytes:
-    headers = {"Authorization": api_key}
-    r = requests.get(
-        f"{BASE_URL}/datasets/{DATASET}/versions/{VERSION}/files/{filename}/url",
-        headers=headers,
-        timeout=30,
-    )
-    r.raise_for_status()
-    url = r.json()["temporaryDownloadUrl"]
-    resp = requests.get(url, timeout=30)
-    resp.raise_for_status()
-    return resp.content
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-# -----------------------------------------------------------------------------
-# DATA PARSING
-# -----------------------------------------------------------------------------
-
-def _find(ds: xr.Dataset, substr: str) -> Optional[str]:
-    low = substr.lower()
-    for n in ds.coords:
-        if low in n.lower():
-            return n
-    for n in ds.variables:
-        if low in n.lower():
-            return n
-    return None
-
-
-def parse_metrics(raw: bytes) -> pd.DataFrame:
-    last_error: Optional[Exception] = None
-    for engine in ("h5netcdf", "netcdf4", None):
-        kwargs = {"engine": engine} if engine else {}
-        try:
-            with xr.open_dataset(io.BytesIO(raw), **kwargs) as ds:
-                lat = _find(ds, "lat")
-                lon = _find(ds, "lon")
-                stn = next((d for d in ds.dims if "station" in d.lower() or d == "stn"), None)
-                if not (lat and lon and stn):
-                    raise ValueError("Missing expected variables")
-
-                var_map: dict[str, str] = {}
-                for prefix in METRIC_PREFIXES:
-                    var = next((v for v in ds.data_vars if v.lower().startswith(prefix)), None)
-                    if var:
-                        var_map[prefix] = var
-                if not var_map:
-                    raise ValueError("No recognised metrics present in dataset")
-
-                df = ds.to_dataframe().reset_index()
-                if "time" in df.columns:
-                    df = df.sort_values("time").drop_duplicates(subset=stn, keep="last").drop(columns="time")
-                columns = [stn, lat, lon] + list(var_map.values())
-                df = df[columns].dropna()
-                rename_map = {
-                    stn: "station",
-                    lat: "lat",
-                    lon: "lon",
-                    **{v: key for key, v in var_map.items()}
-                }
-                df = df.rename(columns=rename_map)
-                df["station"] = df["station"].astype(str)
-                return df
-        except ValueError as exc:
-            last_error = exc
-            continue
-    if last_error is not None:
-        raise last_error
-    raise RuntimeError("Failed to parse KNMI dataset with any supported engine")
+def _ensure_iso(value) -> str:
+    if isinstance(value, str):
+        return value
+    if isinstance(value, pd.Timestamp):
+        ts = value.tz_convert("UTC") if value.tzinfo else value.tz_localize("UTC")
+        return ts.isoformat().replace("+00:00", "Z")
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        else:
+            value = value.astimezone(timezone.utc)
+        return value.isoformat().replace("+00:00", "Z")
+    return _now_iso()
 
 
-# -----------------------------------------------------------------------------
-# GEO SPATIAL
-# -----------------------------------------------------------------------------
+def _maybe_float(value):
+    if value is None or pd.isna(value):
+        return None
+    return float(value)
+
+
+def _safe_int(value) -> int:
+    if value is None or pd.isna(value):
+        return 0
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _circular_mean(series: pd.Series) -> Optional[float]:
+    values = series.dropna().to_numpy(dtype=float)
+    if values.size == 0:
+        return None
+    radians = np.deg2rad(values)
+    sin_mean = np.sin(radians).mean()
+    cos_mean = np.cos(radians).mean()
+    angle = math.degrees(math.atan2(sin_mean, cos_mean))
+    if angle < 0:
+        angle += 360.0
+    return angle
+
+
+# ---------------------------------------------------------------------------
+# Aggregation and history
+# ---------------------------------------------------------------------------
 
 def aggregate_regions(df: pd.DataFrame, regions_path: str) -> gpd.GeoDataFrame:
-    stations = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df["lon"], df["lat"]), crs="EPSG:4326")
+    """Aggregate station metrics over polygons defined in regions_path."""
+    working = df.copy()
+    working["lon"] = pd.to_numeric(working["longitude"], errors="coerce")
+    working["lat"] = pd.to_numeric(working["latitude"], errors="coerce")
+    working = working.dropna(subset=["lon", "lat"])
+
+    if working.empty:
+        raise ValueError("No station rows with valid coordinates were found.")
+
+    stations = gpd.GeoDataFrame(
+        working,
+        geometry=gpd.points_from_xy(working["lon"], working["lat"]),
+        crs="EPSG:4326",
+    )
+
     regions = gpd.read_file(regions_path)
-    regions = regions.to_crs(epsg=4326) if regions.crs else regions.set_crs(epsg=4326, allow_override=True)
+    if regions.crs:
+        regions = regions.to_crs(epsg=4326)
+    else:
+        regions = regions.set_crs(epsg=4326, allow_override=True)
 
     joined = gpd.sjoin(stations, regions, predicate="within", how="left")
+    grouped = joined.groupby("name", dropna=False)
 
-    out = regions.copy()
-    metric_cols = [col for col in METRIC_PREFIXES.keys() if col in joined.columns]
-    for metric in metric_cols:
-        agg = joined.groupby("name")[metric].mean().reset_index(name=f"{metric}_mean")
-        out = out.merge(agg, on="name", how="left")
-        out[f"{metric}_mean"].fillna(0.0, inplace=True)
+    agg = pd.DataFrame(index=grouped.size().index)
+    agg["qg_mean"] = grouped["qg"].mean()
+    if "ff" in joined.columns:
+        agg["wind_speed_mean"] = grouped["ff"].mean()
+    else:
+        agg["wind_speed_mean"] = np.nan
+    if "dd" in joined.columns:
+        agg["wind_direction_mean"] = grouped["dd"].apply(_circular_mean)
+    else:
+        agg["wind_direction_mean"] = np.nan
+    agg["stations_count"] = grouped["station"].nunique()
+    agg.reset_index(inplace=True)
 
-    if "solar_capacity_mw" in out.columns and "qg_mean" in out.columns:
-        out["estimated_output_mw"] = out["solar_capacity_mw"] * out["qg_mean"] / 1000.0
+    out = regions.merge(agg, on="name", how="left")
+    out["qg_mean"] = out["qg_mean"].fillna(0.0)
+    out["wind_speed_mean"] = out["wind_speed_mean"].fillna(0.0)
+    out["stations_count"] = out["stations_count"].fillna(0).astype(int)
+    if "solar_capacity_mw" in out.columns:
+        out["estimated_output_mw"] = (
+            out["solar_capacity_mw"].fillna(0.0) * out["qg_mean"] / 1000.0
+        )
+    if "wind_direction_mean" in out.columns:
+        out["wind_direction_mean"] = out["wind_direction_mean"].where(
+            pd.notna(out["wind_direction_mean"]), None
+        )
     return out
 
 
-# -----------------------------------------------------------------------------
-# UPLOAD HELPERS
-# -----------------------------------------------------------------------------
+def update_region_history(
+    regions: gpd.GeoDataFrame,
+    history_path: Path,
+    observation_time: str,
+    max_points: int = MAX_HISTORY_POINTS,
+) -> dict:
+    """Append the current snapshot to the rolling region history file."""
+    existing: dict = {}
+    if history_path.exists():
+        try:
+            existing = json.loads(history_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            existing = {}
+
+    feature_map = {
+        feature.get("properties", {}).get("name"): feature
+        for feature in existing.get("features", [])
+        if feature.get("properties", {}).get("name")
+    }
+
+    for _, row in regions.iterrows():
+        name = row.get("name")
+        if not name:
+            continue
+        entry = {
+            "observation_time": observation_time,
+            "qg_mean": _maybe_float(row.get("qg_mean")),
+            "wind_speed_mean": _maybe_float(row.get("wind_speed_mean")),
+            "wind_direction_mean": _maybe_float(row.get("wind_direction_mean")),
+            "estimated_output_mw": _maybe_float(row.get("estimated_output_mw")),
+            "stations_count": _safe_int(row.get("stations_count")),
+        }
+        history = []
+        if name in feature_map:
+            history = [
+                h
+                for h in feature_map[name]["properties"].get("history", [])
+                if h.get("observation_time") != observation_time
+            ]
+        history.append(entry)
+        history.sort(key=lambda item: item.get("observation_time") or "")
+        history = history[-max_points:]
+
+        feature_map[name] = {
+            "type": "Feature",
+            "geometry": mapping(row.geometry) if row.geometry is not None else None,
+            "properties": {
+                "name": name,
+                "history": history,
+                "latest": history[-1],
+                "max_history": max_points,
+            },
+        }
+
+    features = [feature_map[name] for name in sorted(feature_map)]
+    payload = {
+        "type": "FeatureCollection",
+        "features": features,
+        "generated_at": observation_time,
+        "max_history": max_points,
+    }
+    history_path.parent.mkdir(parents=True, exist_ok=True)
+    history_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    return payload
+
+
+# ---------------------------------------------------------------------------
+# Upload helpers
+# ---------------------------------------------------------------------------
 
 def upload_s3(local: str, bucket: str, key: str) -> str:
     if boto3 is None:
@@ -190,7 +238,7 @@ def upload_s3(local: str, bucket: str, key: str) -> str:
     }
     try:
         s3.upload_file(local, bucket, key, ExtraArgs=extra)
-    except (BotoCoreError, ClientError) as exc:
+    except (BotoCoreError, ClientError) as exc:  # pragma: no cover - network
         raise RuntimeError(f"S3 upload failed: {exc}") from exc
     return f"https://{bucket}.s3.amazonaws.com/{key}"
 
@@ -202,17 +250,14 @@ def upload_github(local: str, repo: str, path: str, branch: str, token: str) -> 
         "Accept": "application/vnd.github+json",
     }
 
-    # Check if file exists to get its SHA (needed for update)
     sha: Optional[str] = None
-    r = requests.get(api, headers=headers, params={"ref": branch})
-    if r.status_code == 200:
-        sha = r.json()["sha"]
-    elif r.status_code not in (404, 422):  # 422 → repo empty
-        r.raise_for_status()
+    response = requests.get(api, headers=headers, params={"ref": branch}, timeout=30)
+    if response.status_code == 200:
+        sha = response.json()["sha"]
+    elif response.status_code not in (404, 422):  # pragma: no cover - network
+        response.raise_for_status()
 
-    with open(local, "rb") as f:
-        content_b64 = base64.b64encode(f.read()).decode()
-
+    content_b64 = base64.b64encode(Path(local).read_bytes()).decode()
     payload = {
         "message": f"auto: update {path} ({datetime.utcnow().isoformat(timespec='seconds')}Z)",
         "branch": branch,
@@ -221,90 +266,164 @@ def upload_github(local: str, repo: str, path: str, branch: str, token: str) -> 
     if sha:
         payload["sha"] = sha
 
-    r = requests.put(api, headers=headers, json=payload)
-    if r.status_code not in (200, 201):
-        raise RuntimeError(f"GitHub upload failed: {r.text[:200]}")
+    response = requests.put(api, headers=headers, json=payload, timeout=30)
+    if response.status_code not in (200, 201):  # pragma: no cover - network
+        raise RuntimeError(f"GitHub upload failed: {response.text[:200]}")
 
-    raw_url = f"https://raw.githubusercontent.com/{repo}/{branch}/{path}"
-    return raw_url
+    return f"https://raw.githubusercontent.com/{repo}/{branch}/{path}"
 
 
-# -----------------------------------------------------------------------------
-# ORCHESTRATION
-# -----------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Orchestration
+# ---------------------------------------------------------------------------
+
+def _derive_observation_time(df: pd.DataFrame) -> str:
+    series = pd.to_datetime(df.get("observation_time"), utc=True, errors="coerce")
+    if series.notna().any():
+        return _ensure_iso(series.max())
+    return _now_iso()
+
 
 def run_once(
     api_key: str,
     regions_path: str,
     local_out: str,
+    *,
+    history_out: Optional[str] = DEFAULT_HISTORY_OUT,
+    max_history: int = MAX_HISTORY_POINTS,
     s3_bucket: Optional[str] = None,
     s3_key: Optional[str] = None,
+    s3_history_key: Optional[str] = None,
+    s3_stations_key: Optional[str] = None,
     gh_repo: Optional[str] = None,
     gh_path: Optional[str] = None,
+    gh_history_path: Optional[str] = None,
     gh_branch: str = "main",
     gh_token: Optional[str] = None,
     stations_out: Optional[str] = None,
     gh_stations_path: Optional[str] = None,
-) -> None:
-    fname = latest_file(api_key)
-    raw = download_file(api_key, fname)
-    df = parse_metrics(raw)
+) -> Tuple[gpd.GeoDataFrame, Optional[dict]]:
+    df = fetch_station_metrics(api_key=api_key)
+    observation_iso = _derive_observation_time(df)
     geo = aggregate_regions(df, regions_path)
-    geo.to_file(local_out, driver="GeoJSON")
+    geo["observation_time"] = observation_iso
+
+    local_path = Path(local_out)
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+    geo.to_file(local_path, driver="GeoJSON")
+
+    history_payload: Optional[dict] = None
+    history_path: Optional[Path] = None
+    if history_out:
+        history_path = Path(history_out)
+        history_payload = update_region_history(
+            geo, history_path, observation_iso, max_history
+        )
 
     if stations_out:
         stations_geo = gpd.GeoDataFrame(
             df,
-            geometry=gpd.points_from_xy(df["lon"], df["lat"]),
+            geometry=gpd.points_from_xy(df["longitude"], df["latitude"]),
             crs="EPSG:4326",
         )
         stations_geo.to_file(stations_out, driver="GeoJSON")
 
     if s3_bucket and s3_key:
-        url = upload_s3(local_out, s3_bucket, s3_key)
+        url = upload_s3(str(local_path), s3_bucket, s3_key)
         print("S3 ->", url)
+    if s3_bucket and s3_history_key and history_path:
+        url = upload_s3(str(history_path), s3_bucket, s3_history_key)
+        print("S3 history ->", url)
+    if s3_bucket and stations_out and s3_stations_key:
+        url = upload_s3(stations_out, s3_bucket, s3_stations_key)
+        print("S3 stations ->", url)
 
-    gh_token = gh_token or os.getenv("GITHUB_TOKEN")
+    upload_token = gh_token or os.getenv("GITHUB_TOKEN")
     if gh_repo and gh_path:
-        if not gh_token:
+        if not upload_token:
             raise RuntimeError("GitHub token not provided (flag or GITHUB_TOKEN env var)")
-        url = upload_github(local_out, gh_repo, gh_path, gh_branch, gh_token)
+        url = upload_github(str(local_path), gh_repo, gh_path, gh_branch, upload_token)
         print("GitHub ->", url)
-        if stations_out and gh_stations_path:
-            upload_github(stations_out, gh_repo, gh_stations_path, gh_branch, gh_token)
 
-    ts = datetime.utcnow().isoformat(timespec="seconds") + "Z"
-    print(f"Generated {local_out} at {ts}")
+    if gh_repo and gh_history_path and history_path:
+        if not upload_token:
+            raise RuntimeError("GitHub token not provided (flag or GITHUB_TOKEN env var)")
+        url = upload_github(str(history_path), gh_repo, gh_history_path, gh_branch, upload_token)
+        print("GitHub history ->", url)
+
+    if gh_repo and stations_out and gh_stations_path:
+        if not upload_token:
+            raise RuntimeError("GitHub token not provided (flag or GITHUB_TOKEN env var)")
+        url = upload_github(stations_out, gh_repo, gh_stations_path, gh_branch, upload_token)
+        print("GitHub stations ->", url)
+
+    print(f"Generated {local_out} at {observation_iso}")
+    if history_path:
+        print(f"Updated history {history_path} (max {max_history} observations)")
     if stations_out:
-        print(f"Generated {stations_out} at {ts}")
+        print(f"Wrote station snapshot {stations_out}")
+    return geo, history_payload
 
-# -----------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
 # CLI
-# -----------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 
 def main(argv: list[str] | None = None) -> None:
-    p = argparse.ArgumentParser(
-        description="KNMI QG → GeoJSON publisher (S3 or GitHub)",
+    parser = argparse.ArgumentParser(
+        description="KNMI -> GeoJSON publisher with rolling history",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    p.add_argument("--api-key", required=True, help="KNMI API key")
-    p.add_argument("--regions", default="data/regions_10.geojson")
-    p.add_argument("--out", dest="local_out", default="qg_regions.geojson")
-    p.add_argument("--stations-out", help="Optional path to write station-level GeoJSON")
-    p.add_argument("--gh-stations-path", help="Repository path for posted station GeoJSON")
+    parser.add_argument("--api-key", default=DEFAULT_API_KEY, help="KNMI API key")
+    parser.add_argument("--regions", default="data/regions_10.geojson")
+    parser.add_argument("--out", dest="local_out", default="qg_regions.geojson")
+    parser.add_argument(
+        "--history-out",
+        default=DEFAULT_HISTORY_OUT,
+        help="Output path for the rolling history GeoJSON",
+    )
+    parser.add_argument(
+        "--max-history",
+        type=int,
+        default=MAX_HISTORY_POINTS,
+        help="Maximum number of observations to retain in history files",
+    )
+    parser.add_argument(
+        "--stations-out",
+        help="Optional path to write the latest station snapshot as GeoJSON",
+    )
+    parser.add_argument(
+        "--gh-stations-path",
+        help="Repository path for station snapshots (requires --gh-repo)",
+    )
 
     # S3 options
-    p.add_argument("--s3-bucket")
-    p.add_argument("--s3-key")
+    parser.add_argument("--s3-bucket")
+    parser.add_argument("--s3-key")
+    parser.add_argument(
+        "--s3-history-key",
+        help="S3 object key for the history GeoJSON (requires --s3-bucket)",
+    )
+    parser.add_argument(
+        "--s3-stations-key",
+        help="S3 object key for the station snapshot (requires --s3-bucket and --stations-out)",
+    )
 
     # GitHub options
-    p.add_argument("--gh-repo", help="owner/repo")
-    p.add_argument("--gh-path", help="path within repo e.g. live/foo.geojson")
-    p.add_argument("--gh-branch", default="main")
-    p.add_argument("--gh-token", help="GitHub PAT (or set GITHUB_TOKEN env var)")
+    parser.add_argument("--gh-repo", help="owner/repo")
+    parser.add_argument("--gh-path", help="path within repo for the snapshot file")
+    parser.add_argument(
+        "--gh-history-path",
+        help="path within repo for the history GeoJSON (requires --gh-repo)",
+    )
+    parser.add_argument("--gh-branch", default="main")
+    parser.add_argument("--gh-token", help="GitHub PAT (or set GITHUB_TOKEN env var)")
 
-    p.add_argument("--loop", action="store_true", help="Repeat every 10 min")
-    args = p.parse_args(argv)
+    parser.add_argument("--loop", action="store_true", help="Repeat every 10 min")
+    parser.add_argument("--interval", type=int, default=600, help="Loop interval seconds")
+
+    args = parser.parse_args(argv)
+    max_history = max(1, args.max_history)
 
     while True:
         try:
@@ -312,20 +431,26 @@ def main(argv: list[str] | None = None) -> None:
                 api_key=args.api_key,
                 regions_path=args.regions,
                 local_out=args.local_out,
+                history_out=args.history_out,
+                max_history=max_history,
                 s3_bucket=args.s3_bucket,
                 s3_key=args.s3_key,
+                s3_history_key=args.s3_history_key,
+                s3_stations_key=args.s3_stations_key,
                 gh_repo=args.gh_repo,
                 gh_path=args.gh_path,
+                gh_history_path=args.gh_history_path,
                 gh_branch=args.gh_branch,
                 gh_token=args.gh_token,
                 stations_out=args.stations_out,
                 gh_stations_path=args.gh_stations_path,
             )
-        except Exception as exc:
+        except Exception as exc:  # pragma: no cover - runtime feedback
             print("Error:", exc, file=sys.stderr)
+
         if not args.loop:
             break
-        time.sleep(600)
+        time.sleep(args.interval)
 
 
 if __name__ == "__main__":

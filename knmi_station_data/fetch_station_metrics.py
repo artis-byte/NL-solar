@@ -1,25 +1,35 @@
 #!/usr/bin/env python3
-"""Fetch 10-minute KNMI station metrics and export them to CSV.
+"""Fetch 10-minute KNMI station metrics, export the latest snapshot, and
+maintain a rolling history for time-series visualisations.
 
 The script pulls the most recent NetCDF file from the
-``Actuele10mindataKNMIstations`` dataset. It extracts the global solar
-radiation metric (`qg`) and the wind direction/speed aggregates for
-every reporting station and stores the result in a CSV file.
+``10-minute-in-situ-meteorological-observations`` dataset. Besides
+writing the current values to ``station_metrics.csv`` it also appends
+the observation to a JSON/GeoJSON history that keeps the last 12
+records per station.
 
-Usage
------
-python fetch_station_metrics.py
+Usage (CLI)
+-----------
 
-The default API key and output location are embedded in the script, so
-you can simply run it from a terminal. Adjust `API_KEY` or `DEFAULT_OUTPUT`
-below if you need different credentials or a custom path.
+```
+python fetch_station_metrics.py \
+    --output knmi_station_data/station_metrics.csv \
+    --history-json knmi_station_data/station_metrics_history.json \
+    --history-geojson knmi_station_data/station_metrics_history.geojson
+```
+
+If you import this module and call ``main()`` directly, the defaults
+shown above are used.
 """
 from __future__ import annotations
 
+import argparse
 import io
-from pathlib import Path
-import tempfile
+import json
 import os
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Dict, Iterable, Optional
 
 import pandas as pd
@@ -27,7 +37,6 @@ import requests
 import xarray as xr
 
 BASE_URL = "https://api.dataplatform.knmi.nl/open-data/v1"
-# KNMI retired the legacy Actuele10mindataKNMIstations feed; this is its successor.
 DATASET = "10-minute-in-situ-meteorological-observations"
 VERSION = "1.0"
 
@@ -47,8 +56,13 @@ TARGET_VARIABLES: Dict[str, str] = {
     "gffs": "Wind Gust Sensor 10 Min Maximum (m/s)",
 }
 
+HISTORY_METRICS = ("qg", "ff", "dd")
+MAX_HISTORY_POINTS = 12
+
 API_KEY = "eyJvcmciOiI1ZTU1NGUxOTI3NGE5NjAwMDEyYTNlYjEiLCJpZCI6IjlmNmJjOTM1NTNiZjQwMTdiNTU2MTAxYjkwY2RkYWJlIiwiaCI6Im11cm11cjEyOCJ9"
 DEFAULT_OUTPUT = "knmi_station_data/station_metrics.csv"
+DEFAULT_HISTORY_JSON = Path("knmi_station_data/station_metrics_history.json")
+DEFAULT_HISTORY_GEOJSON = Path("knmi_station_data/station_metrics_history.geojson")
 
 
 def _auth_headers(api_key: str) -> Dict[str, str]:
@@ -98,6 +112,29 @@ def _find_name(candidates: Iterable[str], needle: str) -> Optional[str]:
     return None
 
 
+def _ensure_utc_iso(value) -> Optional[str]:
+    if value is None or pd.isna(value):
+        return None
+    if isinstance(value, str):
+        return value
+    if isinstance(value, pd.Timestamp):
+        ts = value.tz_convert("UTC") if value.tzinfo else value.tz_localize("UTC")
+        return ts.isoformat().replace("+00:00", "Z")
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        else:
+            value = value.astimezone(timezone.utc)
+        return value.isoformat().replace("+00:00", "Z")
+    return str(value)
+
+
+def _maybe_float(value):
+    if value is None or pd.isna(value):
+        return None
+    return float(value)
+
+
 def _parse_dataset(raw: bytes) -> pd.DataFrame:
     tmp = tempfile.NamedTemporaryFile(suffix=".nc", delete=False)
     try:
@@ -131,13 +168,16 @@ def _parse_dataset(raw: bytes) -> pd.DataFrame:
             frame = ds.to_dataframe().reset_index()
 
             if "time" in frame.columns:
-                frame = (
-                    frame.sort_values("time")
-                    .drop_duplicates(subset=station_dim, keep="last")
-                    .drop(columns="time")
+                frame["time"] = pd.to_datetime(frame["time"], utc=True, errors="coerce")
+                frame = frame.sort_values("time").drop_duplicates(
+                    subset=station_dim, keep="last"
                 )
+                frame = frame.rename(columns={"time": "observation_time"})
 
-            required_cols = [station_dim, lat_name, lon_name] + list(var_names.values())
+            required_cols = (
+                [station_dim, lat_name, lon_name, "observation_time"]
+                + list(var_names.values())
+            )
             for col in required_cols:
                 if col not in frame.columns:
                     raise ValueError(f"Expected column '{col}' missing from dataset.")
@@ -151,15 +191,109 @@ def _parse_dataset(raw: bytes) -> pd.DataFrame:
                 }
             )
 
-            ordered_cols = ["station", "latitude", "longitude"] + list(
-                TARGET_VARIABLES.keys()
+            result["observation_time"] = pd.to_datetime(
+                result["observation_time"], utc=True, errors="coerce"
             )
-            return result[ordered_cols]
+            return result
     finally:
         try:
             os.remove(tmp.name)
         except OSError:
             pass
+
+
+def _load_station_history(path: Path) -> Dict[str, dict]:
+    if path.exists():
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            stations = payload.get("stations", {})
+            if isinstance(stations, dict):
+                return stations
+        except json.JSONDecodeError:
+            pass
+    return {}
+
+
+def _persist_station_history(path: Path, stations: Dict[str, dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "stations": stations,
+        "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+    }
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def _persist_station_history_geojson(
+    path: Path, stations: Dict[str, dict], max_points: int
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    features = []
+    for station_id, meta in sorted(stations.items()):
+        lat = _maybe_float(meta.get("lat"))
+        lon = _maybe_float(meta.get("lon"))
+        history = meta.get("history", [])
+        latest = history[-1] if history else None
+        feature = {
+            "type": "Feature",
+            "geometry": None
+            if lat is None or lon is None
+            else {"type": "Point", "coordinates": [lon, lat]},
+            "properties": {
+                "station": station_id,
+                "history": history,
+                "latest": latest,
+                "max_history": max_points,
+            },
+        }
+        features.append(feature)
+
+    payload = {
+        "type": "FeatureCollection",
+        "features": features,
+        "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "max_history": max_points,
+    }
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+
+
+def update_station_history(
+    df: pd.DataFrame,
+    history_json: Path = DEFAULT_HISTORY_JSON,
+    history_geojson: Path = DEFAULT_HISTORY_GEOJSON,
+    max_points: int = MAX_HISTORY_POINTS,
+) -> Dict[str, dict]:
+    stations = _load_station_history(history_json)
+    now_iso = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+    for row in df.itertuples(index=False):
+        station_id = str(row.station)
+        entry_time = getattr(row, "observation_time", None)
+        obs_iso = _ensure_utc_iso(entry_time) or now_iso
+        entry = {
+            "observation_time": obs_iso,
+            "source_filename": getattr(row, "source_filename", None),
+        }
+        for metric in HISTORY_METRICS:
+            entry[metric] = _maybe_float(getattr(row, metric, None))
+
+        meta = stations.setdefault(
+            station_id,
+            {"history": []},
+        )
+        meta["lat"] = _maybe_float(getattr(row, "latitude", None))
+        meta["lon"] = _maybe_float(getattr(row, "longitude", None))
+
+        history = [
+            h for h in meta.get("history", []) if h.get("observation_time") != obs_iso
+        ]
+        history.append(entry)
+        history.sort(key=lambda itm: itm.get("observation_time") or "")
+        meta["history"] = history[-max_points:]
+        stations[station_id] = meta
+
+    _persist_station_history(history_json, stations)
+    _persist_station_history_geojson(history_geojson, stations, max_points)
+    return stations
 
 
 def fetch_station_metrics(api_key: str) -> pd.DataFrame:
@@ -170,14 +304,79 @@ def fetch_station_metrics(api_key: str) -> pd.DataFrame:
     return df
 
 
-def main(output: str = DEFAULT_OUTPUT, api_key: str = API_KEY) -> None:
-    output_path = Path(output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
+def _run(
+    output: Path,
+    api_key: str,
+    history_json: Path,
+    history_geojson: Path,
+    max_history: int,
+) -> pd.DataFrame:
     df = fetch_station_metrics(api_key=api_key)
-    df.to_csv(output_path, index=False)
-    print(f"Wrote {len(df)} station rows to {output_path}")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output, index=False)
+    update_station_history(
+        df,
+        history_json=history_json,
+        history_geojson=history_geojson,
+        max_points=max_history,
+    )
+    return df
+
+
+def main(
+    output: str = DEFAULT_OUTPUT,
+    api_key: str = API_KEY,
+    history_json: str | Path = DEFAULT_HISTORY_JSON,
+    history_geojson: str | Path = DEFAULT_HISTORY_GEOJSON,
+    max_history: int = MAX_HISTORY_POINTS,
+) -> None:
+    df = _run(
+        output=Path(output),
+        api_key=api_key,
+        history_json=Path(history_json),
+        history_geojson=Path(history_geojson),
+        max_history=max(1, int(max_history)),
+    )
+    print(f"Wrote {len(df)} station rows to {output}")
+    print(
+        f"Updated station history at {history_json} "
+        f"and GeoJSON at {history_geojson}"
+    )
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output",
+        default=DEFAULT_OUTPUT,
+        help="Path to write the latest station metrics CSV.",
+    )
+    parser.add_argument(
+        "--api-key",
+        default=API_KEY,
+        help="KNMI API key (Bearer token).",
+    )
+    parser.add_argument(
+        "--history-json",
+        default=str(DEFAULT_HISTORY_JSON),
+        help="Path for the rolling station history JSON.",
+    )
+    parser.add_argument(
+        "--history-geojson",
+        default=str(DEFAULT_HISTORY_GEOJSON),
+        help="Path for the rolling station history GeoJSON.",
+    )
+    parser.add_argument(
+        "--max-history",
+        type=int,
+        default=MAX_HISTORY_POINTS,
+        help="Number of observations to retain per station.",
+    )
+    args = parser.parse_args()
+    main(
+        output=args.output,
+        api_key=args.api_key,
+        history_json=Path(args.history_json),
+        history_geojson=Path(args.history_geojson),
+        max_history=args.max_history,
+    )

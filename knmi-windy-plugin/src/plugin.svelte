@@ -2,590 +2,537 @@
   import { onMount, onDestroy } from 'svelte';
   import { map as windyMap } from '@windy/map';
 
-  const REGION_URL = 'https://raw.githubusercontent.com/artis-byte/NL-solar/main/qg_regions.geojson';
-  const STATION_URL = 'https://raw.githubusercontent.com/artis-byte/NL-solar/main/stations_live.geojson';
-  const REFRESH_MS = 600_000;
-  const COLORS = ['#800026', '#BD0026', '#E31A1C', '#FC4E2A', '#FD8D3C', '#FEB24C', '#FED976', '#FFEDA0'];
-  const WIND_THRESHOLDS = [20, 15, 10, 7, 5, 3, 1];
+  const REGION_HISTORY_URL =
+    'https://raw.githubusercontent.com/artis-byte/NL-solar/main/qg_regions_history.geojson';
+  const STATION_HISTORY_URL =
+    'https://raw.githubusercontent.com/artis-byte/NL-solar/main/knmi_station_data/station_metrics_history.geojson';
+  const REFRESH_INTERVAL = 600_000;
+  const DELTA_OPTIONS = [10, 30, 60];
+  const VIEW_OPTIONS = [
+    { value: 'regions', label: 'Regions' },
+    { value: 'stations', label: 'Stations' },
+  ];
+  const METRIC_OPTIONS = [
+    { value: 'radiation', label: 'Radiation (W/m^2)' },
+    { value: 'wind', label: 'Wind Speed (m/s)' },
+  ];
 
-const MODES = [
-  {
-    id: 'region-qg',
-    label: 'Region irradiance',
-    type: 'region',
-    metric: 'qg_mean',
-    units: 'W/m^2',
-    legend: 'qg'
-  },
-  {
-    id: 'region-wind',
-    label: 'Region wind speed (10 min avg)',
-    type: 'region',
-    metric: 'ff_mean',
-    units: 'm/s (10 min avg)',
-    legend: 'wind'
-  },
-  {
-    id: 'stations-qg',
-    label: 'Station irradiance',
-    type: 'stations',
-    metric: 'qg',
-    units: 'W/m^2',
-    legend: 'qg'
-  },
-  {
-    id: 'stations-wind',
-    label: 'Station wind speed (10 min avg)',
-    type: 'stations',
-    metric: 'ff',
-    units: 'm/s (10 min avg)',
-    legend: 'wind'
-  }
-];
-
-  let map = null;
-  let leafletLib = null;
-  let regionLayer = null;
-  let stationLayer = null;
+  let loading = true;
+  let errorMessage = '';
   let refreshTimer = null;
   let mapPollTimer = null;
 
-  let loading = false;
-  let errorMessage = '';
-  let lastUpdated = '';
-  let legendStops = [];
-  let legendUnits = '';
-  let selectedMode = MODES[0].id;
+  let mapInstance = null;
+  let leafletLib = null;
+  let regionLayer = null;
+  let stationLayer = null;
 
-let regionData = null;
-let stationData = null;
-let metricStats = {};
-let stationFilter = '';
-let stationOptions = [];
+  let timeline = [];
+  let timelineDates = [];
+  let timelineIndex = new Map();
+  let currentIndex = 0;
 
-function getMode(id) {
-  return MODES.find((mode) => mode.id === id);
-}
+  let selectedView = 'regions';
+  let selectedMetric = 'radiation';
+  let selectedDelta = DELTA_OPTIONS[0];
 
-  function ensureLeaflet() {
+  let regionsIndex = new Map();
+  let stationsIndex = new Map();
+
+  const getLeaflet = () => {
     if (!leafletLib && typeof window !== 'undefined') {
       leafletLib = window.L || null;
     }
     return leafletLib;
-  }
+  };
 
-  function ensureMapAvailable() {
-    const current = windyMap;
-    if (!current) {
+  const ensureMap = () => {
+    if (mapInstance) {
+      return true;
+    }
+    const candidate = windyMap;
+    if (!candidate) {
       return false;
     }
-    map = current;
-    return typeof map.addLayer === 'function';
-  }
+    mapInstance = candidate;
+    return typeof mapInstance.addLayer === 'function';
+  };
 
-  function formatNumber(value) {
-    if (typeof value !== 'number' || !Number.isFinite(value)) {
-      return 'n/a';
-    }
-    const abs = Math.abs(value);
-    if (abs >= 1000) return value.toFixed(0);
-    if (abs >= 100) return value.toFixed(0);
-    if (abs >= 10) return value.toFixed(1);
-    if (abs >= 1) return value.toFixed(2);
-    if (abs === 0) return '0';
-    return value.toPrecision(2);
-  }
-
-  function recomputeStats(regions, stations) {
-    metricStats = {};
-    [regions, stations].forEach((geojson) => {
-      const features = Array.isArray(geojson?.features) ? geojson.features : [];
-      for (const feature of features) {
-        const props = feature?.properties;
-        if (!props) continue;
-        for (const [key, value] of Object.entries(props)) {
-          if (typeof value === 'number' && Number.isFinite(value)) {
-            const stats = metricStats[key] || { min: value, max: value };
-            stats.min = Math.min(stats.min, value);
-            stats.max = Math.max(stats.max, value);
-            metricStats[key] = stats;
-          }
-        }
-      }
-    });
-  }
-
-  function getThresholds(mode, stats) {
-    if (mode.legend === 'qg') {
-      return [800, 600, 400, 200, 100, 50, 10];
-    }
-    if (mode.legend === 'wind') {
-      return WIND_THRESHOLDS;
-    }
-    if (stats && Number.isFinite(stats.min) && Number.isFinite(stats.max)) {
-      const steps = COLORS.length - 1;
-      const span = stats.max - stats.min;
-      if (span <= 0) return [];
-      const items = [];
-      for (let i = steps; i >= 1; i -= 1) {
-        items.push(stats.min + (span * i) / steps);
-      }
-      return items;
-    }
-    return [];
-  }
-
-  function colorForValue(value, thresholds) {
-    if (typeof value !== 'number' || !Number.isFinite(value)) {
-      return '#7f7f7f';
-    }
-    if (!thresholds.length) {
-      return COLORS[Math.floor(COLORS.length / 2)];
-    }
-    for (let i = 0; i < thresholds.length; i += 1) {
-      if (value >= thresholds[i]) {
-        return COLORS[i];
-      }
-    }
-    return COLORS[COLORS.length - 1];
-  }
-
-  function buildLegend(thresholds, mode) {
-    const items = [];
-    for (let i = 0; i < COLORS.length; i += 1) {
-      let label = '';
-      if (!thresholds.length) {
-        label = i === 0 ? 'Higher values' : i === COLORS.length - 1 ? 'Lower values' : '';
-      } else if (i === 0) {
-        label = `>= ${formatNumber(thresholds[0])}`;
-      } else if (i === COLORS.length - 1) {
-        label = `< ${formatNumber(thresholds[thresholds.length - 1])}`;
-      } else {
-        label = `${formatNumber(thresholds[i - 1])} - ${formatNumber(thresholds[i])}`;
-      }
-      if (label) {
-        items.push({ color: COLORS[i], label: mode.units ? `${label} ${mode.units}` : label });
-      }
-    }
-    return items;
-  }
-
-  function clearRegionLayer() {
-    if (regionLayer && ensureLeaflet()) {
-      if (map && typeof map.removeLayer === 'function') {
-        map.removeLayer(regionLayer);
-      }
-      regionLayer = null;
-    }
-  }
-
-  function clearStationLayer() {
-    if (stationLayer && ensureLeaflet()) {
-      if (map && typeof map.removeLayer === 'function') {
-        map.removeLayer(stationLayer);
-      }
-      stationLayer = null;
-    }
-  }
-
-  function clearAllLayers() {
-    clearRegionLayer();
-    clearStationLayer();
-  }
-
-function renderRegion(mode) {
-  const L = ensureLeaflet();
-  if (!L || !ensureMapAvailable() || !regionData) {
-    return;
-  }
-    const stats = metricStats[mode.metric];
-    if (!stats) {
-      errorMessage = 'Selected region metric is not available in the dataset.';
-      clearAllLayers();
-      legendStops = [];
+  const scheduleMapPoll = () => {
+    if (mapPollTimer) {
       return;
     }
-    const thresholds = getThresholds(mode, stats);
-    legendUnits = mode.units;
-    legendStops = buildLegend(thresholds, mode);
+    mapPollTimer = setInterval(() => {
+      if (ensureMap()) {
+        clearInterval(mapPollTimer);
+        mapPollTimer = null;
+        updateMap();
+      }
+    }, 500);
+  };
 
-    clearAllLayers();
-    regionLayer = L.geoJSON(regionData, {
+  const fetchJSON = async (url) => {
+    const response = await fetch(`${url}?t=${Date.now()}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${url}: ${response.status}`);
+    }
+    return response.json();
+  };
+
+  const getRadiationColor = (value) => {
+    if (value == null) return '#f7f7f7';
+    return value > 800 ? '#800026'
+      : value > 600 ? '#BD0026'
+      : value > 400 ? '#E31A1C'
+      : value > 200 ? '#FC4E2A'
+      : value > 100 ? '#FD8D3C'
+      : value > 50 ? '#FEB24C'
+      : value > 10 ? '#FED976'
+      : '#FFEDA0';
+  };
+
+  const getWindColor = (value) => {
+    if (value == null) return '#f7fbff';
+    return value > 20 ? '#084081'
+      : value > 15 ? '#0868ac'
+      : value > 12 ? '#2b8cbe'
+      : value > 9 ? '#4eb3d3'
+      : value > 6 ? '#7bccc4'
+      : value > 4 ? '#a8ddb5'
+      : value > 2 ? '#ccebc5'
+      : value > 1 ? '#e0f3db'
+      : '#f7fcfd';
+  };
+
+  const formatNumber = (value, decimals = 1, suffix = '') => {
+    if (value == null || Number.isNaN(value)) return '—';
+    return `${Number(value).toFixed(decimals)}${suffix}`;
+  };
+
+  const formatSignedNumber = (value, decimals = 1, suffix = '') => {
+    if (value == null || Number.isNaN(value)) return '—';
+    const sign = value > 0 ? '+' : value < 0 ? '-' : '';
+    return `${sign}${Math.abs(Number(value)).toFixed(decimals)}${suffix}`;
+  };
+
+  const formatLongTime = (iso) =>
+    iso ? new Date(iso).toLocaleString(undefined, {
+      hour: '2-digit',
+      minute: '2-digit',
+      day: '2-digit',
+      month: 'short',
+    }) : '—';
+
+  const formatShortTime = (iso) =>
+    iso ? new Date(iso).toLocaleTimeString(undefined, {
+      hour: '2-digit',
+      minute: '2-digit',
+    }) : '—';
+
+  const prepareIndex = (collection, keyProp) => {
+    const index = new Map();
+    if (!collection?.features) {
+      return index;
+    }
+    for (const feature of collection.features) {
+      const key = feature?.properties?.[keyProp];
+      if (!key) continue;
+      const history = new Map();
+      const entries = feature.properties.history || [];
+      for (const entry of entries) {
+        if (entry?.observation_time) {
+          history.set(entry.observation_time, entry);
+        }
+      }
+      index.set(key, {
+        geometry: feature.geometry ? JSON.parse(JSON.stringify(feature.geometry)) : null,
+        history,
+      });
+    }
+    return index;
+  };
+
+  const buildTimeline = () => {
+    const times = new Set();
+    regionsIndex.forEach(({ history }) => history.forEach((_, t) => times.add(t)));
+    stationsIndex.forEach(({ history }) => history.forEach((_, t) => times.add(t)));
+    const sorted = Array.from(times).sort((a, b) => new Date(a) - new Date(b));
+    timeline = sorted;
+    timelineDates = timeline.map((t) => new Date(t));
+    timelineIndex = new Map(timeline.map((t, idx) => [t, idx]));
+    currentIndex = timeline.length ? timeline.length - 1 : 0;
+  };
+
+  const findPreviousTime = (currentTime, minutes) => {
+    if (!currentTime || !timelineIndex.has(currentTime)) return null;
+    const currentIdx = timelineIndex.get(currentTime);
+    const currentDate = timelineDates[currentIdx];
+    for (let i = currentIdx - 1; i >= 0; i -= 1) {
+      const diffMins = (currentDate - timelineDates[i]) / 60000;
+      if (diffMins >= minutes - 0.01) {
+        return timeline[i];
+      }
+    }
+    return null;
+  };
+
+  const computeDelta = (historyMap, currentTime, metricKey, minutes) => {
+    if (!historyMap || !currentTime) return null;
+    const previousTime = findPreviousTime(currentTime, minutes);
+    if (!previousTime) return null;
+    const current = historyMap.get(currentTime);
+    const previous = historyMap.get(previousTime);
+    if (!current || !previous) return null;
+    const currentValue = current[metricKey];
+    const previousValue = previous[metricKey];
+    if (currentValue == null || previousValue == null) return null;
+    return {
+      delta: currentValue - previousValue,
+      previousTime,
+      previousValue,
+    };
+  };
+
+  const buildRegionPopup = (name, entry, historyMap, currentTime) => {
+    const deltaMinutes = selectedDelta;
+    const radiationDelta = computeDelta(historyMap, currentTime, 'qg_mean', deltaMinutes);
+    const windDelta = computeDelta(historyMap, currentTime, 'wind_speed_mean', deltaMinutes);
+
+    return `
+      <div class="popup">
+        <h3>${name}</h3>
+        <p><strong>Radiation</strong>: ${formatNumber(entry?.qg_mean, 0, ' W/m^2')}<br>
+           Δ${deltaMinutes} min: ${radiationDelta ? formatSignedNumber(radiationDelta.delta, 0, ' W/m^2') : '—'}${radiationDelta?.previousTime ? ` (vs ${formatShortTime(radiationDelta.previousTime)})` : ''}</p>
+        <p><strong>Wind</strong>: ${formatNumber(entry?.wind_speed_mean, 1, ' m/s')} @ ${formatNumber(entry?.wind_direction_mean, 0, '°')}<br>
+           Δ${deltaMinutes} min: ${windDelta ? formatSignedNumber(windDelta.delta, 1, ' m/s') : '—'}${windDelta?.previousTime ? ` (vs ${formatShortTime(windDelta.previousTime)})` : ''}</p>
+        ${entry?.stations_count != null ? `<p>Stations contributing: ${entry.stations_count}</p>` : ''}
+        ${entry?.estimated_output_mw != null ? `<p>Est. PV output: ${formatNumber(entry.estimated_output_mw, 1, ' MW')}</p>` : ''}
+      </div>
+    `;
+  };
+
+  const buildStationPopup = (stationId, entry, historyMap, currentTime) => {
+    const deltaMinutes = selectedDelta;
+    const radiationDelta = computeDelta(historyMap, currentTime, 'qg', deltaMinutes);
+    const windDelta = computeDelta(historyMap, currentTime, 'ff', deltaMinutes);
+
+    return `
+      <div class="popup">
+        <h3>Station ${stationId}</h3>
+        <p><strong>Radiation</strong>: ${formatNumber(entry?.qg, 0, ' W/m^2')}<br>
+           Δ${deltaMinutes} min: ${radiationDelta ? formatSignedNumber(radiationDelta.delta, 0, ' W/m^2') : '—'}${radiationDelta?.previousTime ? ` (vs ${formatShortTime(radiationDelta.previousTime)})` : ''}</p>
+        <p><strong>Wind</strong>: ${formatNumber(entry?.ff, 1, ' m/s')} @ ${formatNumber(entry?.dd, 0, '°')}<br>
+           Δ${deltaMinutes} min: ${windDelta ? formatSignedNumber(windDelta.delta, 1, ' m/s') : '—'}${windDelta?.previousTime ? ` (vs ${formatShortTime(windDelta.previousTime)})` : ''}</p>
+        ${entry?.source_filename ? `<p>Source: ${entry.source_filename}</p>` : ''}
+      </div>
+    `;
+  };
+
+  const clearLayer = (layerRef) => {
+    if (!layerRef || !ensureMap()) {
+      return null;
+    }
+    if (mapInstance.hasLayer(layerRef)) {
+      mapInstance.removeLayer(layerRef);
+    }
+    return null;
+  };
+
+  const drawRegionLayer = (currentTime) => {
+    if (!ensureMap() || !currentTime) {
+      scheduleMapPoll();
+      return;
+    }
+    const L = getLeaflet();
+    if (!L) return;
+    const features = [];
+    regionsIndex.forEach(({ geometry, history }, name) => {
+      const entry = history.get(currentTime);
+      if (!entry || !geometry) return;
+      features.push({
+        type: 'Feature',
+        geometry,
+        properties: { name, ...entry },
+        history,
+      });
+    });
+    if (!features.length) {
+      regionLayer = clearLayer(regionLayer);
+      return;
+    }
+    const collection = { type: 'FeatureCollection', features };
+    regionLayer = clearLayer(regionLayer);
+    regionLayer = L.geoJSON(collection, {
       style: (feature) => {
-        const value = feature?.properties?.[mode.metric];
+        const entry = feature.properties;
+        const value = selectedMetric === 'wind'
+          ? entry?.wind_speed_mean
+          : entry?.qg_mean;
+        const color = selectedMetric === 'wind'
+          ? getWindColor(value)
+          : getRadiationColor(value);
         return {
-          fillColor: colorForValue(value, thresholds),
-          fillOpacity: 0.6,
+          fillColor: color,
+          fillOpacity: 0.65,
           weight: 1,
-          color: '#333333'
+          color: '#333',
         };
       },
       onEachFeature: (feature, layer) => {
-        const props = feature?.properties || {};
-        const lines = [];
-        const name = props.name || 'Region';
-        lines.push(`<strong>${name}</strong>`);
-        const irradiance = props.qg_mean;
-        if (Number.isFinite(irradiance)) {
-          lines.push(`Irradiance: ${formatNumber(irradiance)} W/m^2`);
-        }
-        const wind = props.ff_mean;
-        if (Number.isFinite(wind)) {
-      lines.push(`Wind (10 min avg): ${formatNumber(wind)} m/s`);
-        }
-        if (Number.isFinite(props.estimated_output_mw)) {
-          lines.push(`Estimated PV output: ${formatNumber(props.estimated_output_mw)} MW`);
-        }
-        const popupHtml = lines.join('<br>');
-        layer.bindPopup(popupHtml);
-        layer.bindTooltip(popupHtml, {
-          permanent: true,
-          direction: 'center',
-          className: 'region-tooltip'
-        });
-      }
-    }).addTo(map);
-  }
+        layer.bindPopup(buildRegionPopup(
+          feature.properties?.name,
+          feature.properties,
+          feature.history,
+          currentTime,
+        ));
+      },
+    }).addTo(mapInstance);
+  };
 
-function renderStations(mode) {
-    const L = ensureLeaflet();
-    if (!L || !ensureMapAvailable() || !stationData) {
+  const drawStationLayer = (currentTime) => {
+    if (!ensureMap() || !currentTime) {
+      scheduleMapPoll();
       return;
     }
-  const stats = metricStats[mode.metric];
-  if (!stats) {
-    errorMessage = 'Station dataset does not include the selected metric.';
-    clearAllLayers();
-    legendStops = [];
-    return;
-  }
-  const thresholds = getThresholds(mode, stats);
-  legendUnits = mode.units;
-  legendStops = buildLegend(thresholds, mode);
-
-  clearAllLayers();
-  stationLayer = L.layerGroup();
-  const features = Array.isArray(stationData?.features) ? stationData.features : [];
-  const filter = stationFilter.trim().toLowerCase();
-  for (const feature of features) {
-    const props = feature?.properties || {};
-    const coords = feature?.geometry?.coordinates;
-    if (!Array.isArray(coords) || coords.length < 2) {
-      continue;
-    }
-    const stationId = String(props.station ?? '');
-    if (filter && !stationId.toLowerCase().includes(filter)) {
-      continue;
-    }
-    const lat = coords[1];
-    const lon = coords[0];
-    const value = props[mode.metric];
-    const color = colorForValue(value, thresholds);
-    const radius = filter ? 8 : 6;
-    const marker = L.circleMarker([lat, lon], {
-      radius,
-      color: '#1c1c1c',
-      weight: 1,
-      fillColor: color,
-      fillOpacity: 0.85
+    const L = getLeaflet();
+    if (!L) return;
+    stationLayer = clearLayer(stationLayer);
+    stationLayer = L.layerGroup().addTo(mapInstance);
+    stationsIndex.forEach(({ geometry, history }, stationId) => {
+      if (!geometry || geometry.type !== 'Point') return;
+      const entry = history.get(currentTime);
+      if (!entry) return;
+      const [lon, lat] = geometry.coordinates;
+      const value = selectedMetric === 'wind' ? entry.ff : entry.qg;
+      const color = selectedMetric === 'wind'
+        ? getWindColor(value)
+        : getRadiationColor(value);
+      const marker = L.circleMarker([lat, lon], {
+        radius: 5,
+        color,
+        fillColor: color,
+        fillOpacity: 0.9,
+        weight: 1,
+      });
+      marker.bindPopup(buildStationPopup(stationId, entry, history, currentTime));
+      marker.addTo(stationLayer);
     });
-    const tooltip = [
-      `<strong>Station ${stationId}</strong>`,
-      `Irradiance: ${formatNumber(props.qg)} W/m^2`,
-      `Wind (10 min avg): ${formatNumber(props.ff)} m/s`
-    ].join('<br>');
-    marker.bindTooltip(tooltip, { permanent: true, direction: 'top', className: 'station-tooltip' });
-    marker.addTo(stationLayer);
-  }
-  stationLayer.addTo(map);
-  }
+  };
 
-  function renderCurrentMode() {
-    const mode = getMode(selectedMode);
-    if (!mode) {
+  const updateMap = () => {
+    if (loading || !timeline.length) {
       return;
     }
-    errorMessage = '';
-    if (mode.type === 'region') {
-      renderRegion(mode);
-    } else {
-      renderStations(mode);
+    if (!ensureMap()) {
+      scheduleMapPoll();
+      return;
     }
-  }
+    const currentTime = timeline[currentIndex];
+    if (!currentTime) {
+      return;
+    }
 
-async function refreshData() {
+    if (selectedView === 'regions') {
+      stationLayer = clearLayer(stationLayer);
+      drawRegionLayer(currentTime);
+    } else {
+      regionLayer = clearLayer(regionLayer);
+      drawStationLayer(currentTime);
+    }
+  };
+
+  const loadData = async () => {
     loading = true;
     errorMessage = '';
     try {
-      const [regionResp, stationResp] = await Promise.all([
-        fetch(`${REGION_URL}?t=${Date.now()}`, { cache: 'no-store' }),
-        fetch(`${STATION_URL}?t=${Date.now()}`, { cache: 'no-store' })
+      const [regions, stations] = await Promise.all([
+        fetchJSON(REGION_HISTORY_URL),
+        fetchJSON(STATION_HISTORY_URL),
       ]);
-      if (!regionResp.ok) {
-        throw new Error(`Failed to fetch region data (${regionResp.status})`);
-      }
-      if (!stationResp.ok) {
-        throw new Error(`Failed to fetch station data (${stationResp.status})`);
-      }
-    regionData = await regionResp.json();
-    stationData = await stationResp.json();
-    recomputeStats(regionData, stationData);
-    stationOptions = Array.from(
-      new Set(
-        (stationData?.features || [])
-          .map((feature) => feature?.properties?.station)
-          .filter((code) => code !== undefined && code !== null)
-          .map((code) => String(code))
-      )
-    ).sort((a, b) => a.localeCompare(b));
-    lastUpdated = new Date().toISOString();
-    renderCurrentMode();
-  } catch (err) {
-      console.error('Failed to refresh KNMI data', err);
-      errorMessage = err?.message || String(err);
-      clearAllLayers();
-      legendStops = [];
+      regionsIndex = prepareIndex(regions, 'name');
+      stationsIndex = prepareIndex(stations, 'station');
+      buildTimeline();
+    } catch (err) {
+      console.error(err);
+      errorMessage = err?.message || 'Failed to load KNMI history.';
     } finally {
       loading = false;
+      updateMap();
     }
-  }
-
-function handleModeClick(id) {
-  if (selectedMode === id) {
-    return;
-  }
-  selectedMode = id;
-  renderCurrentMode();
-}
-
-function handleStationFilter(event) {
-  stationFilter = event.currentTarget.value;
-  if (getMode(selectedMode)?.type === 'stations') {
-    renderCurrentMode();
-  }
-}
-
-function formatTimestamp(ts) {
-    if (!ts) {
-      return '';
-    }
-    const date = new Date(ts);
-    if (Number.isNaN(date.getTime())) {
-      return ts;
-    }
-    return date.toLocaleString();
-  }
+  };
 
   onMount(() => {
-    ensureLeaflet();
-    ensureMapAvailable();
-    refreshData();
-    refreshTimer = setInterval(refreshData, REFRESH_MS);
-    mapPollTimer = setInterval(() => {
-      if (!map && ensureMapAvailable()) {
-        renderCurrentMode();
-      }
-    }, 1000);
+    loadData();
+    refreshTimer = setInterval(loadData, REFRESH_INTERVAL);
+    if (!ensureMap()) {
+      scheduleMapPoll();
+    }
   });
 
   onDestroy(() => {
-    if (refreshTimer) {
-      clearInterval(refreshTimer);
-      refreshTimer = null;
-    }
-    if (mapPollTimer) {
-      clearInterval(mapPollTimer);
-      mapPollTimer = null;
-    }
-    clearAllLayers();
+    if (refreshTimer) clearInterval(refreshTimer);
+    if (mapPollTimer) clearInterval(mapPollTimer);
+    regionLayer = clearLayer(regionLayer);
+    stationLayer = clearLayer(stationLayer);
   });
+
+  $: if (!loading) {
+    updateMap();
+  }
+
+  $: currentTimeISO = timeline.length ? timeline[currentIndex] : null;
+  $: previousTimeISO = currentTimeISO ? findPreviousTime(currentTimeISO, selectedDelta) : null;
+  $: timespanMinutes = timelineDates.length >= 2
+    ? Math.round((timelineDates[timelineDates.length - 1] - timelineDates[0]) / 60000)
+    : timeline.length ? 10 : 0;
 </script>
 
 <style>
   section {
     padding: 0.75em;
-    max-width: 360px;
-    font-family: sans-serif;
-    font-size: 0.9em;
-    line-height: 1.4;
-    color: #1c1c1c;
-  }
-
-  h1 {
-    font-size: 1.2em;
-    margin: 0 0 0.4em;
-  }
-
-  p.intro {
-    margin: 0 0 0.75em;
-  }
-
-  .mode-buttons {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 0.35em;
-    margin-bottom: 0.5em;
-  }
-
-  .mode-button {
-    border: 1px solid rgba(35, 35, 35, 0.6);
-    border-radius: 6px;
-    padding: 0.35em 0.5em;
-    background: rgba(255, 255, 255, 0.85);
+    font-family: system-ui, sans-serif;
     color: #222;
-    cursor: pointer;
-    font-size: 0.85em;
-    text-align: center;
-    transition: background 0.15s ease, color 0.15s ease, border 0.15s ease;
   }
-
-  .mode-button:hover {
-    background: rgba(40, 120, 180, 0.12);
+  h1 {
+    font-size: 1.1em;
+    margin: 0 0 0.5em;
   }
-
-  .mode-button.selected {
-    background: #1f6fb2;
-    color: #fff;
-    border-color: #1f6fb2;
+  .status {
+    margin: 0.5em 0;
+    font-size: 0.95em;
   }
-
-  .filter-group {
-    margin: 0.5em 0 0.75em;
+  .error {
+    color: #b00020;
+  }
+  .controls {
     display: flex;
     flex-direction: column;
-    gap: 0.35em;
+    gap: 0.5em;
+    margin-bottom: 0.75em;
   }
-
-  .filter-group label {
-    font-weight: 600;
-  }
-
-  .station-input {
-    padding: 0.35em 0.45em;
-    border-radius: 4px;
-    border: 1px solid rgba(40, 40, 40, 0.35);
-  }
-
-  .status {
-    margin: 0.75em 0 0;
-  }
-
-  .status.error {
-    color: #b03a2e;
-  }
-
-  .legend {
-    margin-top: 1em;
-    border-top: 1px solid #bcbcbc;
-    padding-top: 0.75em;
-    color: #111;
-  }
-
-  .legend-title {
-    font-weight: 600;
-    margin-bottom: 0.4em;
-  }
-
-  .legend-row {
+  .control-row {
     display: flex;
     align-items: center;
-    margin-bottom: 0.25em;
+    gap: 0.5em;
+    flex-wrap: wrap;
   }
-
-  .legend-swatch {
-    width: 18px;
-    height: 12px;
-    margin-right: 0.5em;
-    border: 1px solid #333333;
-    box-sizing: border-box;
-  }
-
-  .footer {
-    margin-top: 1em;
-    font-size: 0.8em;
-    color: #444;
-  }
-
-  a {
-    color: #0b63c1;
-  }
-
-  .station-tooltip {
-    background: rgba(20, 20, 20, 0.85);
-    color: #f1f1f1;
-    border: none;
-    padding: 2px 6px;
-    border-radius: 3px;
-    box-shadow: none;
-  }
-
-  .region-tooltip {
-    background: rgba(20, 20, 20, 0.5);
-    color: #f5f5f5;
-    border: none;
-    padding: 2px 6px;
-    border-radius: 3px;
-    text-align: center;
+  .control-row label {
     font-weight: 600;
-    box-shadow: none;
+    font-size: 0.85em;
+  }
+  .toggle {
+    display: inline-flex;
+    gap: 0.35em;
+  }
+  .toggle button {
+    padding: 0.25em 0.6em;
+    border: 1px solid #888;
+    border-radius: 4px;
+    background: #f7f7f7;
+    cursor: pointer;
+    font-size: 0.85em;
+  }
+  .toggle button.selected {
+    background: #1f78b4;
+    color: #fff;
+    border-color: #1f78b4;
+  }
+  select {
+    padding: 0.25em 0.4em;
+    font-size: 0.85em;
+  }
+  .timeline {
+    margin-top: 0.5em;
+  }
+  .timeline input[type='range'] {
+    width: 100%;
+  }
+  .timestamp {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8em;
+    font-weight: 600;
+    margin-top: 0.2em;
+  }
+  .hint {
+    font-size: 0.75em;
+    color: #555;
+    margin-top: 0.35em;
+  }
+  .popup h3 {
+    margin: 0 0 0.3em;
+    font-size: 1em;
+  }
+  .popup p {
+    margin: 0.25em 0;
+    font-size: 0.85em;
   }
 </style>
 
 <section>
-  <h1>KNMI Solar & Wind</h1>
-  <p class="intro">Live KNMI 10 minute metrics. Toggle between regional averages and individual stations.</p>
-
-  <div class="mode-buttons">
-    {#each MODES as mode}
-      <button
-        type="button"
-        class="mode-button" class:selected={selectedMode === mode.id}
-        on:click={() => handleModeClick(mode.id)}>
-        {mode.label}
-      </button>
-    {/each}
-  </div>
-
-  {#if getMode(selectedMode)?.type === 'stations'}
-    <div class="filter-group">
-      <label for="station-filter">Show station (ID contains)</label>
-      <input
-        id="station-filter"
-        class="station-input"
-        list="station-options"
-        placeholder="e.g. 06280"
-        value={stationFilter}
-        on:input={handleStationFilter} />
-      <datalist id="station-options">
-        {#each stationOptions as code}
-          <option value={code}></option>
-        {/each}
-      </datalist>
-    </div>
-  {/if}
+  <h1>KNMI Wind & Radiation Timeline</h1>
 
   {#if loading}
-    <p class="status">Loading latest data...</p>
+    <p class="status">Loading observations…</p>
   {:else if errorMessage}
     <p class="status error">{errorMessage}</p>
-  {:else if lastUpdated}
-    <p class="status">Last refreshed: {formatTimestamp(lastUpdated)}</p>
-  {/if}
-
-  {#if legendStops.length}
-    <div class="legend">
-      <div class="legend-title">Legend{legendUnits ? ` (${legendUnits})` : ''}</div>
-      {#each legendStops as item}
-        <div class="legend-row">
-          <span class="legend-swatch" style={`background:${item.color}`}></span>
-          <span>{item.label}</span>
+  {:else if !timeline.length}
+    <p class="status">No historical points available.</p>
+  {:else}
+    <div class="controls">
+      <div class="control-row">
+        <label>View</label>
+        <div class="toggle">
+          {#each VIEW_OPTIONS as option}
+            <button
+              class:selected={selectedView === option.value}
+              on:click={() => { selectedView = option.value; }}
+            >
+              {option.label}
+            </button>
+          {/each}
         </div>
-      {/each}
+      </div>
+      <div class="control-row">
+        <label>Metric</label>
+        <div class="toggle">
+          {#each METRIC_OPTIONS as option}
+            <button
+              class:selected={selectedMetric === option.value}
+              on:click={() => { selectedMetric = option.value; }}
+            >
+              {option.label}
+            </button>
+          {/each}
+        </div>
+      </div>
+      <div class="control-row">
+        <label>Change window</label>
+        <select on:change={(event) => { selectedDelta = Number(event.target.value); }}>
+          {#each DELTA_OPTIONS as option}
+            <option value={option} selected={option === selectedDelta}>
+              {option} minutes
+            </option>
+          {/each}
+        </select>
+        <span class="hint">Comparing to {previousTimeISO ? formatShortTime(previousTimeISO) : 'n/a'}</span>
+      </div>
     </div>
-  {/if}
 
-  <p class="footer">
-    Sources: <a href={REGION_URL} target="_blank" rel="noopener">region feed</a> &middot;
-    <a href={STATION_URL} target="_blank" rel="noopener">station feed</a>. Data refreshes every 10 minutes.
-  </p>
+    <div class="timeline">
+      <input
+        type="range"
+        min="0"
+        max={Math.max(0, timeline.length - 1)}
+        bind:value={currentIndex}
+      />
+      <div class="timestamp">
+        <span>{formatLongTime(currentTimeISO)}</span>
+        <span>{timeline.length} obs</span>
+      </div>
+    </div>
+    <p class="hint">
+      Drag the slider to explore the last {timespanMinutes} minutes of KNMI observations.
+    </p>
+  {/if}
 </section>
