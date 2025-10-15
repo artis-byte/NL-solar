@@ -18,14 +18,14 @@
   ];
   const NO_VALUE = '--';
   const REGION_HISTORY_COLUMNS = [
-    { key: 'qg_mean', label: 'Radiation (W/m^2)', decimals: 0, suffix: ' W/m^2' },
-    { key: 'wind_speed_mean', label: 'Wind (m/s)', decimals: 1, suffix: ' m/s' },
-    { key: 'wind_direction_mean', label: 'Direction (deg)', decimals: 0, suffix: ' deg' },
+    { key: 'qg_mean', label: 'Radiation (W/m^2)', decimals: 0, suffix: ' W/m^2', includeDelta: true },
+    { key: 'wind_speed_mean', label: 'Wind (m/s)', decimals: 1, suffix: ' m/s', includeDelta: true },
+    { key: 'wind_direction_mean', label: 'Direction (deg)', decimals: 0, suffix: ' deg', includeDelta: false },
   ];
   const STATION_HISTORY_COLUMNS = [
-    { key: 'qg', label: 'Radiation (W/m^2)', decimals: 0, suffix: ' W/m^2' },
-    { key: 'ff', label: 'Wind (m/s)', decimals: 1, suffix: ' m/s' },
-    { key: 'dd', label: 'Direction (deg)', decimals: 0, suffix: ' deg' },
+    { key: 'qg', label: 'Radiation (W/m^2)', decimals: 0, suffix: ' W/m^2', includeDelta: true },
+    { key: 'ff', label: 'Wind (m/s)', decimals: 1, suffix: ' m/s', includeDelta: true },
+    { key: 'dd', label: 'Direction (deg)', decimals: 0, suffix: ' deg', includeDelta: false },
   ];
 
   let loading = true;
@@ -146,17 +146,49 @@
     return entries.slice(-limit).reverse();
   };
 
+  const getTrend = (currentValue, previousValue) => {
+    if (currentValue == null || previousValue == null) return null;
+    const current = Number(currentValue);
+    const previous = Number(previousValue);
+    if (!Number.isFinite(current) || !Number.isFinite(previous)) return null;
+    return current - previous;
+  };
+
+  const computeDelta = (currentValue, previousValue, decimals = 1, suffix = '') => {
+    const trend = getTrend(currentValue, previousValue);
+    if (trend == null) return NO_VALUE;
+    return formatSignedNumber(trend, decimals, suffix);
+  };
+
   const renderHistoryTable = (historyMap, columns, limit = 5) => {
     const entries = getRecentHistoryEntries(historyMap, limit);
     if (!entries.length) return '';
-    const header = columns.map((column) => `<th>${column.label}</th>`).join('');
-    const rows = entries.map((entry) => {
+    const header = columns.map((column) => {
+      const deltaLabel = column.includeDelta ? `<th>${column.deltaLabel || 'Δ'}</th>` : '';
+      return `<th>${column.label}</th>${deltaLabel}`;
+    }).join('');
+    const rows = entries.map((entry, index) => {
       const cells = columns.map((column) => formatNumber(
         entry?.[column.key],
         column.decimals ?? 1,
         column.suffix ?? '',
       ));
-      const cellHtml = cells.map((cell) => `<td>${cell}</td>`).join('');
+      const previous = entries[index + 1] || null;
+      let cellHtml = '';
+      columns.forEach((column, idx) => {
+        cellHtml += `<td>${cells[idx]}</td>`;
+        if (column.includeDelta) {
+          const delta = previous
+            ? computeDelta(
+              entry?.[column.key],
+              previous?.[column.key],
+              column.deltaDecimals ?? column.decimals ?? 1,
+              column.suffix ?? '',
+            )
+            : NO_VALUE;
+          cellHtml += `<td>${delta}</td>`;
+        }
+      });
       return `<tr><td>${formatLongTime(entry?.observation_time)}</td>${cellHtml}</tr>`;
     }).join('');
     return `
@@ -176,23 +208,45 @@
     `;
   };
 
-  const buildRegionTooltip = (name, entry) => `
-    <div class="map-tooltip">
-      <div class="map-tooltip-title">${name || 'Region'}</div>
-      <div>Rad: ${formatNumber(entry?.qg_mean, 0, ' W/m^2')}</div>
-      <div>Wind: ${formatNumber(entry?.wind_speed_mean, 1, ' m/s')}</div>
-      <div class="map-tooltip-time">${formatShortTime(entry?.observation_time)}</div>
-    </div>
-  `;
+  const buildRegionTooltip = (name, entry, historyMap) => {
+    const historyEntries = getRecentHistoryEntries(historyMap, 2);
+    const previous = historyEntries.length > 1 ? historyEntries[1] : null;
+    const radTrend = getTrend(entry?.qg_mean, previous?.qg_mean);
+    const windTrend = getTrend(entry?.wind_speed_mean, previous?.wind_speed_mean);
+    const radDelta = radTrend == null ? NO_VALUE : formatSignedNumber(radTrend, 0, ' W/m^2');
+    const windDelta = windTrend == null ? NO_VALUE : formatSignedNumber(windTrend, 1, ' m/s');
+    const radTrendClass = radTrend == null ? '' : radTrend > 0 ? 'delta-positive' : radTrend < 0 ? 'delta-negative' : 'delta-neutral';
+    const windTrendClass = windTrend == null ? '' : windTrend > 0 ? 'delta-positive' : windTrend < 0 ? 'delta-negative' : 'delta-neutral';
+    const previousStamp = previous?.observation_time ? ` vs ${formatShortTime(previous.observation_time)}` : '';
+    return `
+      <div class="map-tooltip">
+        <div class="map-tooltip-title">${name || 'Region'}</div>
+        <div>Rad: ${formatNumber(entry?.qg_mean, 0, ' W/m^2')} <span class="delta ${radTrendClass}">${radDelta}</span></div>
+        <div>Wind: ${formatNumber(entry?.wind_speed_mean, 1, ' m/s')} <span class="delta ${windTrendClass}">${windDelta}</span></div>
+        <div class="map-tooltip-time">${formatShortTime(entry?.observation_time)}${previousStamp}</div>
+      </div>
+    `;
+  };
 
-  const buildStationTooltip = (stationId, entry) => `
-    <div class="map-tooltip">
-      <div class="map-tooltip-title">Station ${stationId}</div>
-      <div>Rad: ${formatNumber(entry?.qg, 0, ' W/m^2')}</div>
-      <div>Wind: ${formatNumber(entry?.ff, 1, ' m/s')}</div>
-      <div class="map-tooltip-time">${formatShortTime(entry?.observation_time)}</div>
-    </div>
-  `;
+  const buildStationTooltip = (stationId, entry, historyMap) => {
+    const historyEntries = getRecentHistoryEntries(historyMap, 2);
+    const previous = historyEntries.length > 1 ? historyEntries[1] : null;
+    const radTrend = getTrend(entry?.qg, previous?.qg);
+    const windTrend = getTrend(entry?.ff, previous?.ff);
+    const radDelta = radTrend == null ? NO_VALUE : formatSignedNumber(radTrend, 0, ' W/m^2');
+    const windDelta = windTrend == null ? NO_VALUE : formatSignedNumber(windTrend, 1, ' m/s');
+    const radTrendClass = radTrend == null ? '' : radTrend > 0 ? 'delta-positive' : radTrend < 0 ? 'delta-negative' : 'delta-neutral';
+    const windTrendClass = windTrend == null ? '' : windTrend > 0 ? 'delta-positive' : windTrend < 0 ? 'delta-negative' : 'delta-neutral';
+    const previousStamp = previous?.observation_time ? ` vs ${formatShortTime(previous.observation_time)}` : '';
+    return `
+      <div class="map-tooltip">
+        <div class="map-tooltip-title">Station ${stationId}</div>
+        <div>Rad: ${formatNumber(entry?.qg, 0, ' W/m^2')} <span class="delta ${radTrendClass}">${radDelta}</span></div>
+        <div>Wind: ${formatNumber(entry?.ff, 1, ' m/s')} <span class="delta ${windTrendClass}">${windDelta}</span></div>
+        <div class="map-tooltip-time">${formatShortTime(entry?.observation_time)}${previousStamp}</div>
+      </div>
+    `;
+  };
 
   const prepareIndex = (collection, keyProp) => {
     const index = new Map();
@@ -376,7 +430,7 @@
           currentTime,
         ));
         layer.bindTooltip(
-          buildRegionTooltip(feature.properties?.name, feature.properties),
+          buildRegionTooltip(feature.properties?.name, feature.properties, feature.history),
           {
             permanent: true,
             direction: 'center',
@@ -415,7 +469,7 @@
       });
       marker.bindPopup(buildStationPopup(stationId, entry, history, currentTime));
       marker.bindTooltip(
-        buildStationTooltip(stationId, entry),
+        buildStationTooltip(stationId, entry, history),
         {
           permanent: true,
           direction: 'top',
@@ -600,6 +654,10 @@
   .history-table td {
     border: 1px solid #dcdcdc;
     padding: 0.2em 0.35em;
+    text-align: right;
+  }
+  .history-table th:first-child,
+  .history-table td:first-child {
     text-align: left;
   }
   .history-table thead th {
@@ -630,6 +688,19 @@
     font-size: 0.7em;
     color: #444;
     margin-top: 0.15em;
+  }
+  .delta {
+    margin-left: 0.35em;
+    font-weight: 600;
+  }
+  .delta-positive {
+    color: #1b7837;
+  }
+  .delta-negative {
+    color: #b2182b;
+  }
+  .delta-neutral {
+    color: #555;
   }
 </style>
 
