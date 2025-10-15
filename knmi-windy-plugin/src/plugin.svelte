@@ -16,6 +16,17 @@
     { value: 'radiation', label: 'Radiation (W/m^2)' },
     { value: 'wind', label: 'Wind Speed (m/s)' },
   ];
+  const NO_VALUE = '--';
+  const REGION_HISTORY_COLUMNS = [
+    { key: 'qg_mean', label: 'Radiation (W/m^2)', decimals: 0, suffix: ' W/m^2' },
+    { key: 'wind_speed_mean', label: 'Wind (m/s)', decimals: 1, suffix: ' m/s' },
+    { key: 'wind_direction_mean', label: 'Direction (deg)', decimals: 0, suffix: ' deg' },
+  ];
+  const STATION_HISTORY_COLUMNS = [
+    { key: 'qg', label: 'Radiation (W/m^2)', decimals: 0, suffix: ' W/m^2' },
+    { key: 'ff', label: 'Wind (m/s)', decimals: 1, suffix: ' m/s' },
+    { key: 'dd', label: 'Direction (deg)', decimals: 0, suffix: ' deg' },
+  ];
 
   let loading = true;
   let errorMessage = '';
@@ -105,14 +116,14 @@
   };
 
   const formatNumber = (value, decimals = 1, suffix = '') => {
-    if (value == null || Number.isNaN(value)) return '—';
-    return `${Number(value).toFixed(decimals)}${suffix}`;
+    if (value == null || Number.isNaN(value)) return NO_VALUE;
+    return ${Number(value).toFixed(decimals)};
   };
 
   const formatSignedNumber = (value, decimals = 1, suffix = '') => {
-    if (value == null || Number.isNaN(value)) return '—';
+    if (value == null || Number.isNaN(value)) return NO_VALUE;
     const sign = value > 0 ? '+' : value < 0 ? '-' : '';
-    return `${sign}${Math.abs(Number(value)).toFixed(decimals)}${suffix}`;
+    return ${sign};
   };
 
   const formatLongTime = (iso) =>
@@ -121,13 +132,67 @@
       minute: '2-digit',
       day: '2-digit',
       month: 'short',
-    }) : '—';
+    }) : NO_VALUE;
 
   const formatShortTime = (iso) =>
     iso ? new Date(iso).toLocaleTimeString(undefined, {
       hour: '2-digit',
       minute: '2-digit',
-    }) : '—';
+    }) : NO_VALUE;
+
+  const getRecentHistoryEntries = (historyMap, limit = 5) => {
+    if (!historyMap || !historyMap.size) return [];
+    const entries = Array.from(historyMap.values());
+    return entries.slice(-limit).reverse();
+  };
+
+  const renderHistoryTable = (historyMap, columns, limit = 5) => {
+    const entries = getRecentHistoryEntries(historyMap, limit);
+    if (!entries.length) return '';
+    const header = columns.map((column) => `<th>${column.label}</th>`).join('');
+    const rows = entries.map((entry) => {
+      const cells = columns.map((column) => formatNumber(
+        entry?.[column.key],
+        column.decimals ?? 1,
+        column.suffix ?? '',
+      ));
+      const cellHtml = cells.map((cell) => `<td>${cell}</td>`).join('');
+      return `<tr><td>${formatLongTime(entry?.observation_time)}</td>${cellHtml}</tr>`;
+    }).join('');
+    return `
+      <div class="history-block">
+        <h4>Last ${entries.length} observations</h4>
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Observed</th>${header}
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+      </div>
+    `;
+  };
+
+  const buildRegionTooltip = (name, entry) => `
+    <div class="map-tooltip">
+      <div class="map-tooltip-title">${name || 'Region'}</div>
+      <div>Rad: ${formatNumber(entry?.qg_mean, 0, ' W/m^2')}</div>
+      <div>Wind: ${formatNumber(entry?.wind_speed_mean, 1, ' m/s')}</div>
+      <div class="map-tooltip-time">${formatShortTime(entry?.observation_time)}</div>
+    </div>
+  `;
+
+  const buildStationTooltip = (stationId, entry) => `
+    <div class="map-tooltip">
+      <div class="map-tooltip-title">Station ${stationId}</div>
+      <div>Rad: ${formatNumber(entry?.qg, 0, ' W/m^2')}</div>
+      <div>Wind: ${formatNumber(entry?.ff, 1, ' m/s')}</div>
+      <div class="map-tooltip-time">${formatShortTime(entry?.observation_time)}</div>
+    </div>
+  `;
 
   const prepareIndex = (collection, keyProp) => {
     const index = new Map();
@@ -197,16 +262,30 @@
     const deltaMinutes = selectedDelta;
     const radiationDelta = computeDelta(historyMap, currentTime, 'qg_mean', deltaMinutes);
     const windDelta = computeDelta(historyMap, currentTime, 'wind_speed_mean', deltaMinutes);
+    const radiationChange = radiationDelta
+      ? `${formatSignedNumber(radiationDelta.delta, 0, ' W/m^2')}${radiationDelta.previousTime ? ' (vs ' + formatShortTime(radiationDelta.previousTime) + ')' : ''}`
+      : NO_VALUE;
+    const windChange = windDelta
+      ? `${formatSignedNumber(windDelta.delta, 1, ' m/s')}${windDelta.previousTime ? ' (vs ' + formatShortTime(windDelta.previousTime) + ')' : ''}`
+      : NO_VALUE;
+    const historyTable = renderHistoryTable(historyMap, REGION_HISTORY_COLUMNS);
+    const stationsLine = entry?.stations_count != null
+      ? `<p>Stations contributing: ${entry.stations_count}</p>`
+      : '';
+    const outputLine = entry?.estimated_output_mw != null
+      ? `<p>Est. PV output: ${formatNumber(entry.estimated_output_mw, 1, ' MW')}</p>`
+      : '';
 
     return `
       <div class="popup">
         <h3>${name}</h3>
         <p><strong>Radiation</strong>: ${formatNumber(entry?.qg_mean, 0, ' W/m^2')}<br>
-           Δ${deltaMinutes} min: ${radiationDelta ? formatSignedNumber(radiationDelta.delta, 0, ' W/m^2') : '—'}${radiationDelta?.previousTime ? ` (vs ${formatShortTime(radiationDelta.previousTime)})` : ''}</p>
-        <p><strong>Wind</strong>: ${formatNumber(entry?.wind_speed_mean, 1, ' m/s')} @ ${formatNumber(entry?.wind_direction_mean, 0, '°')}<br>
-           Δ${deltaMinutes} min: ${windDelta ? formatSignedNumber(windDelta.delta, 1, ' m/s') : '—'}${windDelta?.previousTime ? ` (vs ${formatShortTime(windDelta.previousTime)})` : ''}</p>
-        ${entry?.stations_count != null ? `<p>Stations contributing: ${entry.stations_count}</p>` : ''}
-        ${entry?.estimated_output_mw != null ? `<p>Est. PV output: ${formatNumber(entry.estimated_output_mw, 1, ' MW')}</p>` : ''}
+           &#916;${deltaMinutes} min: ${radiationChange}</p>
+        <p><strong>Wind</strong>: ${formatNumber(entry?.wind_speed_mean, 1, ' m/s')} @ ${formatNumber(entry?.wind_direction_mean, 0, ' deg')}<br>
+           &#916;${deltaMinutes} min: ${windChange}</p>
+        ${stationsLine}
+        ${outputLine}
+        ${historyTable}
       </div>
     `;
   };
@@ -215,15 +294,26 @@
     const deltaMinutes = selectedDelta;
     const radiationDelta = computeDelta(historyMap, currentTime, 'qg', deltaMinutes);
     const windDelta = computeDelta(historyMap, currentTime, 'ff', deltaMinutes);
+    const radiationChange = radiationDelta
+      ? `${formatSignedNumber(radiationDelta.delta, 0, ' W/m^2')}${radiationDelta.previousTime ? ' (vs ' + formatShortTime(radiationDelta.previousTime) + ')' : ''}`
+      : NO_VALUE;
+    const windChange = windDelta
+      ? `${formatSignedNumber(windDelta.delta, 1, ' m/s')}${windDelta.previousTime ? ' (vs ' + formatShortTime(windDelta.previousTime) + ')' : ''}`
+      : NO_VALUE;
+    const historyTable = renderHistoryTable(historyMap, STATION_HISTORY_COLUMNS);
+    const sourceLine = entry?.source_filename
+      ? `<p>Source: ${entry.source_filename}</p>`
+      : '';
 
     return `
       <div class="popup">
         <h3>Station ${stationId}</h3>
         <p><strong>Radiation</strong>: ${formatNumber(entry?.qg, 0, ' W/m^2')}<br>
-           Δ${deltaMinutes} min: ${radiationDelta ? formatSignedNumber(radiationDelta.delta, 0, ' W/m^2') : '—'}${radiationDelta?.previousTime ? ` (vs ${formatShortTime(radiationDelta.previousTime)})` : ''}</p>
-        <p><strong>Wind</strong>: ${formatNumber(entry?.ff, 1, ' m/s')} @ ${formatNumber(entry?.dd, 0, '°')}<br>
-           Δ${deltaMinutes} min: ${windDelta ? formatSignedNumber(windDelta.delta, 1, ' m/s') : '—'}${windDelta?.previousTime ? ` (vs ${formatShortTime(windDelta.previousTime)})` : ''}</p>
-        ${entry?.source_filename ? `<p>Source: ${entry.source_filename}</p>` : ''}
+           &#916;${deltaMinutes} min: ${radiationChange}</p>
+        <p><strong>Wind</strong>: ${formatNumber(entry?.ff, 1, ' m/s')} @ ${formatNumber(entry?.dd, 0, ' deg')}<br>
+           &#916;${deltaMinutes} min: ${windChange}</p>
+        ${sourceLine}
+        ${historyTable}
       </div>
     `;
   };
@@ -285,6 +375,15 @@
           feature.history,
           currentTime,
         ));
+        layer.bindTooltip(
+          buildRegionTooltip(feature.properties?.name, feature.properties),
+          {
+            permanent: true,
+            direction: 'center',
+            className: 'region-label',
+            sticky: false,
+          },
+        );
       },
     }).addTo(mapInstance);
   };
@@ -315,6 +414,15 @@
         weight: 1,
       });
       marker.bindPopup(buildStationPopup(stationId, entry, history, currentTime));
+      marker.bindTooltip(
+        buildStationTooltip(stationId, entry),
+        {
+          permanent: true,
+          direction: 'top',
+          className: 'station-label',
+          offset: [0, -8],
+        },
+      );
       marker.addTo(stationLayer);
     });
   };
@@ -376,8 +484,16 @@
     stationLayer = clearLayer(stationLayer);
   });
 
-  $: if (!loading) {
-    updateMap();
+  $: {
+    if (!loading && timeline.length) {
+      const _view = selectedView;
+      const _metric = selectedMetric;
+      const _delta = selectedDelta;
+      const _index = currentIndex;
+      const _current = timeline[currentIndex];
+      void (_view, _metric, _delta, _index, _current);
+      updateMap();
+    }
   }
 
   $: currentTimeISO = timeline.length ? timeline[currentIndex] : null;
@@ -463,9 +579,57 @@
     margin: 0 0 0.3em;
     font-size: 1em;
   }
+  .popup h4 {
+    margin: 0.6em 0 0.3em;
+    font-size: 0.85em;
+    font-weight: 600;
+  }
   .popup p {
     margin: 0.25em 0;
     font-size: 0.85em;
+  }
+  .history-block {
+    margin-top: 0.6em;
+  }
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78em;
+  }
+  .history-table th,
+  .history-table td {
+    border: 1px solid #dcdcdc;
+    padding: 0.2em 0.35em;
+    text-align: left;
+  }
+  .history-table thead th {
+    background: #f5f5f5;
+  }
+  .history-table tbody tr:nth-child(even) {
+    background: #fafafa;
+  }
+  .leaflet-tooltip.region-label,
+  .leaflet-tooltip.station-label {
+    background: rgba(255, 255, 255, 0.92);
+    color: #222;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    padding: 0.35em 0.5em;
+    border-radius: 4px;
+    text-align: center;
+  }
+  .leaflet-tooltip.station-label {
+    transform: translateY(-4px);
+  }
+  .map-tooltip-title {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.1em;
+  }
+  .map-tooltip-time {
+    font-size: 0.7em;
+    color: #444;
+    margin-top: 0.15em;
   }
 </style>
 
@@ -473,7 +637,7 @@
   <h1>KNMI Wind & Radiation Timeline</h1>
 
   {#if loading}
-    <p class="status">Loading observations…</p>
+    <p class="status">Loading observations...</p>
   {:else if errorMessage}
     <p class="status error">{errorMessage}</p>
   {:else if !timeline.length}
