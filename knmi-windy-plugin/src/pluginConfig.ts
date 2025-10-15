@@ -2,7 +2,7 @@ import type { ExternalPluginConfig } from '@windy/interfaces';
 
 const config: ExternalPluginConfig = {
     name: 'windy-plugin-knmi-timeline',
-    version: '0.3.0',
+    version: '3.1.0',
     icon: 'wind',
     title: 'KNMI Wind & Radiation Timeline',
     description: 'Explore 10-minute KNMI wind speed and irradiance changes across Dutch regions and stations.',
