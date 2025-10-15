@@ -33,7 +33,12 @@ import pandas as pd
 import requests
 from shapely.geometry import mapping
 
-from knmi_station_data.fetch_station_metrics import (
+# Ensure the repository root (parent of "src") is importable when executed as a script.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from knmi_station_data.fetch_station_metrics import (  # noqa: E402
     API_KEY as DEFAULT_STATION_API_KEY,
     fetch_station_metrics,
 )
