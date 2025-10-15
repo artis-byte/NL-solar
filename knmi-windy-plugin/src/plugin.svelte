@@ -154,7 +154,7 @@
     return current - previous;
   };
 
-  const computeDelta = (currentValue, previousValue, decimals = 1, suffix = '') => {
+  const formatDeltaValue = (currentValue, previousValue, decimals = 1, suffix = '') => {
     const trend = getTrend(currentValue, previousValue);
     if (trend == null) return NO_VALUE;
     return formatSignedNumber(trend, decimals, suffix);
@@ -164,7 +164,7 @@
     const entries = getRecentHistoryEntries(historyMap, limit);
     if (!entries.length) return '';
     const header = columns.map((column) => {
-      const deltaLabel = column.includeDelta ? `<th>${column.deltaLabel || 'Δ'}</th>` : '';
+      const deltaLabel = column.includeDelta ? `<th>${column.deltaLabel || '&Delta;'}</th>` : '';
       return `<th>${column.label}</th>${deltaLabel}`;
     }).join('');
     const rows = entries.map((entry, index) => {
@@ -179,7 +179,7 @@
         cellHtml += `<td>${cells[idx]}</td>`;
         if (column.includeDelta) {
           const delta = previous
-            ? computeDelta(
+            ? formatDeltaValue(
               entry?.[column.key],
               previous?.[column.key],
               column.deltaDecimals ?? column.decimals ?? 1,
