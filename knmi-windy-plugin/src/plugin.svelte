@@ -117,13 +117,13 @@
 
   const formatNumber = (value, decimals = 1, suffix = '') => {
     if (value == null || Number.isNaN(value)) return NO_VALUE;
-    return ${Number(value).toFixed(decimals)};
+    return `${Number(value).toFixed(decimals)}${suffix}`;
   };
 
   const formatSignedNumber = (value, decimals = 1, suffix = '') => {
     if (value == null || Number.isNaN(value)) return NO_VALUE;
     const sign = value > 0 ? '+' : value < 0 ? '-' : '';
-    return ${sign};
+    return `${sign}${Math.abs(Number(value)).toFixed(decimals)}${suffix}`;
   };
 
   const formatLongTime = (iso) =>
