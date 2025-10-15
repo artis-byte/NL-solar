@@ -41,6 +41,7 @@ if str(REPO_ROOT) not in sys.path:
 from knmi_station_data.fetch_station_metrics import (  # noqa: E402
     API_KEY as DEFAULT_STATION_API_KEY,
     fetch_station_metrics,
+    list_latest_station_files,
 )
 
 try:
@@ -307,28 +308,43 @@ def run_once(
     gh_token: Optional[str] = None,
     stations_out: Optional[str] = None,
     gh_stations_path: Optional[str] = None,
+    bootstrap_files: int = 1,
 ) -> Tuple[gpd.GeoDataFrame, Optional[dict]]:
-    df = fetch_station_metrics(api_key=api_key)
-    observation_iso = _derive_observation_time(df)
-    geo = aggregate_regions(df, regions_path)
-    geo["observation_time"] = observation_iso
+    filenames = list_latest_station_files(api_key, bootstrap_files)
+    if not filenames:
+        raise RuntimeError("No KNMI station files were returned.")
+    latest_name = filenames[0]
+    latest_geo: Optional[gpd.GeoDataFrame] = None
+    latest_df: Optional[pd.DataFrame] = None
+    latest_observation_iso: Optional[str] = None
+    history_payload: Optional[dict] = None
+    history_path: Optional[Path] = None
+    for name in reversed(filenames):
+        df = fetch_station_metrics(api_key=api_key, filename=name)
+        observation_iso = _derive_observation_time(df)
+        geo = aggregate_regions(df, regions_path)
+        geo["observation_time"] = observation_iso
+        if history_out:
+            history_path = Path(history_out)
+            history_payload = update_region_history(
+                geo, history_path, observation_iso, max_history
+            )
+        if name == latest_name:
+            latest_geo = geo
+            latest_df = df
+            latest_observation_iso = observation_iso
+
+    if latest_geo is None or latest_df is None or latest_observation_iso is None:
+        raise RuntimeError("Failed to build the latest regional snapshot.")
 
     local_path = Path(local_out)
     local_path.parent.mkdir(parents=True, exist_ok=True)
-    geo.to_file(local_path, driver="GeoJSON")
-
-    history_payload: Optional[dict] = None
-    history_path: Optional[Path] = None
-    if history_out:
-        history_path = Path(history_out)
-        history_payload = update_region_history(
-            geo, history_path, observation_iso, max_history
-        )
+    latest_geo.to_file(local_path, driver="GeoJSON")
 
     if stations_out:
         stations_geo = gpd.GeoDataFrame(
-            df,
-            geometry=gpd.points_from_xy(df["longitude"], df["latitude"]),
+            latest_df,
+            geometry=gpd.points_from_xy(latest_df["longitude"], latest_df["latitude"]),
             crs="EPSG:4326",
         )
         stations_geo.to_file(stations_out, driver="GeoJSON")
@@ -362,12 +378,12 @@ def run_once(
         url = upload_github(stations_out, gh_repo, gh_stations_path, gh_branch, upload_token)
         print("GitHub stations ->", url)
 
-    print(f"Generated {local_out} at {observation_iso}")
+    print(f"Generated {local_out} at {latest_observation_iso}")
     if history_path:
         print(f"Updated history {history_path} (max {max_history} observations)")
     if stations_out:
         print(f"Wrote station snapshot {stations_out}")
-    return geo, history_payload
+    return latest_geo, history_payload
 
 
 # ---------------------------------------------------------------------------
@@ -392,6 +408,15 @@ def main(argv: list[str] | None = None) -> None:
         type=int,
         default=MAX_HISTORY_POINTS,
         help="Maximum number of observations to retain in history files",
+    )
+    parser.add_argument(
+        "--bootstrap-files",
+        type=int,
+        default=1,
+        help=(
+            "Fetch and ingest the most recent N KNMI station datasets in a single run "
+            "to backfill regional history."
+        ),
     )
     parser.add_argument(
         "--stations-out",
@@ -429,6 +454,7 @@ def main(argv: list[str] | None = None) -> None:
 
     args = parser.parse_args(argv)
     max_history = max(1, args.max_history)
+    bootstrap_files = max(1, args.bootstrap_files)
 
     while True:
         try:
@@ -449,6 +475,7 @@ def main(argv: list[str] | None = None) -> None:
                 gh_token=args.gh_token,
                 stations_out=args.stations_out,
                 gh_stations_path=args.gh_stations_path,
+                bootstrap_files=bootstrap_files,
             )
         except Exception as exc:  # pragma: no cover - runtime feedback
             print("Error:", exc, file=sys.stderr)

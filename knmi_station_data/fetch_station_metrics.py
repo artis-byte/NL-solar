@@ -30,7 +30,7 @@ import os
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Iterable, Optional
+from typing import Dict, Iterable, List, Optional
 
 import pandas as pd
 import requests
@@ -74,9 +74,10 @@ def _auth_headers(api_key: str) -> Dict[str, str]:
     return {"Authorization": token}
 
 
-def _latest_file(api_key: str) -> str:
+def _latest_files(api_key: str, count: int = 1) -> List[str]:
     headers = _auth_headers(api_key)
-    params = {"maxKeys": 1, "orderBy": "created", "sorting": "desc"}
+    limit = max(1, int(count))
+    params = {"maxKeys": limit, "orderBy": "created", "sorting": "desc"}
     response = requests.get(
         f"{BASE_URL}/datasets/{DATASET}/versions/{VERSION}/files",
         headers=headers,
@@ -84,7 +85,14 @@ def _latest_file(api_key: str) -> str:
         timeout=30,
     )
     response.raise_for_status()
-    return response.json()["files"][0]["filename"]
+    payload = response.json()
+    files = payload.get("files", [])
+    return [item["filename"] for item in files[:limit]]
+
+
+def list_latest_station_files(api_key: str, count: int = 1) -> List[str]:
+    """Public helper that returns the newest KNMI station filenames (newest->oldest)."""
+    return _latest_files(api_key, count)
 
 
 def _download_file(api_key: str, filename: str) -> bytes:
@@ -296,8 +304,12 @@ def update_station_history(
     return stations
 
 
-def fetch_station_metrics(api_key: str) -> pd.DataFrame:
-    filename = _latest_file(api_key)
+def fetch_station_metrics(api_key: str, filename: Optional[str] = None) -> pd.DataFrame:
+    if filename is None:
+        filenames = _latest_files(api_key, 1)
+        if not filenames:
+            raise RuntimeError("No KNMI station files were returned.")
+        filename = filenames[0]
     raw = _download_file(api_key, filename)
     df = _parse_dataset(raw)
     df.insert(1, "source_filename", filename)
@@ -310,17 +322,28 @@ def _run(
     history_json: Path,
     history_geojson: Path,
     max_history: int,
+    bootstrap_files: int,
 ) -> pd.DataFrame:
-    df = fetch_station_metrics(api_key=api_key)
+    filenames = _latest_files(api_key, bootstrap_files)
+    if not filenames:
+        raise RuntimeError("No KNMI station files were returned.")
+    latest_name = filenames[0]
+    latest_df: Optional[pd.DataFrame] = None
+    for name in reversed(filenames):
+        df = fetch_station_metrics(api_key=api_key, filename=name)
+        update_station_history(
+            df,
+            history_json=history_json,
+            history_geojson=history_geojson,
+            max_points=max_history,
+        )
+        if name == latest_name:
+            latest_df = df
+    if latest_df is None:
+        raise RuntimeError("Failed to obtain the latest station dataset.")
     output.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output, index=False)
-    update_station_history(
-        df,
-        history_json=history_json,
-        history_geojson=history_geojson,
-        max_points=max_history,
-    )
-    return df
+    latest_df.to_csv(output, index=False)
+    return latest_df
 
 
 def main(
@@ -329,6 +352,7 @@ def main(
     history_json: str | Path = DEFAULT_HISTORY_JSON,
     history_geojson: str | Path = DEFAULT_HISTORY_GEOJSON,
     max_history: int = MAX_HISTORY_POINTS,
+    bootstrap_files: int = 1,
 ) -> None:
     df = _run(
         output=Path(output),
@@ -336,6 +360,7 @@ def main(
         history_json=Path(history_json),
         history_geojson=Path(history_geojson),
         max_history=max(1, int(max_history)),
+        bootstrap_files=max(1, int(bootstrap_files)),
     )
     print(f"Wrote {len(df)} station rows to {output}")
     print(
@@ -372,6 +397,15 @@ if __name__ == "__main__":
         default=MAX_HISTORY_POINTS,
         help="Number of observations to retain per station.",
     )
+    parser.add_argument(
+        "--bootstrap-files",
+        type=int,
+        default=1,
+        help=(
+            "Fetch and ingest the most recent N KNMI NetCDF files in one run "
+            "(helps backfill station history)."
+        ),
+    )
     args = parser.parse_args()
     main(
         output=args.output,
@@ -379,4 +413,5 @@ if __name__ == "__main__":
         history_json=Path(args.history_json),
         history_geojson=Path(args.history_geojson),
         max_history=args.max_history,
+        bootstrap_files=args.bootstrap_files,
     )
