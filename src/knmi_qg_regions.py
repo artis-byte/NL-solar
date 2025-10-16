@@ -40,8 +40,11 @@ if str(REPO_ROOT) not in sys.path:
 
 from knmi_station_data.fetch_station_metrics import (  # noqa: E402
     API_KEY as DEFAULT_STATION_API_KEY,
+    DEFAULT_HISTORY_GEOJSON as DEFAULT_STATION_HISTORY_GEOJSON,
+    DEFAULT_HISTORY_JSON as DEFAULT_STATION_HISTORY_JSON,
     fetch_station_metrics,
     list_latest_station_files,
+    update_station_history,
 )
 
 try:
@@ -308,6 +311,9 @@ def run_once(
     gh_token: Optional[str] = None,
     stations_out: Optional[str] = None,
     gh_stations_path: Optional[str] = None,
+    station_history_json: str | Path | None = str(DEFAULT_STATION_HISTORY_JSON),
+    station_history_geojson: str | Path | None = str(DEFAULT_STATION_HISTORY_GEOJSON),
+    gh_station_history_path: Optional[str] = None,
     bootstrap_files: int = 1,
 ) -> Tuple[gpd.GeoDataFrame, Optional[dict]]:
     filenames = list_latest_station_files(api_key, bootstrap_files)
@@ -319,6 +325,9 @@ def run_once(
     latest_observation_iso: Optional[str] = None
     history_payload: Optional[dict] = None
     history_path: Optional[Path] = None
+    station_history_json_path = Path(station_history_json) if station_history_json else None
+    station_history_geojson_path = Path(station_history_geojson) if station_history_geojson else None
+    station_history_updated = False
     for name in reversed(filenames):
         df = fetch_station_metrics(api_key=api_key, filename=name)
         observation_iso = _derive_observation_time(df)
@@ -329,6 +338,14 @@ def run_once(
             history_payload = update_region_history(
                 geo, history_path, observation_iso, max_history
             )
+        if station_history_json_path or station_history_geojson_path:
+            update_kwargs: dict = {"max_points": max_history}
+            if station_history_json_path:
+                update_kwargs["history_json"] = station_history_json_path
+            if station_history_geojson_path:
+                update_kwargs["history_geojson"] = station_history_geojson_path
+            update_station_history(df, **update_kwargs)
+            station_history_updated = True
         if name == latest_name:
             latest_geo = geo
             latest_df = df
@@ -377,12 +394,30 @@ def run_once(
             raise RuntimeError("GitHub token not provided (flag or GITHUB_TOKEN env var)")
         url = upload_github(stations_out, gh_repo, gh_stations_path, gh_branch, upload_token)
         print("GitHub stations ->", url)
+    if (
+        gh_repo
+        and gh_station_history_path
+        and station_history_geojson_path
+        and station_history_updated
+    ):
+        if not upload_token:
+            raise RuntimeError("GitHub token not provided (flag or GITHUB_TOKEN env var)")
+        url = upload_github(
+            str(station_history_geojson_path),
+            gh_repo,
+            gh_station_history_path,
+            gh_branch,
+            upload_token,
+        )
+        print("GitHub station history ->", url)
 
     print(f"Generated {local_out} at {latest_observation_iso}")
     if history_path:
         print(f"Updated history {history_path} (max {max_history} observations)")
     if stations_out:
         print(f"Wrote station snapshot {stations_out}")
+    if station_history_updated and station_history_geojson_path:
+        print(f"Updated station history {station_history_geojson_path}")
     return latest_geo, history_payload
 
 
@@ -425,6 +460,20 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--gh-stations-path",
         help="Repository path for station snapshots (requires --gh-repo)",
+    )
+    parser.add_argument(
+        "--station-history-json",
+        default=str(DEFAULT_STATION_HISTORY_JSON),
+        help="Path to the rolling station history JSON",
+    )
+    parser.add_argument(
+        "--station-history-geojson",
+        default=str(DEFAULT_STATION_HISTORY_GEOJSON),
+        help="Path to the rolling station history GeoJSON",
+    )
+    parser.add_argument(
+        "--gh-station-history-path",
+        help="Repository path for station history GeoJSON (requires --gh-repo)",
     )
 
     # S3 options
@@ -475,6 +524,9 @@ def main(argv: list[str] | None = None) -> None:
                 gh_token=args.gh_token,
                 stations_out=args.stations_out,
                 gh_stations_path=args.gh_stations_path,
+                station_history_json=args.station_history_json,
+                station_history_geojson=args.station_history_geojson,
+                gh_station_history_path=args.gh_station_history_path,
                 bootstrap_files=bootstrap_files,
             )
         except Exception as exc:  # pragma: no cover - runtime feedback
