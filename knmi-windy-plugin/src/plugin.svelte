@@ -8,6 +8,7 @@
     'https://raw.githubusercontent.com/artis-byte/NL-solar/main/knmi_station_data/station_metrics_history.geojson';
   const REFRESH_INTERVAL = 600_000;
   const DELTA_OPTIONS = [10, 30, 60];
+  const DELTA_TOLERANCE_MINUTES = 5;
   const VIEW_OPTIONS = [
     { value: 'regions', label: 'Regions' },
     { value: 'stations', label: 'Stations' },
@@ -302,6 +303,12 @@
     const current = historyMap.get(currentTime);
     const previous = historyMap.get(previousTime);
     if (!current || !previous) return null;
+    const currentDate = new Date(currentTime);
+    const previousDate = new Date(previousTime);
+    const gapMinutes = Math.abs((currentDate - previousDate) / 60000);
+    if (gapMinutes > minutes + DELTA_TOLERANCE_MINUTES) {
+      return null;
+    }
     const currentValue = current[metricKey];
     const previousValue = previous[metricKey];
     if (currentValue == null || previousValue == null) return null;

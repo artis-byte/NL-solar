@@ -2,7 +2,7 @@ name: Update KNMI QG GeoJSON
 
 on:
   schedule:
-    - cron: "*/10 * * * *"  # every 10 minutes
+    - cron: "*/8 * * * *"  # every 8 minutes (best-effort by GitHub)
   workflow_dispatch:
 
 jobs:
@@ -17,6 +17,7 @@ jobs:
       STATIONS_FILE: stations_live.geojson
       STATION_HISTORY_JSON: knmi_station_data/station_metrics_history.json
       STATION_HISTORY_GEOJSON: knmi_station_data/station_metrics_history.geojson
+      BOOTSTRAP_FILES: 12
       REPO_SLUG: artis-byte/NL-solar
     steps:
       - name: Checkout repository
@@ -56,5 +57,6 @@ jobs:
             --station-history-json "$STATION_HISTORY_JSON" \
             --station-history-geojson "$STATION_HISTORY_GEOJSON" \
             --gh-station-history-path "$STATION_HISTORY_GEOJSON" \
+            --bootstrap-files "$BOOTSTRAP_FILES" \
             --gh-branch main \
             --gh-token "$GITHUB_PAT"

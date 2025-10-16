@@ -56,6 +56,7 @@ except ImportError:  # pragma: no cover - optional dependency
 DEFAULT_API_KEY = DEFAULT_STATION_API_KEY
 DEFAULT_HISTORY_OUT = "qg_regions_history.geojson"
 MAX_HISTORY_POINTS = 12
+DEFAULT_BOOTSTRAP_FILES = 12
 
 
 # ---------------------------------------------------------------------------
@@ -314,7 +315,7 @@ def run_once(
     station_history_json: str | Path | None = str(DEFAULT_STATION_HISTORY_JSON),
     station_history_geojson: str | Path | None = str(DEFAULT_STATION_HISTORY_GEOJSON),
     gh_station_history_path: Optional[str] = None,
-    bootstrap_files: int = 1,
+    bootstrap_files: int = DEFAULT_BOOTSTRAP_FILES,
 ) -> Tuple[gpd.GeoDataFrame, Optional[dict]]:
     filenames = list_latest_station_files(api_key, bootstrap_files)
     if not filenames:
@@ -447,7 +448,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--bootstrap-files",
         type=int,
-        default=1,
+        default=DEFAULT_BOOTSTRAP_FILES,
         help=(
             "Fetch and ingest the most recent N KNMI station datasets in a single run "
             "to backfill regional history."
