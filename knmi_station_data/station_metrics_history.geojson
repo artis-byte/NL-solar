@@ -14,13 +14,6 @@
         "station": "06201",
         "history": [
           {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 8.68832,
-            "dd": 92.1
-          },
-          {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
             "qg": null,
@@ -96,14 +89,21 @@
             "qg": null,
             "ff": 8.39899,
             "dd": 94.7
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 7.70458,
+            "dd": 98.1
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 8.39899,
-          "dd": 94.7
+          "ff": 7.70458,
+          "dd": 98.1
         },
         "max_history": 12
       }
@@ -120,13 +120,6 @@
       "properties": {
         "station": "06203",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 5.55915,
-            "dd": 85.4
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -203,14 +196,21 @@
             "qg": null,
             "ff": 4.23675,
             "dd": 64.6
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 3.97563,
+            "dd": 66.3
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 4.23675,
-          "dd": 64.6
+          "ff": 3.97563,
+          "dd": 66.3
         },
         "max_history": 12
       }
@@ -228,40 +228,96 @@
         "station": "06204",
         "history": [
           {
-            "observation_time": "2025-10-15T16:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202510151640.nc",
-            "qg": null,
-            "ff": 7.97218,
-            "dd": 22.2
-          },
-          {
-            "observation_time": "2025-10-15T16:50:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202510151650.nc",
-            "qg": null,
-            "ff": 7.60648,
-            "dd": 25.2
-          },
-          {
-            "observation_time": "2025-10-15T17:00:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202510151700.nc",
-            "qg": null,
-            "ff": 7.37081,
-            "dd": 18.0
-          },
-          {
             "observation_time": "2025-10-15T17:10:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202510151710.nc",
             "qg": null,
             "ff": 7.90717,
             "dd": 20.6
+          },
+          {
+            "observation_time": "2026-01-25T20:50:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
+            "qg": null,
+            "ff": 5.59109,
+            "dd": 88.6
+          },
+          {
+            "observation_time": "2026-01-25T21:00:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252100.nc",
+            "qg": null,
+            "ff": 5.16038,
+            "dd": 90.0
+          },
+          {
+            "observation_time": "2026-01-25T21:10:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252110.nc",
+            "qg": null,
+            "ff": 4.90846,
+            "dd": 95.4
+          },
+          {
+            "observation_time": "2026-01-25T21:20:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252120.nc",
+            "qg": null,
+            "ff": 5.68048,
+            "dd": 88.3
+          },
+          {
+            "observation_time": "2026-01-25T21:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252130.nc",
+            "qg": null,
+            "ff": 4.23395,
+            "dd": 77.6
+          },
+          {
+            "observation_time": "2026-01-25T21:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252140.nc",
+            "qg": null,
+            "ff": 5.19289,
+            "dd": 90.2
+          },
+          {
+            "observation_time": "2026-01-25T21:50:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252150.nc",
+            "qg": null,
+            "ff": 5.42856,
+            "dd": 85.6
+          },
+          {
+            "observation_time": "2026-01-25T22:00:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252200.nc",
+            "qg": null,
+            "ff": 5.14413,
+            "dd": 78.4
+          },
+          {
+            "observation_time": "2026-01-25T22:10:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252210.nc",
+            "qg": null,
+            "ff": 5.33917,
+            "dd": 91.5
+          },
+          {
+            "observation_time": "2026-01-25T22:20:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+            "qg": null,
+            "ff": 5.3798,
+            "dd": 96.9
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 5.05474,
+            "dd": 92.2
           }
         ],
         "latest": {
-          "observation_time": "2025-10-15T17:10:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202510151710.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 7.90717,
-          "dd": 20.6
+          "ff": 5.05474,
+          "dd": 92.2
         },
         "max_history": 12
       }
@@ -278,13 +334,6 @@
       "properties": {
         "station": "06205",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 12.6925,
-            "dd": 92.6
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -361,14 +410,21 @@
             "qg": null,
             "ff": 10.8996,
             "dd": 95.1
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 10.4909,
+            "dd": 89.1
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 10.8996,
-          "dd": 95.1
+          "ff": 10.4909,
+          "dd": 89.1
         },
         "max_history": 12
       }
@@ -386,54 +442,96 @@
         "station": "06207",
         "history": [
           {
-            "observation_time": "2025-10-15T13:30:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202510151330.nc",
-            "qg": null,
-            "ff": 5.9237,
-            "dd": 329.6
-          },
-          {
-            "observation_time": "2025-10-15T16:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202510151640.nc",
-            "qg": null,
-            "ff": 7.83689,
-            "dd": 353.7
-          },
-          {
-            "observation_time": "2025-10-15T16:50:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202510151650.nc",
-            "qg": null,
-            "ff": 7.75684,
-            "dd": 354.7
-          },
-          {
-            "observation_time": "2025-10-15T17:00:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202510151700.nc",
-            "qg": null,
-            "ff": 7.02838,
-            "dd": 353.8
-          },
-          {
-            "observation_time": "2025-10-15T17:10:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202510151710.nc",
-            "qg": null,
-            "ff": 6.26791,
-            "dd": 352.0
-          },
-          {
             "observation_time": "2025-10-15T17:20:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202510151720.nc",
             "qg": null,
             "ff": 6.2519,
             "dd": 352.1
+          },
+          {
+            "observation_time": "2026-01-25T20:50:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
+            "qg": null,
+            "ff": 8.42926,
+            "dd": 96.4
+          },
+          {
+            "observation_time": "2026-01-25T21:00:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252100.nc",
+            "qg": null,
+            "ff": 7.82088,
+            "dd": 89.0
+          },
+          {
+            "observation_time": "2026-01-25T21:10:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252110.nc",
+            "qg": null,
+            "ff": 8.59736,
+            "dd": 88.3
+          },
+          {
+            "observation_time": "2026-01-25T21:20:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252120.nc",
+            "qg": null,
+            "ff": 8.10105,
+            "dd": 90.8
+          },
+          {
+            "observation_time": "2026-01-25T21:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252130.nc",
+            "qg": null,
+            "ff": 8.39724,
+            "dd": 93.8
+          },
+          {
+            "observation_time": "2026-01-25T21:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252140.nc",
+            "qg": null,
+            "ff": 8.31719,
+            "dd": 88.9
+          },
+          {
+            "observation_time": "2026-01-25T21:50:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252150.nc",
+            "qg": null,
+            "ff": 9.12569,
+            "dd": 89.2
+          },
+          {
+            "observation_time": "2026-01-25T22:00:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252200.nc",
+            "qg": null,
+            "ff": 9.20574,
+            "dd": 88.8
+          },
+          {
+            "observation_time": "2026-01-25T22:10:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252210.nc",
+            "qg": null,
+            "ff": 8.62938,
+            "dd": 89.4
+          },
+          {
+            "observation_time": "2026-01-25T22:20:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+            "qg": null,
+            "ff": 8.48529,
+            "dd": 90.7
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 8.99761,
+            "dd": 89.8
           }
         ],
         "latest": {
-          "observation_time": "2025-10-15T17:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202510151720.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 6.2519,
-          "dd": 352.1
+          "ff": 8.99761,
+          "dd": 89.8
         },
         "max_history": 12
       }
@@ -450,13 +548,6 @@
       "properties": {
         "station": "06208",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 6.58922,
-            "dd": 108.7
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -533,14 +624,21 @@
             "qg": null,
             "ff": 5.62656,
             "dd": 115.7
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 5.65976,
+            "dd": 112.1
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 5.62656,
-          "dd": 115.7
+          "ff": 5.65976,
+          "dd": 112.1
         },
         "max_history": 12
       }
@@ -563,13 +661,6 @@
             "qg": null,
             "ff": 7.54756,
             "dd": 2.9
-          },
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 5.05063,
-            "dd": 88.0
           },
           {
             "observation_time": "2026-01-25T20:50:00Z",
@@ -640,14 +731,21 @@
             "qg": null,
             "ff": 5.73161,
             "dd": 61.2
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 5.47624,
+            "dd": 56.5
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 5.73161,
-          "dd": 61.2
+          "ff": 5.47624,
+          "dd": 56.5
         },
         "max_history": 12
       }
@@ -664,13 +762,6 @@
       "properties": {
         "station": "06211",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 8.89848,
-            "dd": 79.2
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -747,14 +838,21 @@
             "qg": null,
             "ff": 6.99224,
             "dd": 80.5
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 7.51139,
+            "dd": 73.8
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 6.99224,
-          "dd": 80.5
+          "ff": 7.51139,
+          "dd": 73.8
         },
         "max_history": 12
       }
@@ -771,13 +869,6 @@
       "properties": {
         "station": "06213",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 4.5661,
-            "dd": 94.5
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -854,14 +945,21 @@
             "qg": null,
             "ff": 3.96617,
             "dd": 81.9
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 3.88285,
+            "dd": 66.9
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 3.96617,
-          "dd": 81.9
+          "ff": 3.88285,
+          "dd": 66.9
         },
         "max_history": 12
       }
@@ -878,13 +976,6 @@
       "properties": {
         "station": "06214",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 9.4078,
-            "dd": null
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -961,13 +1052,20 @@
             "qg": null,
             "ff": 8.43749,
             "dd": null
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 8.10843,
+            "dd": null
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 8.43749,
+          "ff": 8.10843,
           "dd": null
         },
         "max_history": 12
@@ -985,13 +1083,6 @@
       "properties": {
         "station": "06215",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 2.8,
-            "dd": 81.6
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -1068,14 +1159,21 @@
             "qg": 0.0,
             "ff": 2.35,
             "dd": 47.2
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 2.43,
+            "dd": 41.4
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 2.35,
-          "dd": 47.2
+          "ff": 2.43,
+          "dd": 41.4
         },
         "max_history": 12
       }
@@ -1092,13 +1190,6 @@
       "properties": {
         "station": "06216",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 4.34565,
-            "dd": 95.0
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -1175,14 +1266,21 @@
             "qg": null,
             "ff": 3.8388,
             "dd": 83.9
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 3.90527,
+            "dd": 89.1
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 3.8388,
-          "dd": 83.9
+          "ff": 3.90527,
+          "dd": 89.1
         },
         "max_history": 12
       }
@@ -1199,13 +1297,6 @@
       "properties": {
         "station": "06218",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 4.96384,
-            "dd": 95.4
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -1282,14 +1373,21 @@
             "qg": null,
             "ff": 3.81898,
             "dd": 63.9
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 4.06132,
+            "dd": 71.0
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 3.81898,
-          "dd": 63.9
+          "ff": 4.06132,
+          "dd": 71.0
         },
         "max_history": 12
       }
@@ -1306,13 +1404,6 @@
       "properties": {
         "station": "06225",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 4.64,
-            "dd": 78.0
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -1389,14 +1480,21 @@
             "qg": null,
             "ff": 6.33,
             "dd": 62.1
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 5.94,
+            "dd": 58.3
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 6.33,
-          "dd": 62.1
+          "ff": 5.94,
+          "dd": 58.3
         },
         "max_history": 12
       }
@@ -1413,13 +1511,6 @@
       "properties": {
         "station": "06229",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 5.01,
-            "dd": 77.1
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -1496,14 +1587,21 @@
             "qg": null,
             "ff": 4.64,
             "dd": 80.2
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 4.99,
+            "dd": 74.9
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 4.64,
-          "dd": 80.2
+          "ff": 4.99,
+          "dd": 74.9
         },
         "max_history": 12
       }
@@ -1520,13 +1618,6 @@
       "properties": {
         "station": "06233",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 2.9,
-            "dd": 71.3
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -1603,14 +1694,21 @@
             "qg": 0.0,
             "ff": 3.4,
             "dd": 41.4
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 3.03,
+            "dd": 31.5
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 3.4,
-          "dd": 41.4
+          "ff": 3.03,
+          "dd": 31.5
         },
         "max_history": 12
       }
@@ -1627,13 +1725,6 @@
       "properties": {
         "station": "06235",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 1.0,
-            "ff": 4.62,
-            "dd": 92.3
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -1710,14 +1801,21 @@
             "qg": 1.0,
             "ff": 5.11,
             "dd": 78.0
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 1.0,
+            "ff": 4.57,
+            "dd": 77.6
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 1.0,
-          "ff": 5.11,
-          "dd": 78.0
+          "ff": 4.57,
+          "dd": 77.6
         },
         "max_history": 12
       }
@@ -1734,13 +1832,6 @@
       "properties": {
         "station": "06236",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 2.14,
-            "dd": 56.4
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -1817,14 +1908,21 @@
             "qg": 0.0,
             "ff": 3.4,
             "dd": 44.9
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 3.5,
+            "dd": 52.8
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 3.4,
-          "dd": 44.9
+          "ff": 3.5,
+          "dd": 52.8
         },
         "max_history": 12
       }
@@ -1841,13 +1939,6 @@
       "properties": {
         "station": "06237",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 1.89,
-            "dd": 63.1
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -1924,14 +2015,21 @@
             "qg": 0.0,
             "ff": 1.98,
             "dd": 24.0
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 1.69,
+            "dd": 7.7
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 1.98,
-          "dd": 24.0
+          "ff": 1.69,
+          "dd": 7.7
         },
         "max_history": 12
       }
@@ -1948,13 +2046,6 @@
       "properties": {
         "station": "06238",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 1.69,
-            "dd": 56.2
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -2031,14 +2122,21 @@
             "qg": 0.0,
             "ff": 1.89,
             "dd": 43.1
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 2.0,
+            "dd": 45.8
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 1.89,
-          "dd": 43.1
+          "ff": 2.0,
+          "dd": 45.8
         },
         "max_history": 12
       }
@@ -2055,13 +2153,6 @@
       "properties": {
         "station": "06239",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 9.76764,
-            "dd": 94.6
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -2138,14 +2229,21 @@
             "qg": null,
             "ff": 9.20333,
             "dd": 85.9
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 9.97511,
+            "dd": 86.0
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 9.20333,
-          "dd": 85.9
+          "ff": 9.97511,
+          "dd": 86.0
         },
         "max_history": 12
       }
@@ -2162,13 +2260,6 @@
       "properties": {
         "station": "06240",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 2.92,
-            "dd": 69.3
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -2245,14 +2336,21 @@
             "qg": 0.0,
             "ff": 3.4,
             "dd": 47.8
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 3.85,
+            "dd": 48.5
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 3.4,
-          "dd": 47.8
+          "ff": 3.85,
+          "dd": 48.5
         },
         "max_history": 12
       }
@@ -2269,13 +2367,6 @@
       "properties": {
         "station": "06242",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 5.05,
-            "dd": 75.3
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -2352,14 +2443,21 @@
             "qg": null,
             "ff": 7.07,
             "dd": 87.0
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 6.49,
+            "dd": 83.2
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 7.07,
-          "dd": 87.0
+          "ff": 6.49,
+          "dd": 83.2
         },
         "max_history": 12
       }
@@ -2376,13 +2474,6 @@
       "properties": {
         "station": "06248",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 6.27,
-            "dd": 79.4
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -2459,14 +2550,21 @@
             "qg": null,
             "ff": 5.23,
             "dd": 63.3
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 5.54,
+            "dd": 68.3
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 5.23,
-          "dd": 63.3
+          "ff": 5.54,
+          "dd": 68.3
         },
         "max_history": 12
       }
@@ -2483,13 +2581,6 @@
       "properties": {
         "station": "06249",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 3.99,
-            "dd": 71.1
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -2566,14 +2657,21 @@
             "qg": 0.0,
             "ff": 3.25,
             "dd": 47.0
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 3.11,
+            "dd": 48.7
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 3.25,
-          "dd": 47.0
+          "ff": 3.11,
+          "dd": 48.7
         },
         "max_history": 12
       }
@@ -2590,13 +2688,6 @@
       "properties": {
         "station": "06251",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 6.0,
-            "dd": 79.7
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -2673,14 +2764,21 @@
             "qg": 0.0,
             "ff": 7.56,
             "dd": 82.1
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 7.28,
+            "dd": 83.5
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 7.56,
-          "dd": 82.1
+          "ff": 7.28,
+          "dd": 83.5
         },
         "max_history": 12
       }
@@ -2703,13 +2801,6 @@
             "qg": null,
             "ff": 5.94645,
             "dd": 8.3
-          },
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 4.63856,
-            "dd": 81.3
           },
           {
             "observation_time": "2026-01-25T20:50:00Z",
@@ -2780,14 +2871,21 @@
             "qg": null,
             "ff": 5.12597,
             "dd": 90.1
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 5.05286,
+            "dd": 78.1
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 5.12597,
-          "dd": 90.1
+          "ff": 5.05286,
+          "dd": 78.1
         },
         "max_history": 12
       }
@@ -2804,13 +2902,6 @@
       "properties": {
         "station": "06257",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": null,
-            "dd": null
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -2887,12 +2978,19 @@
             "qg": 1.0,
             "ff": null,
             "dd": null
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": null,
+            "dd": null
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
-          "qg": 1.0,
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+          "qg": 0.0,
           "ff": null,
           "dd": null
         },
@@ -2911,13 +3009,6 @@
       "properties": {
         "station": "06258",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 6.78,
-            "dd": 79.0
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -2994,14 +3085,21 @@
             "qg": null,
             "ff": 6.76,
             "dd": 74.5
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 7.17,
+            "dd": 77.4
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 6.76,
-          "dd": 74.5
+          "ff": 7.17,
+          "dd": 77.4
         },
         "max_history": 12
       }
@@ -3018,13 +3116,6 @@
       "properties": {
         "station": "06260",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 1.48,
-            "dd": 38.7
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -3101,14 +3192,21 @@
             "qg": 0.0,
             "ff": 2.45,
             "dd": 40.0
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 2.33,
+            "dd": 33.6
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 2.45,
-          "dd": 40.0
+          "ff": 2.33,
+          "dd": 33.6
         },
         "max_history": 12
       }
@@ -3125,13 +3223,6 @@
       "properties": {
         "station": "06267",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 2.97,
-            "dd": 71.7
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -3208,14 +3299,21 @@
             "qg": 0.0,
             "ff": 3.23,
             "dd": 56.9
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 3.3,
+            "dd": 59.2
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 3.23,
-          "dd": 56.9
+          "ff": 3.3,
+          "dd": 59.2
         },
         "max_history": 12
       }
@@ -3232,13 +3330,6 @@
       "properties": {
         "station": "06269",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 3.98,
-            "dd": 43.4
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -3315,14 +3406,21 @@
             "qg": 0.0,
             "ff": 4.04,
             "dd": 53.9
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 3.77,
+            "dd": 48.4
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 4.04,
-          "dd": 53.9
+          "ff": 3.77,
+          "dd": 48.4
         },
         "max_history": 12
       }
@@ -3339,13 +3437,6 @@
       "properties": {
         "station": "06270",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 4.22,
-            "dd": 78.7
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -3422,14 +3513,21 @@
             "qg": 0.0,
             "ff": 5.17,
             "dd": 78.3
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 5.07,
+            "dd": 78.6
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 5.17,
-          "dd": 78.3
+          "ff": 5.07,
+          "dd": 78.6
         },
         "max_history": 12
       }
@@ -3446,13 +3544,6 @@
       "properties": {
         "station": "06273",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 3.96,
-            "dd": 73.6
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -3529,14 +3620,21 @@
             "qg": 0.0,
             "ff": 4.64,
             "dd": 83.7
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 3.34,
+            "dd": 74.4
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 4.64,
-          "dd": 83.7
+          "ff": 3.34,
+          "dd": 74.4
         },
         "max_history": 12
       }
@@ -3553,13 +3651,6 @@
       "properties": {
         "station": "06275",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 2.2,
-            "dd": 38.4
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -3636,14 +3727,21 @@
             "qg": 0.0,
             "ff": 2.37,
             "dd": 42.0
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 2.97,
+            "dd": 42.9
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 2.37,
-          "dd": 42.0
+          "ff": 2.97,
+          "dd": 42.9
         },
         "max_history": 12
       }
@@ -3660,13 +3758,6 @@
       "properties": {
         "station": "06277",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 6.68,
-            "dd": 78.7
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -3743,14 +3834,21 @@
             "qg": 0.0,
             "ff": 5.07,
             "dd": 90.0
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 5.19,
+            "dd": 85.8
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 5.07,
-          "dd": 90.0
+          "ff": 5.19,
+          "dd": 85.8
         },
         "max_history": 12
       }
@@ -3767,13 +3865,6 @@
       "properties": {
         "station": "06278",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 2.74,
-            "dd": 65.2
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -3850,14 +3941,21 @@
             "qg": 0.0,
             "ff": 3.48,
             "dd": 80.4
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 2.7,
+            "dd": 63.7
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 3.48,
-          "dd": 80.4
+          "ff": 2.7,
+          "dd": 63.7
         },
         "max_history": 12
       }
@@ -3874,13 +3972,6 @@
       "properties": {
         "station": "06279",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 4.2,
-            "dd": 85.1
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -3957,14 +4048,21 @@
             "qg": 0.0,
             "ff": 4.92,
             "dd": 77.7
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 4.45,
+            "dd": 81.7
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 4.92,
-          "dd": 77.7
+          "ff": 4.45,
+          "dd": 81.7
         },
         "max_history": 12
       }
@@ -3981,13 +4079,6 @@
       "properties": {
         "station": "06280",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 5.32,
-            "dd": 69.8
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -4064,14 +4155,21 @@
             "qg": 0.0,
             "ff": 4.29,
             "dd": 81.4
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 4.66,
+            "dd": 78.0
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 4.29,
-          "dd": 81.4
+          "ff": 4.66,
+          "dd": 78.0
         },
         "max_history": 12
       }
@@ -4088,13 +4186,6 @@
       "properties": {
         "station": "06283",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 2.74,
-            "dd": 52.7
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -4171,14 +4262,21 @@
             "qg": 0.0,
             "ff": 2.68,
             "dd": 53.5
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 2.59,
+            "dd": 52.4
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 2.68,
-          "dd": 53.5
+          "ff": 2.59,
+          "dd": 52.4
         },
         "max_history": 12
       }
@@ -4201,13 +4299,6 @@
             "qg": null,
             "ff": 5.98735,
             "dd": 347.7
-          },
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 9.67908,
-            "dd": 74.1
           },
           {
             "observation_time": "2026-01-25T20:50:00Z",
@@ -4278,14 +4369,21 @@
             "qg": null,
             "ff": 9.95081,
             "dd": 79.9
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 9.53854,
+            "dd": 80.3
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 9.95081,
-          "dd": 79.9
+          "ff": 9.53854,
+          "dd": 80.3
         },
         "max_history": 12
       }
@@ -4302,13 +4400,6 @@
       "properties": {
         "station": "06286",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 5.63,
-            "dd": 79.9
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -4385,14 +4476,21 @@
             "qg": 0.0,
             "ff": 5.65,
             "dd": 79.0
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 5.09,
+            "dd": 71.0
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 5.65,
-          "dd": 79.0
+          "ff": 5.09,
+          "dd": 71.0
         },
         "max_history": 12
       }
@@ -4409,13 +4507,6 @@
       "properties": {
         "station": "06290",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 3.27,
-            "dd": 55.4
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -4492,14 +4583,21 @@
             "qg": 0.0,
             "ff": 3.19,
             "dd": 50.2
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 3.91,
+            "dd": 53.3
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 3.19,
-          "dd": 50.2
+          "ff": 3.91,
+          "dd": 53.3
         },
         "max_history": 12
       }
@@ -4522,13 +4620,6 @@
             "qg": null,
             "ff": 5.864,
             "dd": 13.7
-          },
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 3.68621,
-            "dd": 79.5
           },
           {
             "observation_time": "2026-01-25T20:50:00Z",
@@ -4599,14 +4690,21 @@
             "qg": null,
             "ff": 1.74411,
             "dd": 100.6
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 1.7064,
+            "dd": 100.9
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 1.74411,
-          "dd": 100.6
+          "ff": 1.7064,
+          "dd": 100.9
         },
         "max_history": 12
       }
@@ -4623,13 +4721,6 @@
       "properties": {
         "station": "06310",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 4.02,
-            "dd": 71.1
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -4706,14 +4797,21 @@
             "qg": 0.0,
             "ff": 1.93,
             "dd": 49.7
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 2.04,
+            "dd": 30.5
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 1.93,
-          "dd": 49.7
+          "ff": 2.04,
+          "dd": 30.5
         },
         "max_history": 12
       }
@@ -4736,13 +4834,6 @@
             "qg": null,
             "ff": 5.69378,
             "dd": 30.0
-          },
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 6.41259,
-            "dd": 97.5
           },
           {
             "observation_time": "2026-01-25T20:50:00Z",
@@ -4813,14 +4904,21 @@
             "qg": null,
             "ff": 3.99132,
             "dd": 79.0
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 4.32235,
+            "dd": 84.3
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 3.99132,
-          "dd": 79.0
+          "ff": 4.32235,
+          "dd": 84.3
         },
         "max_history": 12
       }
@@ -4843,13 +4941,6 @@
             "qg": null,
             "ff": 5.82619,
             "dd": 40.4
-          },
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 5.49516,
-            "dd": 84.7
           },
           {
             "observation_time": "2026-01-25T20:50:00Z",
@@ -4920,14 +5011,21 @@
             "qg": null,
             "ff": 3.07388,
             "dd": 70.5
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 2.82797,
+            "dd": 66.9
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 3.07388,
-          "dd": 70.5
+          "ff": 2.82797,
+          "dd": 66.9
         },
         "max_history": 12
       }
@@ -4950,13 +5048,6 @@
             "qg": null,
             "ff": 2.34396,
             "dd": 1.8
-          },
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 3.28344,
-            "dd": 87.7
           },
           {
             "observation_time": "2026-01-25T20:50:00Z",
@@ -5027,14 +5118,21 @@
             "qg": null,
             "ff": 2.24906,
             "dd": 51.4
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 2.08773,
+            "dd": 40.1
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 2.24906,
-          "dd": 51.4
+          "ff": 2.08773,
+          "dd": 40.1
         },
         "max_history": 12
       }
@@ -5057,13 +5155,6 @@
             "qg": null,
             "ff": 3.80216,
             "dd": 38.0
-          },
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 6.29909,
-            "dd": 99.3
           },
           {
             "observation_time": "2026-01-25T20:50:00Z",
@@ -5134,14 +5225,21 @@
             "qg": null,
             "ff": 3.14009,
             "dd": 94.1
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 2.9793,
+            "dd": 85.8
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 3.14009,
-          "dd": 94.1
+          "ff": 2.9793,
+          "dd": 85.8
         },
         "max_history": 12
       }
@@ -5158,13 +5256,6 @@
       "properties": {
         "station": "06317",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 4.42688,
-            "dd": 101.5
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -5241,14 +5332,21 @@
             "qg": null,
             "ff": 2.87914,
             "dd": 105.9
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 2.87914,
+            "dd": 95.5
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
           "ff": 2.87914,
-          "dd": 105.9
+          "dd": 95.5
         },
         "max_history": 12
       }
@@ -5265,13 +5363,6 @@
       "properties": {
         "station": "06319",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 2.1,
-            "dd": 58.2
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -5348,14 +5439,21 @@
             "qg": 0.0,
             "ff": 1.25,
             "dd": 315.4
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 1.71,
+            "dd": 336.6
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 1.25,
-          "dd": 315.4
+          "ff": 1.71,
+          "dd": 336.6
         },
         "max_history": 12
       }
@@ -5378,13 +5476,6 @@
             "qg": null,
             "ff": 5.45043,
             "dd": 23.3
-          },
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 5.45043,
-            "dd": 97.7
           },
           {
             "observation_time": "2026-01-25T20:50:00Z",
@@ -5455,14 +5546,21 @@
             "qg": null,
             "ff": 3.31199,
             "dd": 87.8
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 3.45976,
+            "dd": 85.7
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 3.31199,
-          "dd": 87.8
+          "ff": 3.45976,
+          "dd": 85.7
         },
         "max_history": 12
       }
@@ -5485,13 +5583,6 @@
             "qg": null,
             "ff": 7.20008,
             "dd": 12.3
-          },
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 4.38421,
-            "dd": 88.7
           },
           {
             "observation_time": "2026-01-25T20:50:00Z",
@@ -5562,14 +5653,21 @@
             "qg": null,
             "ff": 3.11885,
             "dd": 71.3
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 2.7535,
+            "dd": 61.2
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 3.11885,
-          "dd": 71.3
+          "ff": 2.7535,
+          "dd": 61.2
         },
         "max_history": 12
       }
@@ -5586,13 +5684,6 @@
       "properties": {
         "station": "06323",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 3.52,
-            "dd": 95.4
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -5669,14 +5760,21 @@
             "qg": 0.0,
             "ff": 2.31,
             "dd": 58.9
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 2.39,
+            "dd": 58.7
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 2.31,
-          "dd": 58.9
+          "ff": 2.39,
+          "dd": 58.7
         },
         "max_history": 12
       }
@@ -5699,13 +5797,6 @@
             "qg": null,
             "ff": 4.65339,
             "dd": 353.1
-          },
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 4.20885,
-            "dd": 86.3
           },
           {
             "observation_time": "2026-01-25T20:50:00Z",
@@ -5776,14 +5867,21 @@
             "qg": null,
             "ff": 3.47112,
             "dd": 71.6
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 3.71703,
+            "dd": 71.5
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 3.47112,
-          "dd": 71.6
+          "ff": 3.71703,
+          "dd": 71.5
         },
         "max_history": 12
       }
@@ -5800,13 +5898,6 @@
       "properties": {
         "station": "06330",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 3.36,
-            "dd": 88.4
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -5883,14 +5974,21 @@
             "qg": 0.0,
             "ff": 3.63,
             "dd": 56.6
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 4.24,
+            "dd": 54.6
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 3.63,
-          "dd": 56.6
+          "ff": 4.24,
+          "dd": 54.6
         },
         "max_history": 12
       }
@@ -5913,13 +6011,6 @@
             "qg": null,
             "ff": 3.14009,
             "dd": 17.2
-          },
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 4.48314,
-            "dd": 74.8
           },
           {
             "observation_time": "2026-01-25T20:50:00Z",
@@ -5990,14 +6081,21 @@
             "qg": null,
             "ff": 2.96039,
             "dd": 48.8
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": null,
+            "ff": 3.03605,
+            "dd": 35.8
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": null,
-          "ff": 2.96039,
-          "dd": 48.8
+          "ff": 3.03605,
+          "dd": 35.8
         },
         "max_history": 12
       }
@@ -6014,13 +6112,6 @@
       "properties": {
         "station": "06340",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 2.31,
-            "dd": 72.4
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -6097,14 +6188,21 @@
             "qg": null,
             "ff": 2.04,
             "dd": 59.3
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 2.37,
+            "dd": 52.7
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 2.04,
-          "dd": 59.3
+          "ff": 2.37,
+          "dd": 52.7
         },
         "max_history": 12
       }
@@ -6121,13 +6219,6 @@
       "properties": {
         "station": "06343",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": null,
-            "ff": 4.43,
-            "dd": 71.4
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -6204,14 +6295,21 @@
             "qg": null,
             "ff": 3.01,
             "dd": 8.6
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": null,
+            "ff": 2.82,
+            "dd": 11.1
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": null,
-          "ff": 3.01,
-          "dd": 8.6
+          "ff": 2.82,
+          "dd": 11.1
         },
         "max_history": 12
       }
@@ -6228,13 +6326,6 @@
       "properties": {
         "station": "06344",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 1.87,
-            "dd": 66.2
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -6311,14 +6402,21 @@
             "qg": 0.0,
             "ff": 1.52,
             "dd": 25.5
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 1.54,
+            "dd": 23.5
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 1.52,
-          "dd": 25.5
+          "ff": 1.54,
+          "dd": 23.5
         },
         "max_history": 12
       }
@@ -6335,13 +6433,6 @@
       "properties": {
         "station": "06348",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 1.78,
-            "dd": 41.0
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -6418,14 +6509,21 @@
             "qg": 0.0,
             "ff": 1.98,
             "dd": 36.6
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 2.09,
+            "dd": 35.1
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 1.98,
-          "dd": 36.6
+          "ff": 2.09,
+          "dd": 35.1
         },
         "max_history": 12
       }
@@ -6442,13 +6540,6 @@
       "properties": {
         "station": "06350",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 1.11,
-            "dd": 42.9
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -6525,14 +6616,21 @@
             "qg": 0.0,
             "ff": 2.16,
             "dd": 29.9
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 2.28,
+            "dd": 9.6
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 2.16,
-          "dd": 29.9
+          "ff": 2.28,
+          "dd": 9.6
         },
         "max_history": 12
       }
@@ -6549,13 +6647,6 @@
       "properties": {
         "station": "06356",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 2.74,
-            "dd": 40.9
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -6632,14 +6723,21 @@
             "qg": 0.0,
             "ff": 2.55,
             "dd": 29.8
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 2.77,
+            "dd": 19.6
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 2.55,
-          "dd": 29.8
+          "ff": 2.77,
+          "dd": 19.6
         },
         "max_history": 12
       }
@@ -6656,13 +6754,6 @@
       "properties": {
         "station": "06370",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 1.91,
-            "dd": 32.5
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -6739,14 +6830,21 @@
             "qg": 0.0,
             "ff": 1.89,
             "dd": 22.2
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 1.83,
+            "dd": 21.9
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 1.89,
-          "dd": 22.2
+          "ff": 1.83,
+          "dd": 21.9
         },
         "max_history": 12
       }
@@ -6763,13 +6861,6 @@
       "properties": {
         "station": "06375",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 1.07,
-            "dd": 10.8
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -6846,14 +6937,21 @@
             "qg": 0.0,
             "ff": 1.42,
             "dd": 10.6
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 1.32,
+            "dd": 12.4
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 1.42,
-          "dd": 10.6
+          "ff": 1.32,
+          "dd": 12.4
         },
         "max_history": 12
       }
@@ -6876,13 +6974,6 @@
             "qg": 0.0,
             "ff": 0.8,
             "dd": 107.9
-          },
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 1.13,
-            "dd": 7.6
           },
           {
             "observation_time": "2026-01-25T20:50:00Z",
@@ -6953,14 +7044,21 @@
             "qg": 0.0,
             "ff": 1.98,
             "dd": 28.6
+          },
+          {
+            "observation_time": "2026-01-25T22:30:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+            "qg": 0.0,
+            "ff": 2.2,
+            "dd": 26.1
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:20:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252220.nc",
+          "observation_time": "2026-01-25T22:30:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
           "qg": 0.0,
-          "ff": 1.98,
-          "dd": 28.6
+          "ff": 2.2,
+          "dd": 26.1
         },
         "max_history": 12
       }
@@ -6977,13 +7075,6 @@
       "properties": {
         "station": "06380",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 1.25,
-            "dd": 30.5
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -7060,14 +7151,21 @@
             "qg": 0.0,
             "ff": 1.01,
             "dd": 78.8
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 0.57,
+            "dd": 92.7
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 1.01,
-          "dd": 78.8
+          "ff": 0.57,
+          "dd": 92.7
         },
         "max_history": 12
       }
@@ -7150,13 +7248,6 @@
         "station": "06392",
         "history": [
           {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 0.0,
-            "ff": 0.86,
-            "dd": 7.5
-          },
-          {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
             "qg": 0.0,
@@ -7232,14 +7323,21 @@
             "qg": 0.0,
             "ff": 1.46,
             "dd": 351.2
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 1.56,
+            "dd": 4.2
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 1.46,
-          "dd": 351.2
+          "ff": 1.56,
+          "dd": 4.2
         },
         "max_history": 12
       }
@@ -7256,13 +7354,6 @@
       "properties": {
         "station": "78871",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 72.0,
-            "ff": 7.15,
-            "dd": 139.9
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -7339,14 +7430,21 @@
             "qg": 0.0,
             "ff": 7.98,
             "dd": 94.7
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 9.09,
+            "dd": 99.8
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 7.98,
-          "dd": 94.7
+          "ff": 9.09,
+          "dd": 99.8
         },
         "max_history": 12
       }
@@ -7363,13 +7461,6 @@
       "properties": {
         "station": "78873",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 249.0,
-            "ff": 6.57,
-            "dd": 90.3
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -7446,14 +7537,21 @@
             "qg": 0.0,
             "ff": 7.13,
             "dd": 82.8
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 0.0,
+            "ff": 6.45,
+            "dd": 87.7
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
           "qg": 0.0,
-          "ff": 7.13,
-          "dd": 82.8
+          "ff": 6.45,
+          "dd": 87.7
         },
         "max_history": 12
       }
@@ -7470,13 +7568,6 @@
       "properties": {
         "station": "78990",
         "history": [
-          {
-            "observation_time": "2026-01-25T20:40:00Z",
-            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252040.nc",
-            "qg": 299.0,
-            "ff": 8.68,
-            "dd": 91.2
-          },
           {
             "observation_time": "2026-01-25T20:50:00Z",
             "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252050.nc",
@@ -7553,19 +7644,26 @@
             "qg": 10.0,
             "ff": 8.16,
             "dd": 81.5
+          },
+          {
+            "observation_time": "2026-01-25T22:40:00Z",
+            "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+            "qg": 2.0,
+            "ff": 8.1,
+            "dd": 79.9
           }
         ],
         "latest": {
-          "observation_time": "2026-01-25T22:30:00Z",
-          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252230.nc",
-          "qg": 10.0,
-          "ff": 8.16,
-          "dd": 81.5
+          "observation_time": "2026-01-25T22:40:00Z",
+          "source_filename": "KMDS__OPER_P___10M_OBS_L2_202601252240.nc",
+          "qg": 2.0,
+          "ff": 8.1,
+          "dd": 79.9
         },
         "max_history": 12
       }
     }
   ],
-  "generated_at": "2026-01-25T22:37:51.534722Z",
+  "generated_at": "2026-01-25T22:52:34.777080Z",
   "max_history": 12
 }
