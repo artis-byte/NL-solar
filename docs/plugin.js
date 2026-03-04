@@ -10,8 +10,8 @@ const __pluginConfig =  {
   "mobileUI": "fullscreen",
   "routerPath": "/knmi-solar",
   "private": false,
-  "built": 1772609356846,
-  "builtReadable": "2026-03-04T07:29:16.846Z",
+  "built": 1772612723683,
+  "builtReadable": "2026-03-04T08:25:23.683Z",
   "screenshot": "screenshot.jpg"
 };
 
@@ -664,23 +664,23 @@ function add_css(target) {
 
 function get_each_context(ctx, list, i) {
 	const child_ctx = ctx.slice();
-	child_ctx[56] = list[i];
+	child_ctx[57] = list[i];
 	return child_ctx;
 }
 
 function get_each_context_1(ctx, list, i) {
 	const child_ctx = ctx.slice();
-	child_ctx[56] = list[i];
+	child_ctx[57] = list[i];
 	return child_ctx;
 }
 
 function get_each_context_2(ctx, list, i) {
 	const child_ctx = ctx.slice();
-	child_ctx[56] = list[i];
+	child_ctx[57] = list[i];
 	return child_ctx;
 }
 
-// (723:2) {:else}
+// (611:2) {:else}
 function create_else_block(ctx) {
 	let div5;
 	let div1;
@@ -785,7 +785,7 @@ function create_else_block(ctx) {
 
 			t8 = space();
 			span0 = element("span");
-			t9 = text("Comparing to ");
+			t9 = text("vs ");
 			t10 = text(t10_value);
 			t11 = space();
 			div7 = element("div");
@@ -800,9 +800,9 @@ function create_else_block(ctx) {
 			t16 = text(" obs");
 			t17 = space();
 			p = element("p");
-			t18 = text("Drag the slider to explore the last ");
+			t18 = text("Drag slider to explore last ");
 			t19 = text(/*timespanMinutes*/ ctx[8]);
-			t20 = text(" minutes of KNMI observations.");
+			t20 = text(" min of KNMI data.");
 			attr(label0, "class", "svelte-7fls9h");
 			attr(div0, "class", "toggle svelte-7fls9h");
 			attr(div1, "class", "control-row svelte-7fls9h");
@@ -995,7 +995,7 @@ function create_else_block(ctx) {
 	};
 }
 
-// (721:29) 
+// (609:29) 
 function create_if_block_2(ctx) {
 	let p;
 
@@ -1017,7 +1017,7 @@ function create_if_block_2(ctx) {
 	};
 }
 
-// (719:25) 
+// (607:25) 
 function create_if_block_1(ctx) {
 	let p;
 	let t;
@@ -1043,7 +1043,7 @@ function create_if_block_1(ctx) {
 	};
 }
 
-// (717:2) {#if loading}
+// (605:2) {#if loading}
 function create_if_block(ctx) {
 	let p;
 
@@ -1065,22 +1065,22 @@ function create_if_block(ctx) {
 	};
 }
 
-// (728:10) {#each VIEW_OPTIONS as option}
+// (616:10) {#each VIEW_OPTIONS as option}
 function create_each_block_2(ctx) {
 	let button;
 	let mounted;
 	let dispose;
 
 	function click_handler() {
-		return /*click_handler*/ ctx[16](/*option*/ ctx[56]);
+		return /*click_handler*/ ctx[16](/*option*/ ctx[57]);
 	}
 
 	return {
 		c() {
 			button = element("button");
-			button.textContent = `${/*option*/ ctx[56].label} `;
+			button.textContent = `${/*option*/ ctx[57].label} `;
 			attr(button, "class", "svelte-7fls9h");
-			toggle_class(button, "selected", /*selectedView*/ ctx[3] === /*option*/ ctx[56].value);
+			toggle_class(button, "selected", /*selectedView*/ ctx[3] === /*option*/ ctx[57].value);
 		},
 		m(target, anchor) {
 			insert(target, button, anchor);
@@ -1094,7 +1094,7 @@ function create_each_block_2(ctx) {
 			ctx = new_ctx;
 
 			if (dirty[0] & /*selectedView, VIEW_OPTIONS*/ 2056) {
-				toggle_class(button, "selected", /*selectedView*/ ctx[3] === /*option*/ ctx[56].value);
+				toggle_class(button, "selected", /*selectedView*/ ctx[3] === /*option*/ ctx[57].value);
 			}
 		},
 		d(detaching) {
@@ -1108,22 +1108,22 @@ function create_each_block_2(ctx) {
 	};
 }
 
-// (741:10) {#each METRIC_OPTIONS as option}
+// (629:10) {#each METRIC_OPTIONS as option}
 function create_each_block_1(ctx) {
 	let button;
 	let mounted;
 	let dispose;
 
 	function click_handler_1() {
-		return /*click_handler_1*/ ctx[17](/*option*/ ctx[56]);
+		return /*click_handler_1*/ ctx[17](/*option*/ ctx[57]);
 	}
 
 	return {
 		c() {
 			button = element("button");
-			button.textContent = `${/*option*/ ctx[56].label} `;
+			button.textContent = `${/*option*/ ctx[57].label} `;
 			attr(button, "class", "svelte-7fls9h");
-			toggle_class(button, "selected", /*selectedMetric*/ ctx[4] === /*option*/ ctx[56].value);
+			toggle_class(button, "selected", /*selectedMetric*/ ctx[4] === /*option*/ ctx[57].value);
 		},
 		m(target, anchor) {
 			insert(target, button, anchor);
@@ -1137,7 +1137,7 @@ function create_each_block_1(ctx) {
 			ctx = new_ctx;
 
 			if (dirty[0] & /*selectedMetric, METRIC_OPTIONS*/ 4112) {
-				toggle_class(button, "selected", /*selectedMetric*/ ctx[4] === /*option*/ ctx[56].value);
+				toggle_class(button, "selected", /*selectedMetric*/ ctx[4] === /*option*/ ctx[57].value);
 			}
 		},
 		d(detaching) {
@@ -1151,10 +1151,10 @@ function create_each_block_1(ctx) {
 	};
 }
 
-// (754:10) {#each DELTA_OPTIONS as option}
+// (642:10) {#each DELTA_OPTIONS as option}
 function create_each_block(ctx) {
 	let option_1;
-	let t0_value = /*option*/ ctx[56] + "";
+	let t0_value = /*option*/ ctx[57] + "";
 	let t0;
 	let t1;
 	let option_1_selected_value;
@@ -1163,10 +1163,10 @@ function create_each_block(ctx) {
 		c() {
 			option_1 = element("option");
 			t0 = text(t0_value);
-			t1 = text(" minutes\n            ");
-			option_1.__value = /*option*/ ctx[56];
+			t1 = text(" min\n            ");
+			option_1.__value = /*option*/ ctx[57];
 			set_input_value(option_1, option_1.__value);
-			option_1.selected = option_1_selected_value = /*option*/ ctx[56] === /*selectedDelta*/ ctx[5];
+			option_1.selected = option_1_selected_value = /*option*/ ctx[57] === /*selectedDelta*/ ctx[5];
 		},
 		m(target, anchor) {
 			insert(target, option_1, anchor);
@@ -1174,7 +1174,7 @@ function create_each_block(ctx) {
 			append(option_1, t1);
 		},
 		p(ctx, dirty) {
-			if (dirty[0] & /*selectedDelta*/ 32 && option_1_selected_value !== (option_1_selected_value = /*option*/ ctx[56] === /*selectedDelta*/ ctx[5])) {
+			if (dirty[0] & /*selectedDelta*/ 32 && option_1_selected_value !== (option_1_selected_value = /*option*/ ctx[57] === /*selectedDelta*/ ctx[5])) {
 				option_1.selected = option_1_selected_value;
 			}
 		},
@@ -1205,7 +1205,7 @@ function create_fragment(ctx) {
 		c() {
 			section = element("section");
 			h1 = element("h1");
-			h1.textContent = "KNMI Wind & Radiation Timeline";
+			h1.textContent = "KNMI Solar & Wind";
 			t1 = space();
 			if_block.c();
 			attr(h1, "class", "svelte-7fls9h");
@@ -1253,6 +1253,7 @@ function instance($$self, $$props, $$invalidate) {
 	let previousTimeISO;
 	let timespanMinutes;
 	const DELTA_OPTIONS = [10, 30, 60];
+	const MAX_TIMELINE_AGE_MS = 24 * 60 * 60 * 1000;
 
 	const VIEW_OPTIONS = [
 		{ value: 'regions', label: 'Regions' },
@@ -1262,7 +1263,7 @@ function instance($$self, $$props, $$invalidate) {
 	const METRIC_OPTIONS = [
 		{
 			value: 'radiation',
-			label: 'Radiation (W/m^2)'
+			label: 'Radiation (W/m\u00b2)'
 		},
 		{ value: 'wind', label: 'Wind Speed (m/s)' }
 	];
@@ -1270,9 +1271,9 @@ function instance($$self, $$props, $$invalidate) {
 	const REGION_HISTORY_COLUMNS = [
 		{
 			key: 'qg_mean',
-			label: 'Radiation (W/m^2)',
+			label: 'Rad (W/m\u00b2)',
 			decimals: 0,
-			suffix: ' W/m^2',
+			suffix: ' W/m\u00b2',
 			includeDelta: true
 		},
 		{
@@ -1284,9 +1285,9 @@ function instance($$self, $$props, $$invalidate) {
 		},
 		{
 			key: 'wind_direction_mean',
-			label: 'Direction (deg)',
+			label: 'Dir (\u00b0)',
 			decimals: 0,
-			suffix: ' deg',
+			suffix: '\u00b0',
 			includeDelta: false
 		}
 	];
@@ -1294,9 +1295,9 @@ function instance($$self, $$props, $$invalidate) {
 	const STATION_HISTORY_COLUMNS = [
 		{
 			key: 'qg',
-			label: 'Radiation (W/m^2)',
+			label: 'Rad (W/m\u00b2)',
 			decimals: 0,
-			suffix: ' W/m^2',
+			suffix: ' W/m\u00b2',
 			includeDelta: true
 		},
 		{
@@ -1308,9 +1309,9 @@ function instance($$self, $$props, $$invalidate) {
 		},
 		{
 			key: 'dd',
-			label: 'Direction (deg)',
+			label: 'Dir (\u00b0)',
 			decimals: 0,
-			suffix: ' deg',
+			suffix: '\u00b0',
 			includeDelta: false
 		}
 	];
@@ -1342,24 +1343,15 @@ function instance($$self, $$props, $$invalidate) {
 	};
 
 	const ensureMap = () => {
-		if (mapInstance) {
-			return true;
-		}
-
+		if (mapInstance) return true;
 		const candidate = map;
-
-		if (!candidate) {
-			return false;
-		}
-
+		if (!candidate) return false;
 		mapInstance = candidate;
 		return typeof mapInstance.addLayer === 'function';
 	};
 
 	const scheduleMapPoll = () => {
-		if (mapPollTimer) {
-			return;
-		}
+		if (mapPollTimer) return;
 
 		mapPollTimer = setInterval(
 			() => {
@@ -1374,52 +1366,39 @@ function instance($$self, $$props, $$invalidate) {
 	};
 
 	const fetchJSON = async url => {
-		const response = await fetch(`${url}?t=${Date.now()}`);
-
-		if (!response.ok) {
-			throw new Error(`Failed to fetch ${url}: ${response.status}`);
-		}
-
+		const response = await fetch(`${url}?t=${Date.now()}`, { cache: 'no-store' });
+		if (!response.ok) throw new Error(`Fetch ${url}: ${response.status}`);
 		return response.json();
 	};
 
 	const getRadiationColor = value => {
-		if (value == null) return '#f7f7f7';
-
-		return value > 800
-		? '#800026'
-		: value > 600
-			? '#BD0026'
-			: value > 400
-				? '#E31A1C'
-				: value > 200
-					? '#FC4E2A'
-					: value > 100
-						? '#FD8D3C'
-						: value > 50
-							? '#FEB24C'
-							: value > 10 ? '#FED976' : '#FFEDA0';
+		if (value == null) return '#FFEDA0';
+		if (value > 800) return '#800026';
+		if (value > 600) return '#BD0026';
+		if (value > 400) return '#E31A1C';
+		if (value > 200) return '#FC4E2A';
+		if (value > 100) return '#FD8D3C';
+		if (value > 50) return '#FEB24C';
+		if (value > 10) return '#FED976';
+		return '#FFEDA0';
 	};
 
 	const getWindColor = value => {
-		if (value == null) return '#f7fbff';
-
-		return value > 20
-		? '#084081'
-		: value > 15
-			? '#0868ac'
-			: value > 12
-				? '#2b8cbe'
-				: value > 9
-					? '#4eb3d3'
-					: value > 6
-						? '#7bccc4'
-						: value > 4
-							? '#a8ddb5'
-							: value > 2
-								? '#ccebc5'
-								: value > 1 ? '#e0f3db' : '#f7fcfd';
+		if (value == null) return '#f7fcfd';
+		if (value > 20) return '#084081';
+		if (value > 15) return '#0868ac';
+		if (value > 12) return '#2b8cbe';
+		if (value > 9) return '#4eb3d3';
+		if (value > 6) return '#7bccc4';
+		if (value > 4) return '#a8ddb5';
+		if (value > 2) return '#ccebc5';
+		if (value > 1) return '#e0f3db';
+		return '#f7fcfd';
 	};
+
+	const getColor = (value, metric) => metric === 'wind'
+	? getWindColor(value)
+	: getRadiationColor(value);
 
 	const formatNumber = (value, decimals = 1, suffix = '') => {
 		if (value == null || Number.isNaN(value)) return NO_VALUE;
@@ -1445,169 +1424,66 @@ function instance($$self, $$props, $$invalidate) {
 	? new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
 	: NO_VALUE;
 
-	const getRecentHistoryEntries = (historyMap, limit = 5) => {
-		if (!historyMap || !historyMap.size) return [];
-		const entries = Array.from(historyMap.values());
-		return entries.slice(-limit).reverse();
+	const safeHistoryEntries = (historyMap, limit = 5) => {
+		try {
+			if (!historyMap || typeof historyMap.values !== 'function') return [];
+			const entries = Array.from(historyMap.values());
+			return entries.slice(-limit).reverse();
+		} catch(_) {
+			return [];
+		}
 	};
 
 	const getTrend = (currentValue, previousValue) => {
 		if (currentValue == null || previousValue == null) return null;
-		const current = Number(currentValue);
-		const previous = Number(previousValue);
-		if (!Number.isFinite(current) || !Number.isFinite(previous)) return null;
-		return current - previous;
-	};
-
-	const formatDeltaValue = (currentValue, previousValue, decimals = 1, suffix = '') => {
-		const trend = getTrend(currentValue, previousValue);
-		if (trend == null) return NO_VALUE;
-		return formatSignedNumber(trend, decimals, suffix);
+		const a = Number(currentValue), b = Number(previousValue);
+		if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+		return a - b;
 	};
 
 	const renderHistoryTable = (historyMap, columns, limit = 5) => {
-		const entries = getRecentHistoryEntries(historyMap, limit);
+		const entries = safeHistoryEntries(historyMap, limit);
 		if (!entries.length) return '';
 
-		const header = columns.map(column => {
-			const deltaLabel = column.includeDelta
-			? `<th>${column.deltaLabel || '&Delta;'}</th>`
-			: '';
-
-			return `<th>${column.label}</th>${deltaLabel}`;
+		const header = columns.map(c => {
+			const d = c.includeDelta ? '<th>&Delta;</th>' : '';
+			return `<th>${c.label}</th>${d}`;
 		}).join('');
 
-		const rows = entries.map((entry, index) => {
-			const cells = columns.map(column => formatNumber(entry?.[column.key], column.decimals ?? 1, column.suffix ?? ''));
-			const previous = entries[index + 1] || null;
-			let cellHtml = '';
+		const rows = entries.map((entry, idx) => {
+			const prev = entries[idx + 1] || null;
+			let cells = '';
 
-			columns.forEach((column, idx) => {
-				cellHtml += `<td>${cells[idx]}</td>`;
+			columns.forEach(c => {
+				cells += `<td>${formatNumber(entry?.[c.key], c.decimals ?? 1, c.suffix ?? '')}</td>`;
 
-				if (column.includeDelta) {
-					const delta = previous
-					? formatDeltaValue(entry?.[column.key], previous?.[column.key], column.deltaDecimals ?? column.decimals ?? 1, column.suffix ?? '')
-					: NO_VALUE;
+				if (c.includeDelta) {
+					const trend = prev ? getTrend(entry?.[c.key], prev?.[c.key]) : null;
 
-					cellHtml += `<td>${delta}</td>`;
+					cells += `<td>${trend != null
+					? formatSignedNumber(trend, c.decimals ?? 1, c.suffix ?? '')
+					: NO_VALUE}</td>`;
 				}
 			});
 
-			return `<tr><td>${formatLongTime(entry?.observation_time)}</td>${cellHtml}</tr>`;
+			return `<tr><td>${formatLongTime(entry?.observation_time)}</td>${cells}</tr>`;
 		}).join('');
 
-		return `
-      <div class="history-block">
-        <h4>Last ${entries.length} observations</h4>
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>Observed</th>${header}
-            </tr>
-          </thead>
-          <tbody>
-            ${rows}
-          </tbody>
-        </table>
-      </div>
-    `;
-	};
-
-	const buildRegionTooltip = (name, entry, historyMap) => {
-		const historyEntries = getRecentHistoryEntries(historyMap, 2);
-		const previous = historyEntries.length > 1 ? historyEntries[1] : null;
-		const radTrend = getTrend(entry?.qg_mean, previous?.qg_mean);
-		const windTrend = getTrend(entry?.wind_speed_mean, previous?.wind_speed_mean);
-
-		const radDelta = radTrend == null
-		? NO_VALUE
-		: formatSignedNumber(radTrend, 0, ' W/m^2');
-
-		const windDelta = windTrend == null
-		? NO_VALUE
-		: formatSignedNumber(windTrend, 1, ' m/s');
-
-		const radTrendClass = radTrend == null
-		? ''
-		: radTrend > 0
-			? 'delta-positive'
-			: radTrend < 0 ? 'delta-negative' : 'delta-neutral';
-
-		const windTrendClass = windTrend == null
-		? ''
-		: windTrend > 0
-			? 'delta-positive'
-			: windTrend < 0 ? 'delta-negative' : 'delta-neutral';
-
-		const previousStamp = (previous?.observation_time)
-		? ` vs ${formatShortTime(previous.observation_time)}`
-		: '';
-
-		return `
-      <div class="map-tooltip">
-        <div class="map-tooltip-title">${name || 'Region'}</div>
-        <div>Rad: ${formatNumber(entry?.qg_mean, 0, ' W/m^2')} <span class="delta ${radTrendClass}">${radDelta}</span></div>
-        <div>Wind: ${formatNumber(entry?.wind_speed_mean, 1, ' m/s')} <span class="delta ${windTrendClass}">${windDelta}</span></div>
-        <div class="map-tooltip-time">${formatShortTime(entry?.observation_time)}${previousStamp}</div>
-      </div>
-    `;
-	};
-
-	const buildStationTooltip = (stationId, entry, historyMap) => {
-		const historyEntries = getRecentHistoryEntries(historyMap, 2);
-		const previous = historyEntries.length > 1 ? historyEntries[1] : null;
-		const radTrend = getTrend(entry?.qg, previous?.qg);
-		const windTrend = getTrend(entry?.ff, previous?.ff);
-
-		const radDelta = radTrend == null
-		? NO_VALUE
-		: formatSignedNumber(radTrend, 0, ' W/m^2');
-
-		const windDelta = windTrend == null
-		? NO_VALUE
-		: formatSignedNumber(windTrend, 1, ' m/s');
-
-		const radTrendClass = radTrend == null
-		? ''
-		: radTrend > 0
-			? 'delta-positive'
-			: radTrend < 0 ? 'delta-negative' : 'delta-neutral';
-
-		const windTrendClass = windTrend == null
-		? ''
-		: windTrend > 0
-			? 'delta-positive'
-			: windTrend < 0 ? 'delta-negative' : 'delta-neutral';
-
-		const previousStamp = (previous?.observation_time)
-		? ` vs ${formatShortTime(previous.observation_time)}`
-		: '';
-
-		return `
-      <div class="map-tooltip">
-        <div class="map-tooltip-title">Station ${stationId}</div>
-        <div>Rad: ${formatNumber(entry?.qg, 0, ' W/m^2')} <span class="delta ${radTrendClass}">${radDelta}</span></div>
-        <div>Wind: ${formatNumber(entry?.ff, 1, ' m/s')} <span class="delta ${windTrendClass}">${windDelta}</span></div>
-        <div class="map-tooltip-time">${formatShortTime(entry?.observation_time)}${previousStamp}</div>
-      </div>
-    `;
+		return `<div class="history-block"><h4>Last ${entries.length} obs</h4>
+      <table class="history-table"><thead><tr><th>Time</th>${header}</tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
 	};
 
 	const prepareIndex = (collection, keyProp) => {
 		const index = new Map();
-
-		if (!collection?.features) {
-			return index;
-		}
+		if (!collection?.features) return index;
 
 		for (const feature of collection.features) {
 			const key = feature?.properties?.[keyProp];
 			if (!key) continue;
 			const history = new Map();
-			const entries = feature.properties.history || [];
 
-			for (const entry of entries) {
+			for (const entry of feature.properties.history || []) {
 				if (entry?.observation_time) {
 					history.set(entry.observation_time, entry);
 				}
@@ -1625,9 +1501,16 @@ function instance($$self, $$props, $$invalidate) {
 	};
 
 	const buildTimeline = () => {
+		const now = Date.now();
+		const cutoff = now - MAX_TIMELINE_AGE_MS;
 		const times = new Set();
-		regionsIndex.forEach(({ history }) => history.forEach((_, t) => times.add(t)));
-		stationsIndex.forEach(({ history }) => history.forEach((_, t) => times.add(t)));
+
+		const addTimes = idx => idx.forEach(({ history }) => history.forEach((_, t) => {
+			if (new Date(t).getTime() >= cutoff) times.add(t);
+		}));
+
+		addTimes(regionsIndex);
+		addTimes(stationsIndex);
 		const sorted = Array.from(times).sort((a, b) => new Date(a) - new Date(b));
 		$$invalidate(1, timeline = sorted);
 		$$invalidate(15, timelineDates = timeline.map(t => new Date(t)));
@@ -1637,131 +1520,112 @@ function instance($$self, $$props, $$invalidate) {
 
 	const findPreviousTime = (currentTime, minutes) => {
 		if (!currentTime || !timelineIndex.has(currentTime)) return null;
-		const currentIdx = timelineIndex.get(currentTime);
-		const currentDate = timelineDates[currentIdx];
+		const idx = timelineIndex.get(currentTime);
+		const cur = timelineDates[idx];
 
-		for (let i = currentIdx - 1; i >= 0; i -= 1) {
-			const diffMins = (currentDate - timelineDates[i]) / 60000;
-
-			if (diffMins >= minutes - 0.01) {
-				return timeline[i];
-			}
+		for (let i = idx - 1; i >= 0; i--) {
+			if ((cur - timelineDates[i]) / 60000 >= minutes - 0.01) return timeline[i];
 		}
 
 		return null;
+	};
+
+	const safeGet = (historyMap, key) => {
+		try {
+			return historyMap && typeof historyMap.get === 'function'
+			? historyMap.get(key)
+			: undefined;
+		} catch(_) {
+			return undefined;
+		}
 	};
 
 	const computeDelta = (historyMap, currentTime, metricKey, minutes) => {
 		if (!historyMap || !currentTime) return null;
 		const previousTime = findPreviousTime(currentTime, minutes);
 		if (!previousTime) return null;
-		const current = historyMap.get(currentTime);
-		const previous = historyMap.get(previousTime);
+		const current = safeGet(historyMap, currentTime);
+		const previous = safeGet(historyMap, previousTime);
 		if (!current || !previous) return null;
-		const currentDate = new Date(currentTime);
-		const previousDate = new Date(previousTime);
-		const gapMinutes = Math.abs((currentDate - previousDate) / 60000);
-
-		if (gapMinutes > minutes + DELTA_TOLERANCE_MINUTES) {
-			return null;
-		}
-
-		const currentValue = current[metricKey];
-		const previousValue = previous[metricKey];
-		if (currentValue == null || previousValue == null) return null;
+		const gap = Math.abs((new Date(currentTime) - new Date(previousTime)) / 60000);
+		if (gap > minutes + DELTA_TOLERANCE_MINUTES) return null;
+		const cv = current[metricKey], pv = previous[metricKey];
+		if (cv == null || pv == null) return null;
 
 		return {
-			delta: currentValue - previousValue,
+			delta: cv - pv,
 			previousTime,
-			previousValue
+			previousValue: pv
 		};
 	};
 
-	const buildRegionPopup = (name, entry, historyMap, currentTime) => {
-		const deltaMinutes = selectedDelta;
-		const radiationDelta = computeDelta(historyMap, currentTime, 'qg_mean', deltaMinutes);
-		const windDelta = computeDelta(historyMap, currentTime, 'wind_speed_mean', deltaMinutes);
+	const buildRegionPopupHTML = (name, entry, historyMap, currentTime) => {
+		try {
+			const dm = selectedDelta;
+			const rd = computeDelta(historyMap, currentTime, 'qg_mean', dm);
+			const wd = computeDelta(historyMap, currentTime, 'wind_speed_mean', dm);
 
-		const radiationChange = radiationDelta
-		? `${formatSignedNumber(radiationDelta.delta, 0, ' W/m^2')}${radiationDelta.previousTime
-			? ' (vs ' + formatShortTime(radiationDelta.previousTime) + ')'
-			: ''}`
-		: NO_VALUE;
+			const rc = rd
+			? `${formatSignedNumber(rd.delta, 0, ' W/m\u00b2')}`
+			: NO_VALUE;
 
-		const windChange = windDelta
-		? `${formatSignedNumber(windDelta.delta, 1, ' m/s')}${windDelta.previousTime
-			? ' (vs ' + formatShortTime(windDelta.previousTime) + ')'
-			: ''}`
-		: NO_VALUE;
+			const wc = wd
+			? `${formatSignedNumber(wd.delta, 1, ' m/s')}`
+			: NO_VALUE;
 
-		const historyTable = renderHistoryTable(historyMap, REGION_HISTORY_COLUMNS);
+			const ht = renderHistoryTable(historyMap, REGION_HISTORY_COLUMNS);
 
-		const stationsLine = entry?.stations_count != null
-		? `<p>Stations contributing: ${entry.stations_count}</p>`
-		: '';
-
-		const outputLine = entry?.estimated_output_mw != null
-		? `<p>Est. PV output: ${formatNumber(entry.estimated_output_mw, 1, ' MW')}</p>`
-		: '';
-
-		return `
-      <div class="popup">
-        <h3>${name}</h3>
-        <p><strong>Radiation</strong>: ${formatNumber(entry?.qg_mean, 0, ' W/m^2')}<br>
-           &#916;${deltaMinutes} min: ${radiationChange}</p>
-        <p><strong>Wind</strong>: ${formatNumber(entry?.wind_speed_mean, 1, ' m/s')} @ ${formatNumber(entry?.wind_direction_mean, 0, ' deg')}<br>
-           &#916;${deltaMinutes} min: ${windChange}</p>
-        ${stationsLine}
-        ${outputLine}
-        ${historyTable}
-      </div>
-    `;
+			return `<div class="popup"><h3>${name || 'Region'}</h3>
+        <p><b>Radiation</b>: ${formatNumber(entry?.qg_mean, 0, ' W/m\u00b2')} (\u0394${dm}m: ${rc})</p>
+        <p><b>Wind</b>: ${formatNumber(entry?.wind_speed_mean, 1, ' m/s')} @ ${formatNumber(entry?.wind_direction_mean, 0, '\u00b0')} (\u0394${dm}m: ${wc})</p>
+        ${entry?.stations_count != null
+			? `<p>Stations: ${entry.stations_count}</p>`
+			: ''}
+        ${ht}</div>`;
+		} catch(_) {
+			return `<div class="popup"><h3>${name}</h3><p>Data available on click</p></div>`;
+		}
 	};
 
-	const buildStationPopup = (stationId, entry, historyMap, currentTime) => {
-		const deltaMinutes = selectedDelta;
-		const radiationDelta = computeDelta(historyMap, currentTime, 'qg', deltaMinutes);
-		const windDelta = computeDelta(historyMap, currentTime, 'ff', deltaMinutes);
+	const buildStationPopupHTML = (stationId, entry, historyMap, currentTime) => {
+		try {
+			const dm = selectedDelta;
+			const rd = computeDelta(historyMap, currentTime, 'qg', dm);
+			const wd = computeDelta(historyMap, currentTime, 'ff', dm);
 
-		const radiationChange = radiationDelta
-		? `${formatSignedNumber(radiationDelta.delta, 0, ' W/m^2')}${radiationDelta.previousTime
-			? ' (vs ' + formatShortTime(radiationDelta.previousTime) + ')'
-			: ''}`
-		: NO_VALUE;
+			const rc = rd
+			? `${formatSignedNumber(rd.delta, 0, ' W/m\u00b2')}`
+			: NO_VALUE;
 
-		const windChange = windDelta
-		? `${formatSignedNumber(windDelta.delta, 1, ' m/s')}${windDelta.previousTime
-			? ' (vs ' + formatShortTime(windDelta.previousTime) + ')'
-			: ''}`
-		: NO_VALUE;
+			const wc = wd
+			? `${formatSignedNumber(wd.delta, 1, ' m/s')}`
+			: NO_VALUE;
 
-		const historyTable = renderHistoryTable(historyMap, STATION_HISTORY_COLUMNS);
+			const ht = renderHistoryTable(historyMap, STATION_HISTORY_COLUMNS);
 
-		const sourceLine = (entry?.source_filename)
-		? `<p>Source: ${entry.source_filename}</p>`
-		: '';
+			return `<div class="popup"><h3>Station ${stationId}</h3>
+        <p><b>Radiation</b>: ${formatNumber(entry?.qg, 0, ' W/m\u00b2')} (\u0394${dm}m: ${rc})</p>
+        <p><b>Wind</b>: ${formatNumber(entry?.ff, 1, ' m/s')} @ ${formatNumber(entry?.dd, 0, '\u00b0')} (\u0394${dm}m: ${wc})</p>
+        ${ht}</div>`;
+		} catch(_) {
+			return `<div class="popup"><h3>Station ${stationId}</h3><p>Data available on click</p></div>`;
+		}
+	};
 
-		return `
-      <div class="popup">
-        <h3>Station ${stationId}</h3>
-        <p><strong>Radiation</strong>: ${formatNumber(entry?.qg, 0, ' W/m^2')}<br>
-           &#916;${deltaMinutes} min: ${radiationChange}</p>
-        <p><strong>Wind</strong>: ${formatNumber(entry?.ff, 1, ' m/s')} @ ${formatNumber(entry?.dd, 0, ' deg')}<br>
-           &#916;${deltaMinutes} min: ${windChange}</p>
-        ${sourceLine}
-        ${historyTable}
-      </div>
-    `;
+	const buildSimpleTooltip = (title, rad, wind) => {
+		return `<div class="map-tooltip"><div class="map-tooltip-title">${title}</div>
+      <div>Rad: ${formatNumber(rad, 0, ' W/m\u00b2')}</div>
+      <div>Wind: ${formatNumber(wind, 1, ' m/s')}</div></div>`;
 	};
 
 	const clearLayer = layerRef => {
-		if (!layerRef || !ensureMap()) {
-			return null;
-		}
-
-		if (mapInstance.hasLayer(layerRef)) {
-			mapInstance.removeLayer(layerRef);
-		}
+		try {
+			if (layerRef && mapInstance) {
+				mapInstance.removeLayer(layerRef);
+			}
+		} catch(_) {
+			
+		} /* ignore */
 
 		return null;
 	};
@@ -1774,17 +1638,19 @@ function instance($$self, $$props, $$invalidate) {
 
 		const L = getLeaflet();
 		if (!L) return;
+
+		// Build plain GeoJSON features - NO Map objects attached
 		const features = [];
 
 		regionsIndex.forEach(({ geometry, history }, name) => {
+			if (!geometry) return;
 			const entry = history.get(currentTime);
-			if (!entry || !geometry) return;
+			if (!entry) return;
 
 			features.push({
 				type: 'Feature',
 				geometry,
-				properties: { name, ...entry },
-				history
+				properties: { _regionKey: name, name, ...entry }
 			});
 		});
 
@@ -1798,32 +1664,42 @@ function instance($$self, $$props, $$invalidate) {
 
 		regionLayer = L.geoJSON(collection, {
 			style: feature => {
-				const entry = feature.properties;
+				const p = feature.properties || {};
 
 				const value = selectedMetric === 'wind'
-				? entry?.wind_speed_mean
-				: entry?.qg_mean;
-
-				const color = selectedMetric === 'wind'
-				? getWindColor(value)
-				: getRadiationColor(value);
+				? p.wind_speed_mean
+				: p.qg_mean;
 
 				return {
-					fillColor: color,
+					fillColor: getColor(value, selectedMetric),
 					fillOpacity: 0.65,
-					weight: 1,
+					weight: 1.5,
 					color: '#333'
 				};
 			},
 			onEachFeature: (feature, layer) => {
-				layer.bindPopup(buildRegionPopup(feature.properties?.name, feature.properties, feature.history, currentTime));
+				try {
+					const p = feature.properties || {};
+					const name = p.name || p._regionKey || 'Region';
 
-				layer.bindTooltip(buildRegionTooltip(feature.properties?.name, feature.properties, feature.history), {
-					permanent: true,
-					direction: 'center',
-					className: 'region-label',
-					sticky: false
-				});
+					// Look up history from the closure-scoped index, NOT from the feature
+					const indexEntry = regionsIndex.get(p._regionKey);
+
+					const historyMap = indexEntry ? indexEntry.history : null;
+
+					// Tooltip: simple, safe
+					layer.bindTooltip(buildSimpleTooltip(name, p.qg_mean, p.wind_speed_mean), {
+						permanent: true,
+						direction: 'center',
+						className: 'region-label'
+					});
+
+					// Popup: built lazily on click via function callback
+					layer.bindPopup(() => buildRegionPopupHTML(name, p, historyMap, currentTime));
+				} catch(err) {
+					// Never let one feature's tooltip/popup error kill the entire layer
+					console.warn('Region tooltip error:', err);
+				}
 			}
 		}).addTo(mapInstance);
 	};
@@ -1840,41 +1716,39 @@ function instance($$self, $$props, $$invalidate) {
 		stationLayer = L.layerGroup().addTo(mapInstance);
 
 		stationsIndex.forEach(({ geometry, history }, stationId) => {
-			if (!geometry || geometry.type !== 'Point') return;
-			const entry = history.get(currentTime);
-			if (!entry) return;
-			const [lon, lat] = geometry.coordinates;
-			const value = selectedMetric === 'wind' ? entry.ff : entry.qg;
+			try {
+				if (!geometry || geometry.type !== 'Point') return;
+				const entry = history.get(currentTime);
+				if (!entry) return;
+				const [lon, lat] = geometry.coordinates;
+				const value = selectedMetric === 'wind' ? entry.ff : entry.qg;
+				const color = getColor(value, selectedMetric);
 
-			const color = selectedMetric === 'wind'
-			? getWindColor(value)
-			: getRadiationColor(value);
+				const marker = L.circleMarker([lat, lon], {
+					radius: 6,
+					color: '#1c1c1c',
+					fillColor: color,
+					fillOpacity: 0.9,
+					weight: 1
+				});
 
-			const marker = L.circleMarker([lat, lon], {
-				radius: 5,
-				color,
-				fillColor: color,
-				fillOpacity: 0.9,
-				weight: 1
-			});
+				marker.bindTooltip(buildSimpleTooltip(`Stn ${stationId}`, entry.qg, entry.ff), {
+					permanent: false,
+					direction: 'top',
+					className: 'station-label',
+					offset: [0, -8]
+				});
 
-			marker.bindPopup(buildStationPopup(stationId, entry, history, currentTime));
-
-			marker.bindTooltip(buildStationTooltip(stationId, entry, history), {
-				permanent: true,
-				direction: 'top',
-				className: 'station-label',
-				offset: [0, -8]
-			});
-
-			marker.addTo(stationLayer);
+				marker.bindPopup(() => buildStationPopupHTML(stationId, entry, history, currentTime));
+				marker.addTo(stationLayer);
+			} catch(err) {
+				console.warn('Station marker error:', err);
+			}
 		});
 	};
 
 	const updateMap = () => {
-		if (loading || !timeline.length) {
-			return;
-		}
+		if (loading || !timeline.length) return;
 
 		if (!ensureMap()) {
 			scheduleMapPoll();
@@ -1882,10 +1756,7 @@ function instance($$self, $$props, $$invalidate) {
 		}
 
 		const currentTime = timeline[currentIndex];
-
-		if (!currentTime) {
-			return;
-		}
+		if (!currentTime) return;
 
 		if (selectedView === 'regions') {
 			stationLayer = clearLayer(stationLayer);
@@ -1906,8 +1777,8 @@ function instance($$self, $$props, $$invalidate) {
 			stationsIndex = prepareIndex(stations, 'station');
 			buildTimeline();
 		} catch(err) {
-			console.error(err);
-			$$invalidate(7, errorMessage = err?.message || 'Failed to load KNMI history.');
+			console.error('KNMI load error:', err);
+			$$invalidate(7, errorMessage = err?.message || 'Failed to load KNMI data.');
 		} finally {
 			$$invalidate(0, loading = false);
 			updateMap();
@@ -1917,10 +1788,7 @@ function instance($$self, $$props, $$invalidate) {
 	onMount(() => {
 		loadData();
 		refreshTimer = setInterval(loadData, REFRESH_INTERVAL);
-
-		if (!ensureMap()) {
-			scheduleMapPoll();
-		}
+		if (!ensureMap()) scheduleMapPoll();
 	});
 
 	onDestroy(() => {
@@ -1951,7 +1819,6 @@ function instance($$self, $$props, $$invalidate) {
 		if ($$self.$$.dirty[0] & /*loading, timeline, selectedView, selectedMetric, selectedDelta, currentIndex*/ 63) {
 			{
 				if (!loading && timeline.length) {
-					timeline[currentIndex];
 					updateMap();
 				}
 			}
