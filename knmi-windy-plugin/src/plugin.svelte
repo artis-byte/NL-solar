@@ -6,7 +6,7 @@
     'https://raw.githubusercontent.com/artis-byte/NL-solar/main/qg_regions_history.geojson';
   const STATION_HISTORY_URL =
     'https://raw.githubusercontent.com/artis-byte/NL-solar/main/knmi_station_data/station_metrics_history.geojson';
-  const REFRESH_INTERVAL = 600_000;
+  const REFRESH_INTERVAL = 120_000;
   const DELTA_OPTIONS = [10, 30, 60];
   const DELTA_TOLERANCE_MINUTES = 5;
   const VIEW_OPTIONS = [
