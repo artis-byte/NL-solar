@@ -97,6 +97,24 @@ def _safe_int(value) -> int:
         return 0
 
 
+def _round_coords(coords, precision: int = 4):
+    """Recursively round coordinate arrays to *precision* decimal places."""
+    if isinstance(coords, (list, tuple)):
+        if coords and isinstance(coords[0], (int, float)):
+            return [round(c, precision) for c in coords]
+        return [_round_coords(c, precision) for c in coords]
+    return coords
+
+
+def _simplify_geometry(geom, precision: int = 4) -> Optional[dict]:
+    """Convert a Shapely geometry to GeoJSON with rounded coordinates."""
+    if geom is None:
+        return None
+    raw = mapping(geom)
+    raw["coordinates"] = _round_coords(raw["coordinates"], precision)
+    return raw
+
+
 def _circular_mean(series: pd.Series) -> Optional[float]:
     values = series.dropna().to_numpy(dtype=float)
     if values.size == 0:
@@ -212,7 +230,7 @@ def update_region_history(
 
         feature_map[name] = {
             "type": "Feature",
-            "geometry": mapping(row.geometry) if row.geometry is not None else None,
+            "geometry": _simplify_geometry(row.geometry),
             "properties": {
                 "name": name,
                 "history": history,
