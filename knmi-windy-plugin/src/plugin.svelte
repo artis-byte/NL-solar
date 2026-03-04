@@ -9,24 +9,25 @@
   const REFRESH_INTERVAL = 120_000;
   const DELTA_OPTIONS = [10, 30, 60];
   const DELTA_TOLERANCE_MINUTES = 5;
+  const MAX_TIMELINE_AGE_MS = 24 * 60 * 60 * 1000;
   const VIEW_OPTIONS = [
     { value: 'regions', label: 'Regions' },
     { value: 'stations', label: 'Stations' },
   ];
   const METRIC_OPTIONS = [
-    { value: 'radiation', label: 'Radiation (W/m^2)' },
+    { value: 'radiation', label: 'Radiation (W/m\u00b2)' },
     { value: 'wind', label: 'Wind Speed (m/s)' },
   ];
   const NO_VALUE = '--';
   const REGION_HISTORY_COLUMNS = [
-    { key: 'qg_mean', label: 'Radiation (W/m^2)', decimals: 0, suffix: ' W/m^2', includeDelta: true },
+    { key: 'qg_mean', label: 'Rad (W/m\u00b2)', decimals: 0, suffix: ' W/m\u00b2', includeDelta: true },
     { key: 'wind_speed_mean', label: 'Wind (m/s)', decimals: 1, suffix: ' m/s', includeDelta: true },
-    { key: 'wind_direction_mean', label: 'Direction (deg)', decimals: 0, suffix: ' deg', includeDelta: false },
+    { key: 'wind_direction_mean', label: 'Dir (\u00b0)', decimals: 0, suffix: '\u00b0', includeDelta: false },
   ];
   const STATION_HISTORY_COLUMNS = [
-    { key: 'qg', label: 'Radiation (W/m^2)', decimals: 0, suffix: ' W/m^2', includeDelta: true },
+    { key: 'qg', label: 'Rad (W/m\u00b2)', decimals: 0, suffix: ' W/m\u00b2', includeDelta: true },
     { key: 'ff', label: 'Wind (m/s)', decimals: 1, suffix: ' m/s', includeDelta: true },
-    { key: 'dd', label: 'Direction (deg)', decimals: 0, suffix: ' deg', includeDelta: false },
+    { key: 'dd', label: 'Dir (\u00b0)', decimals: 0, suffix: '\u00b0', includeDelta: false },
   ];
 
   let loading = true;
@@ -59,21 +60,15 @@
   };
 
   const ensureMap = () => {
-    if (mapInstance) {
-      return true;
-    }
+    if (mapInstance) return true;
     const candidate = windyMap;
-    if (!candidate) {
-      return false;
-    }
+    if (!candidate) return false;
     mapInstance = candidate;
     return typeof mapInstance.addLayer === 'function';
   };
 
   const scheduleMapPoll = () => {
-    if (mapPollTimer) {
-      return;
-    }
+    if (mapPollTimer) return;
     mapPollTimer = setInterval(() => {
       if (ensureMap()) {
         clearInterval(mapPollTimer);
@@ -84,37 +79,38 @@
   };
 
   const fetchJSON = async (url) => {
-    const response = await fetch(`${url}?t=${Date.now()}`);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch ${url}: ${response.status}`);
-    }
+    const response = await fetch(`${url}?t=${Date.now()}`, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Fetch ${url}: ${response.status}`);
     return response.json();
   };
 
   const getRadiationColor = (value) => {
-    if (value == null) return '#f7f7f7';
-    return value > 800 ? '#800026'
-      : value > 600 ? '#BD0026'
-      : value > 400 ? '#E31A1C'
-      : value > 200 ? '#FC4E2A'
-      : value > 100 ? '#FD8D3C'
-      : value > 50 ? '#FEB24C'
-      : value > 10 ? '#FED976'
-      : '#FFEDA0';
+    if (value == null) return '#FFEDA0';
+    if (value > 800) return '#800026';
+    if (value > 600) return '#BD0026';
+    if (value > 400) return '#E31A1C';
+    if (value > 200) return '#FC4E2A';
+    if (value > 100) return '#FD8D3C';
+    if (value > 50) return '#FEB24C';
+    if (value > 10) return '#FED976';
+    return '#FFEDA0';
   };
 
   const getWindColor = (value) => {
-    if (value == null) return '#f7fbff';
-    return value > 20 ? '#084081'
-      : value > 15 ? '#0868ac'
-      : value > 12 ? '#2b8cbe'
-      : value > 9 ? '#4eb3d3'
-      : value > 6 ? '#7bccc4'
-      : value > 4 ? '#a8ddb5'
-      : value > 2 ? '#ccebc5'
-      : value > 1 ? '#e0f3db'
-      : '#f7fcfd';
+    if (value == null) return '#f7fcfd';
+    if (value > 20) return '#084081';
+    if (value > 15) return '#0868ac';
+    if (value > 12) return '#2b8cbe';
+    if (value > 9) return '#4eb3d3';
+    if (value > 6) return '#7bccc4';
+    if (value > 4) return '#a8ddb5';
+    if (value > 2) return '#ccebc5';
+    if (value > 1) return '#e0f3db';
+    return '#f7fcfd';
   };
+
+  const getColor = (value, metric) =>
+    metric === 'wind' ? getWindColor(value) : getRadiationColor(value);
 
   const formatNumber = (value, decimals = 1, suffix = '') => {
     if (value == null || Number.isNaN(value)) return NO_VALUE;
@@ -129,137 +125,61 @@
 
   const formatLongTime = (iso) =>
     iso ? new Date(iso).toLocaleString(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      day: '2-digit',
-      month: 'short',
+      hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short',
     }) : NO_VALUE;
 
   const formatShortTime = (iso) =>
     iso ? new Date(iso).toLocaleTimeString(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
+      hour: '2-digit', minute: '2-digit',
     }) : NO_VALUE;
 
-  const getRecentHistoryEntries = (historyMap, limit = 5) => {
-    if (!historyMap || !historyMap.size) return [];
-    const entries = Array.from(historyMap.values());
-    return entries.slice(-limit).reverse();
+  const safeHistoryEntries = (historyMap, limit = 5) => {
+    try {
+      if (!historyMap || typeof historyMap.values !== 'function') return [];
+      const entries = Array.from(historyMap.values());
+      return entries.slice(-limit).reverse();
+    } catch (_) { return []; }
   };
 
   const getTrend = (currentValue, previousValue) => {
     if (currentValue == null || previousValue == null) return null;
-    const current = Number(currentValue);
-    const previous = Number(previousValue);
-    if (!Number.isFinite(current) || !Number.isFinite(previous)) return null;
-    return current - previous;
-  };
-
-  const formatDeltaValue = (currentValue, previousValue, decimals = 1, suffix = '') => {
-    const trend = getTrend(currentValue, previousValue);
-    if (trend == null) return NO_VALUE;
-    return formatSignedNumber(trend, decimals, suffix);
+    const a = Number(currentValue), b = Number(previousValue);
+    if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+    return a - b;
   };
 
   const renderHistoryTable = (historyMap, columns, limit = 5) => {
-    const entries = getRecentHistoryEntries(historyMap, limit);
+    const entries = safeHistoryEntries(historyMap, limit);
     if (!entries.length) return '';
-    const header = columns.map((column) => {
-      const deltaLabel = column.includeDelta ? `<th>${column.deltaLabel || '&Delta;'}</th>` : '';
-      return `<th>${column.label}</th>${deltaLabel}`;
+    const header = columns.map((c) => {
+      const d = c.includeDelta ? '<th>&Delta;</th>' : '';
+      return `<th>${c.label}</th>${d}`;
     }).join('');
-    const rows = entries.map((entry, index) => {
-      const cells = columns.map((column) => formatNumber(
-        entry?.[column.key],
-        column.decimals ?? 1,
-        column.suffix ?? '',
-      ));
-      const previous = entries[index + 1] || null;
-      let cellHtml = '';
-      columns.forEach((column, idx) => {
-        cellHtml += `<td>${cells[idx]}</td>`;
-        if (column.includeDelta) {
-          const delta = previous
-            ? formatDeltaValue(
-              entry?.[column.key],
-              previous?.[column.key],
-              column.deltaDecimals ?? column.decimals ?? 1,
-              column.suffix ?? '',
-            )
-            : NO_VALUE;
-          cellHtml += `<td>${delta}</td>`;
+    const rows = entries.map((entry, idx) => {
+      const prev = entries[idx + 1] || null;
+      let cells = '';
+      columns.forEach((c) => {
+        cells += `<td>${formatNumber(entry?.[c.key], c.decimals ?? 1, c.suffix ?? '')}</td>`;
+        if (c.includeDelta) {
+          const trend = prev ? getTrend(entry?.[c.key], prev?.[c.key]) : null;
+          cells += `<td>${trend != null ? formatSignedNumber(trend, c.decimals ?? 1, c.suffix ?? '') : NO_VALUE}</td>`;
         }
       });
-      return `<tr><td>${formatLongTime(entry?.observation_time)}</td>${cellHtml}</tr>`;
+      return `<tr><td>${formatLongTime(entry?.observation_time)}</td>${cells}</tr>`;
     }).join('');
-    return `
-      <div class="history-block">
-        <h4>Last ${entries.length} observations</h4>
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>Observed</th>${header}
-            </tr>
-          </thead>
-          <tbody>
-            ${rows}
-          </tbody>
-        </table>
-      </div>
-    `;
-  };
-
-  const buildRegionTooltip = (name, entry, historyMap) => {
-    const historyEntries = getRecentHistoryEntries(historyMap, 2);
-    const previous = historyEntries.length > 1 ? historyEntries[1] : null;
-    const radTrend = getTrend(entry?.qg_mean, previous?.qg_mean);
-    const windTrend = getTrend(entry?.wind_speed_mean, previous?.wind_speed_mean);
-    const radDelta = radTrend == null ? NO_VALUE : formatSignedNumber(radTrend, 0, ' W/m^2');
-    const windDelta = windTrend == null ? NO_VALUE : formatSignedNumber(windTrend, 1, ' m/s');
-    const radTrendClass = radTrend == null ? '' : radTrend > 0 ? 'delta-positive' : radTrend < 0 ? 'delta-negative' : 'delta-neutral';
-    const windTrendClass = windTrend == null ? '' : windTrend > 0 ? 'delta-positive' : windTrend < 0 ? 'delta-negative' : 'delta-neutral';
-    const previousStamp = previous?.observation_time ? ` vs ${formatShortTime(previous.observation_time)}` : '';
-    return `
-      <div class="map-tooltip">
-        <div class="map-tooltip-title">${name || 'Region'}</div>
-        <div>Rad: ${formatNumber(entry?.qg_mean, 0, ' W/m^2')} <span class="delta ${radTrendClass}">${radDelta}</span></div>
-        <div>Wind: ${formatNumber(entry?.wind_speed_mean, 1, ' m/s')} <span class="delta ${windTrendClass}">${windDelta}</span></div>
-        <div class="map-tooltip-time">${formatShortTime(entry?.observation_time)}${previousStamp}</div>
-      </div>
-    `;
-  };
-
-  const buildStationTooltip = (stationId, entry, historyMap) => {
-    const historyEntries = getRecentHistoryEntries(historyMap, 2);
-    const previous = historyEntries.length > 1 ? historyEntries[1] : null;
-    const radTrend = getTrend(entry?.qg, previous?.qg);
-    const windTrend = getTrend(entry?.ff, previous?.ff);
-    const radDelta = radTrend == null ? NO_VALUE : formatSignedNumber(radTrend, 0, ' W/m^2');
-    const windDelta = windTrend == null ? NO_VALUE : formatSignedNumber(windTrend, 1, ' m/s');
-    const radTrendClass = radTrend == null ? '' : radTrend > 0 ? 'delta-positive' : radTrend < 0 ? 'delta-negative' : 'delta-neutral';
-    const windTrendClass = windTrend == null ? '' : windTrend > 0 ? 'delta-positive' : windTrend < 0 ? 'delta-negative' : 'delta-neutral';
-    const previousStamp = previous?.observation_time ? ` vs ${formatShortTime(previous.observation_time)}` : '';
-    return `
-      <div class="map-tooltip">
-        <div class="map-tooltip-title">Station ${stationId}</div>
-        <div>Rad: ${formatNumber(entry?.qg, 0, ' W/m^2')} <span class="delta ${radTrendClass}">${radDelta}</span></div>
-        <div>Wind: ${formatNumber(entry?.ff, 1, ' m/s')} <span class="delta ${windTrendClass}">${windDelta}</span></div>
-        <div class="map-tooltip-time">${formatShortTime(entry?.observation_time)}${previousStamp}</div>
-      </div>
-    `;
+    return `<div class="history-block"><h4>Last ${entries.length} obs</h4>
+      <table class="history-table"><thead><tr><th>Time</th>${header}</tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
   };
 
   const prepareIndex = (collection, keyProp) => {
     const index = new Map();
-    if (!collection?.features) {
-      return index;
-    }
+    if (!collection?.features) return index;
     for (const feature of collection.features) {
       const key = feature?.properties?.[keyProp];
       if (!key) continue;
       const history = new Map();
-      const entries = feature.properties.history || [];
-      for (const entry of entries) {
+      for (const entry of (feature.properties.history || [])) {
         if (entry?.observation_time) {
           history.set(entry.observation_time, entry);
         }
@@ -273,9 +193,16 @@
   };
 
   const buildTimeline = () => {
+    const now = Date.now();
+    const cutoff = now - MAX_TIMELINE_AGE_MS;
     const times = new Set();
-    regionsIndex.forEach(({ history }) => history.forEach((_, t) => times.add(t)));
-    stationsIndex.forEach(({ history }) => history.forEach((_, t) => times.add(t)));
+    const addTimes = (idx) => idx.forEach(({ history }) =>
+      history.forEach((_, t) => {
+        if (new Date(t).getTime() >= cutoff) times.add(t);
+      })
+    );
+    addTimes(regionsIndex);
+    addTimes(stationsIndex);
     const sorted = Array.from(times).sort((a, b) => new Date(a) - new Date(b));
     timeline = sorted;
     timelineDates = timeline.map((t) => new Date(t));
@@ -285,221 +212,185 @@
 
   const findPreviousTime = (currentTime, minutes) => {
     if (!currentTime || !timelineIndex.has(currentTime)) return null;
-    const currentIdx = timelineIndex.get(currentTime);
-    const currentDate = timelineDates[currentIdx];
-    for (let i = currentIdx - 1; i >= 0; i -= 1) {
-      const diffMins = (currentDate - timelineDates[i]) / 60000;
-      if (diffMins >= minutes - 0.01) {
-        return timeline[i];
-      }
+    const idx = timelineIndex.get(currentTime);
+    const cur = timelineDates[idx];
+    for (let i = idx - 1; i >= 0; i--) {
+      if ((cur - timelineDates[i]) / 60000 >= minutes - 0.01) return timeline[i];
     }
     return null;
+  };
+
+  const safeGet = (historyMap, key) => {
+    try {
+      return historyMap && typeof historyMap.get === 'function' ? historyMap.get(key) : undefined;
+    } catch (_) { return undefined; }
   };
 
   const computeDelta = (historyMap, currentTime, metricKey, minutes) => {
     if (!historyMap || !currentTime) return null;
     const previousTime = findPreviousTime(currentTime, minutes);
     if (!previousTime) return null;
-    const current = historyMap.get(currentTime);
-    const previous = historyMap.get(previousTime);
+    const current = safeGet(historyMap, currentTime);
+    const previous = safeGet(historyMap, previousTime);
     if (!current || !previous) return null;
-    const currentDate = new Date(currentTime);
-    const previousDate = new Date(previousTime);
-    const gapMinutes = Math.abs((currentDate - previousDate) / 60000);
-    if (gapMinutes > minutes + DELTA_TOLERANCE_MINUTES) {
-      return null;
+    const gap = Math.abs((new Date(currentTime) - new Date(previousTime)) / 60000);
+    if (gap > minutes + DELTA_TOLERANCE_MINUTES) return null;
+    const cv = current[metricKey], pv = previous[metricKey];
+    if (cv == null || pv == null) return null;
+    return { delta: cv - pv, previousTime, previousValue: pv };
+  };
+
+  const buildRegionPopupHTML = (name, entry, historyMap, currentTime) => {
+    try {
+      const dm = selectedDelta;
+      const rd = computeDelta(historyMap, currentTime, 'qg_mean', dm);
+      const wd = computeDelta(historyMap, currentTime, 'wind_speed_mean', dm);
+      const rc = rd ? `${formatSignedNumber(rd.delta, 0, ' W/m\u00b2')}` : NO_VALUE;
+      const wc = wd ? `${formatSignedNumber(wd.delta, 1, ' m/s')}` : NO_VALUE;
+      const ht = renderHistoryTable(historyMap, REGION_HISTORY_COLUMNS);
+      return `<div class="popup"><h3>${name || 'Region'}</h3>
+        <p><b>Radiation</b>: ${formatNumber(entry?.qg_mean, 0, ' W/m\u00b2')} (\u0394${dm}m: ${rc})</p>
+        <p><b>Wind</b>: ${formatNumber(entry?.wind_speed_mean, 1, ' m/s')} @ ${formatNumber(entry?.wind_direction_mean, 0, '\u00b0')} (\u0394${dm}m: ${wc})</p>
+        ${entry?.stations_count != null ? `<p>Stations: ${entry.stations_count}</p>` : ''}
+        ${ht}</div>`;
+    } catch (_) {
+      return `<div class="popup"><h3>${name || 'Region'}</h3><p>Data available on click</p></div>`;
     }
-    const currentValue = current[metricKey];
-    const previousValue = previous[metricKey];
-    if (currentValue == null || previousValue == null) return null;
-    return {
-      delta: currentValue - previousValue,
-      previousTime,
-      previousValue,
-    };
   };
 
-  const buildRegionPopup = (name, entry, historyMap, currentTime) => {
-    const deltaMinutes = selectedDelta;
-    const radiationDelta = computeDelta(historyMap, currentTime, 'qg_mean', deltaMinutes);
-    const windDelta = computeDelta(historyMap, currentTime, 'wind_speed_mean', deltaMinutes);
-    const radiationChange = radiationDelta
-      ? `${formatSignedNumber(radiationDelta.delta, 0, ' W/m^2')}${radiationDelta.previousTime ? ' (vs ' + formatShortTime(radiationDelta.previousTime) + ')' : ''}`
-      : NO_VALUE;
-    const windChange = windDelta
-      ? `${formatSignedNumber(windDelta.delta, 1, ' m/s')}${windDelta.previousTime ? ' (vs ' + formatShortTime(windDelta.previousTime) + ')' : ''}`
-      : NO_VALUE;
-    const historyTable = renderHistoryTable(historyMap, REGION_HISTORY_COLUMNS);
-    const stationsLine = entry?.stations_count != null
-      ? `<p>Stations contributing: ${entry.stations_count}</p>`
-      : '';
-    const outputLine = entry?.estimated_output_mw != null
-      ? `<p>Est. PV output: ${formatNumber(entry.estimated_output_mw, 1, ' MW')}</p>`
-      : '';
-
-    return `
-      <div class="popup">
-        <h3>${name}</h3>
-        <p><strong>Radiation</strong>: ${formatNumber(entry?.qg_mean, 0, ' W/m^2')}<br>
-           &#916;${deltaMinutes} min: ${radiationChange}</p>
-        <p><strong>Wind</strong>: ${formatNumber(entry?.wind_speed_mean, 1, ' m/s')} @ ${formatNumber(entry?.wind_direction_mean, 0, ' deg')}<br>
-           &#916;${deltaMinutes} min: ${windChange}</p>
-        ${stationsLine}
-        ${outputLine}
-        ${historyTable}
-      </div>
-    `;
+  const buildStationPopupHTML = (stationId, entry, historyMap, currentTime) => {
+    try {
+      const dm = selectedDelta;
+      const rd = computeDelta(historyMap, currentTime, 'qg', dm);
+      const wd = computeDelta(historyMap, currentTime, 'ff', dm);
+      const rc = rd ? `${formatSignedNumber(rd.delta, 0, ' W/m\u00b2')}` : NO_VALUE;
+      const wc = wd ? `${formatSignedNumber(wd.delta, 1, ' m/s')}` : NO_VALUE;
+      const ht = renderHistoryTable(historyMap, STATION_HISTORY_COLUMNS);
+      return `<div class="popup"><h3>Station ${stationId}</h3>
+        <p><b>Radiation</b>: ${formatNumber(entry?.qg, 0, ' W/m\u00b2')} (\u0394${dm}m: ${rc})</p>
+        <p><b>Wind</b>: ${formatNumber(entry?.ff, 1, ' m/s')} @ ${formatNumber(entry?.dd, 0, '\u00b0')} (\u0394${dm}m: ${wc})</p>
+        ${ht}</div>`;
+    } catch (_) {
+      return `<div class="popup"><h3>Station ${stationId}</h3><p>Data available on click</p></div>`;
+    }
   };
 
-  const buildStationPopup = (stationId, entry, historyMap, currentTime) => {
-    const deltaMinutes = selectedDelta;
-    const radiationDelta = computeDelta(historyMap, currentTime, 'qg', deltaMinutes);
-    const windDelta = computeDelta(historyMap, currentTime, 'ff', deltaMinutes);
-    const radiationChange = radiationDelta
-      ? `${formatSignedNumber(radiationDelta.delta, 0, ' W/m^2')}${radiationDelta.previousTime ? ' (vs ' + formatShortTime(radiationDelta.previousTime) + ')' : ''}`
-      : NO_VALUE;
-    const windChange = windDelta
-      ? `${formatSignedNumber(windDelta.delta, 1, ' m/s')}${windDelta.previousTime ? ' (vs ' + formatShortTime(windDelta.previousTime) + ')' : ''}`
-      : NO_VALUE;
-    const historyTable = renderHistoryTable(historyMap, STATION_HISTORY_COLUMNS);
-    const sourceLine = entry?.source_filename
-      ? `<p>Source: ${entry.source_filename}</p>`
-      : '';
-
-    return `
-      <div class="popup">
-        <h3>Station ${stationId}</h3>
-        <p><strong>Radiation</strong>: ${formatNumber(entry?.qg, 0, ' W/m^2')}<br>
-           &#916;${deltaMinutes} min: ${radiationChange}</p>
-        <p><strong>Wind</strong>: ${formatNumber(entry?.ff, 1, ' m/s')} @ ${formatNumber(entry?.dd, 0, ' deg')}<br>
-           &#916;${deltaMinutes} min: ${windChange}</p>
-        ${sourceLine}
-        ${historyTable}
-      </div>
-    `;
+  const buildSimpleTooltip = (title, rad, wind) => {
+    return `<div class="map-tooltip"><div class="map-tooltip-title">${title}</div>
+      <div>Rad: ${formatNumber(rad, 0, ' W/m\u00b2')}</div>
+      <div>Wind: ${formatNumber(wind, 1, ' m/s')}</div></div>`;
   };
 
   const clearLayer = (layerRef) => {
-    if (!layerRef || !ensureMap()) {
-      return null;
-    }
-    if (mapInstance.hasLayer(layerRef)) {
-      mapInstance.removeLayer(layerRef);
-    }
+    try {
+      if (layerRef && mapInstance) {
+        mapInstance.removeLayer(layerRef);
+      }
+    } catch (_) { /* ignore */ }
     return null;
   };
 
   const drawRegionLayer = (currentTime) => {
-    if (!ensureMap() || !currentTime) {
-      scheduleMapPoll();
-      return;
-    }
+    if (!ensureMap() || !currentTime) { scheduleMapPoll(); return; }
     const L = getLeaflet();
     if (!L) return;
+
+    // Build plain GeoJSON features - NO Map objects attached
     const features = [];
     regionsIndex.forEach(({ geometry, history }, name) => {
+      if (!geometry) return;
       const entry = history.get(currentTime);
-      if (!entry || !geometry) return;
+      if (!entry) return;
       features.push({
         type: 'Feature',
         geometry,
-        properties: { name, ...entry },
-        history,
+        properties: { _regionKey: name, name, ...entry },
       });
     });
+
     if (!features.length) {
       regionLayer = clearLayer(regionLayer);
       return;
     }
+
     const collection = { type: 'FeatureCollection', features };
     regionLayer = clearLayer(regionLayer);
+
     regionLayer = L.geoJSON(collection, {
       style: (feature) => {
-        const entry = feature.properties;
-        const value = selectedMetric === 'wind'
-          ? entry?.wind_speed_mean
-          : entry?.qg_mean;
-        const color = selectedMetric === 'wind'
-          ? getWindColor(value)
-          : getRadiationColor(value);
+        const p = feature.properties || {};
+        const value = selectedMetric === 'wind' ? p.wind_speed_mean : p.qg_mean;
         return {
-          fillColor: color,
+          fillColor: getColor(value, selectedMetric),
           fillOpacity: 0.65,
-          weight: 1,
+          weight: 1.5,
           color: '#333',
         };
       },
       onEachFeature: (feature, layer) => {
-        layer.bindPopup(buildRegionPopup(
-          feature.properties?.name,
-          feature.properties,
-          feature.history,
-          currentTime,
-        ));
-        layer.bindTooltip(
-          buildRegionTooltip(feature.properties?.name, feature.properties, feature.history),
-          {
-            permanent: true,
-            direction: 'center',
-            className: 'region-label',
-            sticky: false,
-          },
-        );
+        try {
+          const p = feature.properties || {};
+          const name = p.name || p._regionKey || 'Region';
+          // Look up history from the closure-scoped index, NOT from the feature
+          const indexEntry = regionsIndex.get(p._regionKey);
+          const historyMap = indexEntry ? indexEntry.history : null;
+
+          // Tooltip: simple, safe
+          layer.bindTooltip(
+            buildSimpleTooltip(name, p.qg_mean, p.wind_speed_mean),
+            { permanent: true, direction: 'center', className: 'region-label' },
+          );
+
+          // Popup: built lazily on click via function callback
+          layer.bindPopup(() => buildRegionPopupHTML(name, p, historyMap, currentTime));
+        } catch (err) {
+          // Never let one feature's tooltip/popup error kill the entire layer
+          console.warn('Region tooltip error:', err);
+        }
       },
     }).addTo(mapInstance);
   };
 
   const drawStationLayer = (currentTime) => {
-    if (!ensureMap() || !currentTime) {
-      scheduleMapPoll();
-      return;
-    }
+    if (!ensureMap() || !currentTime) { scheduleMapPoll(); return; }
     const L = getLeaflet();
     if (!L) return;
+
     stationLayer = clearLayer(stationLayer);
     stationLayer = L.layerGroup().addTo(mapInstance);
+
     stationsIndex.forEach(({ geometry, history }, stationId) => {
-      if (!geometry || geometry.type !== 'Point') return;
-      const entry = history.get(currentTime);
-      if (!entry) return;
-      const [lon, lat] = geometry.coordinates;
-      const value = selectedMetric === 'wind' ? entry.ff : entry.qg;
-      const color = selectedMetric === 'wind'
-        ? getWindColor(value)
-        : getRadiationColor(value);
-      const marker = L.circleMarker([lat, lon], {
-        radius: 5,
-        color,
-        fillColor: color,
-        fillOpacity: 0.9,
-        weight: 1,
-      });
-      marker.bindPopup(buildStationPopup(stationId, entry, history, currentTime));
-      marker.bindTooltip(
-        buildStationTooltip(stationId, entry, history),
-        {
-          permanent: true,
-          direction: 'top',
-          className: 'station-label',
-          offset: [0, -8],
-        },
-      );
-      marker.addTo(stationLayer);
+      try {
+        if (!geometry || geometry.type !== 'Point') return;
+        const entry = history.get(currentTime);
+        if (!entry) return;
+        const [lon, lat] = geometry.coordinates;
+        const value = selectedMetric === 'wind' ? entry.ff : entry.qg;
+        const color = getColor(value, selectedMetric);
+        const marker = L.circleMarker([lat, lon], {
+          radius: 6,
+          color: '#1c1c1c',
+          fillColor: color,
+          fillOpacity: 0.9,
+          weight: 1,
+        });
+        marker.bindTooltip(
+          buildSimpleTooltip(`Stn ${stationId}`, entry.qg, entry.ff),
+          { permanent: false, direction: 'top', className: 'station-label', offset: [0, -8] },
+        );
+        marker.bindPopup(() => buildStationPopupHTML(stationId, entry, history, currentTime));
+        marker.addTo(stationLayer);
+      } catch (err) {
+        console.warn('Station marker error:', err);
+      }
     });
   };
 
   const updateMap = () => {
-    if (loading || !timeline.length) {
-      return;
-    }
-    if (!ensureMap()) {
-      scheduleMapPoll();
-      return;
-    }
+    if (loading || !timeline.length) return;
+    if (!ensureMap()) { scheduleMapPoll(); return; }
     const currentTime = timeline[currentIndex];
-    if (!currentTime) {
-      return;
-    }
+    if (!currentTime) return;
 
     if (selectedView === 'regions') {
       stationLayer = clearLayer(stationLayer);
@@ -522,8 +413,8 @@
       stationsIndex = prepareIndex(stations, 'station');
       buildTimeline();
     } catch (err) {
-      console.error(err);
-      errorMessage = err?.message || 'Failed to load KNMI history.';
+      console.error('KNMI load error:', err);
+      errorMessage = err?.message || 'Failed to load KNMI data.';
     } finally {
       loading = false;
       updateMap();
@@ -533,9 +424,7 @@
   onMount(() => {
     loadData();
     refreshTimer = setInterval(loadData, REFRESH_INTERVAL);
-    if (!ensureMap()) {
-      scheduleMapPoll();
-    }
+    if (!ensureMap()) scheduleMapPoll();
   });
 
   onDestroy(() => {
@@ -547,12 +436,11 @@
 
   $: {
     if (!loading && timeline.length) {
-      const _view = selectedView;
-      const _metric = selectedMetric;
-      const _delta = selectedDelta;
-      const _index = currentIndex;
-      const _current = timeline[currentIndex];
-      void (_view, _metric, _delta, _index, _current);
+      const _v = selectedView;
+      const _m = selectedMetric;
+      const _d = selectedDelta;
+      const _i = currentIndex;
+      void (_v, _m, _d, _i);
       updateMap();
     }
   }
@@ -712,7 +600,7 @@
 </style>
 
 <section>
-  <h1>KNMI Wind & Radiation Timeline</h1>
+  <h1>KNMI Solar & Wind</h1>
 
   {#if loading}
     <p class="status">Loading observations...</p>
@@ -753,11 +641,11 @@
         <select on:change={(event) => { selectedDelta = Number(event.target.value); }}>
           {#each DELTA_OPTIONS as option}
             <option value={option} selected={option === selectedDelta}>
-              {option} minutes
+              {option} min
             </option>
           {/each}
         </select>
-        <span class="hint">Comparing to {previousTimeISO ? formatShortTime(previousTimeISO) : 'n/a'}</span>
+        <span class="hint">vs {previousTimeISO ? formatShortTime(previousTimeISO) : 'n/a'}</span>
       </div>
     </div>
 
@@ -774,7 +662,7 @@
       </div>
     </div>
     <p class="hint">
-      Drag the slider to explore the last {timespanMinutes} minutes of KNMI observations.
+      Drag slider to explore last {timespanMinutes} min of KNMI data.
     </p>
   {/if}
 </section>

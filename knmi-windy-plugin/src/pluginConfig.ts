@@ -2,7 +2,7 @@ import type { ExternalPluginConfig } from '@windy/interfaces';
 
 const config: ExternalPluginConfig = {
     name: 'windy-plugin-knmi-qg-regions',
-    version: '3.6.0',
+    version: '3.7.0',
     icon: '☀',
     title: 'KNMI Solar Radiation',
     description: 'Overlay KNMI 10 minute irradiance and wind metrics for Dutch regions and stations.',
