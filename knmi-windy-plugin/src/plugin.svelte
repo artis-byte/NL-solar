@@ -295,60 +295,54 @@
     const L = getLeaflet();
     if (!L) return;
 
-    // Build plain GeoJSON features - NO Map objects attached
-    const features = [];
-    regionsIndex.forEach(({ geometry, history }, name) => {
-      if (!geometry) return;
-      const entry = history.get(currentTime);
-      if (!entry) return;
-      features.push({
-        type: 'Feature',
-        geometry,
-        properties: { _regionKey: name, name, ...entry },
-      });
-    });
-
-    if (!features.length) {
-      regionLayer = clearLayer(regionLayer);
-      return;
-    }
-
-    const collection = { type: 'FeatureCollection', features };
     regionLayer = clearLayer(regionLayer);
+    regionLayer = L.layerGroup().addTo(mapInstance);
 
-    regionLayer = L.geoJSON(collection, {
-      style: (feature) => {
-        const p = feature.properties || {};
-        const value = selectedMetric === 'wind' ? p.wind_speed_mean : p.qg_mean;
-        return {
-          fillColor: getColor(value, selectedMetric),
-          fillOpacity: 0.65,
-          weight: 1.5,
-          color: '#333',
+    let drawn = 0;
+    regionsIndex.forEach(({ geometry, history }, name) => {
+      try {
+        if (!geometry) return;
+        const entry = history.get(currentTime);
+        if (!entry) return;
+
+        // Deep copy geometry for each render to prevent mutation
+        const geomCopy = JSON.parse(JSON.stringify(geometry));
+        const value = selectedMetric === 'wind' ? entry.wind_speed_mean : entry.qg_mean;
+
+        const feature = {
+          type: 'FeatureCollection',
+          features: [{
+            type: 'Feature',
+            geometry: geomCopy,
+            properties: { name, ...entry },
+          }],
         };
-      },
-      onEachFeature: (feature, layer) => {
-        try {
-          const p = feature.properties || {};
-          const name = p.name || p._regionKey || 'Region';
-          // Look up history from the closure-scoped index, NOT from the feature
-          const indexEntry = regionsIndex.get(p._regionKey);
-          const historyMap = indexEntry ? indexEntry.history : null;
 
-          // Tooltip: simple, safe
-          layer.bindTooltip(
-            buildSimpleTooltip(name, p.qg_mean, p.wind_speed_mean),
+        const layer = L.geoJSON(feature, {
+          style: () => ({
+            fillColor: getColor(value, selectedMetric),
+            fillOpacity: 0.65,
+            weight: 1.5,
+            color: '#333',
+          }),
+        });
+
+        // Tooltip
+        layer.eachLayer((sub) => {
+          sub.bindTooltip(
+            buildSimpleTooltip(name, entry.qg_mean, entry.wind_speed_mean),
             { permanent: true, direction: 'center', className: 'region-label' },
           );
+          sub.bindPopup(() => buildRegionPopupHTML(name, entry, history, currentTime));
+        });
 
-          // Popup: built lazily on click via function callback
-          layer.bindPopup(() => buildRegionPopupHTML(name, p, historyMap, currentTime));
-        } catch (err) {
-          // Never let one feature's tooltip/popup error kill the entire layer
-          console.warn('Region tooltip error:', err);
-        }
-      },
-    }).addTo(mapInstance);
+        layer.addTo(regionLayer);
+        drawn += 1;
+      } catch (err) {
+        console.warn('Region draw error for', name, err);
+      }
+    });
+    console.log(`[KNMI] Drew ${drawn} region(s) for ${currentTime}`);
   };
 
   const drawStationLayer = (currentTime) => {
@@ -391,6 +385,7 @@
     if (!ensureMap()) { scheduleMapPoll(); return; }
     const currentTime = timeline[currentIndex];
     if (!currentTime) return;
+    console.log(`[KNMI] updateMap: view=${selectedView}, time=${currentTime}, idx=${currentIndex}/${timeline.length}`);
 
     if (selectedView === 'regions') {
       stationLayer = clearLayer(stationLayer);
@@ -411,7 +406,9 @@
       ]);
       regionsIndex = prepareIndex(regions, 'name');
       stationsIndex = prepareIndex(stations, 'station');
+      console.log(`[KNMI] Indexed ${regionsIndex.size} regions, ${stationsIndex.size} stations`);
       buildTimeline();
+      console.log(`[KNMI] Timeline: ${timeline.length} points, latest=${timeline[timeline.length - 1]}`);
     } catch (err) {
       console.error('KNMI load error:', err);
       errorMessage = err?.message || 'Failed to load KNMI data.';
