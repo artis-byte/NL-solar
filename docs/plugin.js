@@ -1,6 +1,6 @@
 const __pluginConfig =  {
   "name": "windy-plugin-knmi-qg-regions",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "icon": "☀",
   "title": "KNMI Solar Radiation",
   "description": "Overlay KNMI 10 minute irradiance and wind metrics for Dutch regions and stations.",
@@ -10,8 +10,8 @@ const __pluginConfig =  {
   "mobileUI": "fullscreen",
   "routerPath": "/knmi-solar",
   "private": false,
-  "built": 1772612723683,
-  "builtReadable": "2026-03-04T08:25:23.683Z",
+  "built": 1772613739931,
+  "builtReadable": "2026-03-04T08:42:19.931Z",
   "screenshot": "screenshot.jpg"
 };
 
