@@ -6,14 +6,10 @@
     'https://raw.githubusercontent.com/artis-byte/NL-solar/main/qg_regions_history.geojson';
   const STATION_HISTORY_URL =
     'https://raw.githubusercontent.com/artis-byte/NL-solar/main/knmi_station_data/station_metrics_history.geojson';
-  const REFRESH_INTERVAL = 120_000;
+  const REFRESH_INTERVAL = 60_000;
   const DELTA_OPTIONS = [10, 30, 60];
   const DELTA_TOLERANCE_MINUTES = 5;
   const MAX_TIMELINE_AGE_MS = 24 * 60 * 60 * 1000;
-  const VIEW_OPTIONS = [
-    { value: 'regions', label: 'Regions' },
-    { value: 'stations', label: 'Stations' },
-  ];
   const METRIC_OPTIONS = [
     { value: 'radiation', label: 'Radiation (W/m\u00b2)' },
     { value: 'wind', label: 'Wind Speed (m/s)' },
@@ -45,7 +41,12 @@
   let timelineIndex = new Map();
   let currentIndex = 0;
 
-  let selectedView = 'regions';
+  let showRegions = true;
+  let showStations = true;
+  let followLatest = true;
+  let lastFetchedAt = null;
+  let nowTick = Date.now();
+  let clockTimer = null;
   let selectedMetric = 'radiation';
   let selectedDelta = DELTA_OPTIONS[0];
 
@@ -193,6 +194,7 @@
   };
 
   const buildTimeline = () => {
+    const previousTime = timeline[currentIndex];
     const now = Date.now();
     const cutoff = now - MAX_TIMELINE_AGE_MS;
     const times = new Set();
@@ -206,8 +208,9 @@
     const sorted = Array.from(times).sort((a, b) => new Date(a) - new Date(b));
     timeline = sorted;
     timelineDates = timeline.map((t) => new Date(t));
+    const keep = !followLatest && previousTime ? timeline.indexOf(previousTime) : -1;
     timelineIndex = new Map(timeline.map((t, idx) => [t, idx]));
-    currentIndex = timeline.length ? timeline.length - 1 : 0;
+    currentIndex = keep >= 0 ? keep : (timeline.length ? timeline.length - 1 : 0);
   };
 
   const findPreviousTime = (currentTime, minutes) => {
@@ -385,20 +388,17 @@
     if (!ensureMap()) { scheduleMapPoll(); return; }
     const currentTime = timeline[currentIndex];
     if (!currentTime) return;
-    console.log(`[KNMI] updateMap: view=${selectedView}, time=${currentTime}, idx=${currentIndex}/${timeline.length}`);
+    console.log(`[KNMI] updateMap: regions=${showRegions} stations=${showStations}, time=${currentTime}, idx=${currentIndex}/${timeline.length}`);
 
-    if (selectedView === 'regions') {
-      stationLayer = clearLayer(stationLayer);
-      drawRegionLayer(currentTime);
-    } else {
-      regionLayer = clearLayer(regionLayer);
-      drawStationLayer(currentTime);
-    }
+    if (showRegions) drawRegionLayer(currentTime);
+    else regionLayer = clearLayer(regionLayer);
+    if (showStations) drawStationLayer(currentTime);
+    else stationLayer = clearLayer(stationLayer);
   };
 
   const loadData = async () => {
-    loading = true;
-    errorMessage = '';
+    const firstLoad = !timeline.length;
+    if (firstLoad) loading = true;
     try {
       const [regions, stations] = await Promise.all([
         fetchJSON(REGION_HISTORY_URL),
@@ -408,10 +408,12 @@
       stationsIndex = prepareIndex(stations, 'station');
       console.log(`[KNMI] Indexed ${regionsIndex.size} regions, ${stationsIndex.size} stations`);
       buildTimeline();
+      errorMessage = '';
+      lastFetchedAt = Date.now();
       console.log(`[KNMI] Timeline: ${timeline.length} points, latest=${timeline[timeline.length - 1]}`);
     } catch (err) {
       console.error('KNMI load error:', err);
-      errorMessage = err?.message || 'Failed to load KNMI data.';
+      if (firstLoad) errorMessage = err?.message || 'Failed to load KNMI data.';
     } finally {
       loading = false;
       updateMap();
@@ -421,28 +423,35 @@
   onMount(() => {
     loadData();
     refreshTimer = setInterval(loadData, REFRESH_INTERVAL);
+    clockTimer = setInterval(() => { nowTick = Date.now(); }, 30_000);
     if (!ensureMap()) scheduleMapPoll();
   });
 
   onDestroy(() => {
     if (refreshTimer) clearInterval(refreshTimer);
     if (mapPollTimer) clearInterval(mapPollTimer);
+    if (clockTimer) clearInterval(clockTimer);
     regionLayer = clearLayer(regionLayer);
     stationLayer = clearLayer(stationLayer);
   });
 
   $: {
     if (!loading && timeline.length) {
-      const _v = selectedView;
+      const _r = showRegions;
+      const _s = showStations;
       const _m = selectedMetric;
       const _d = selectedDelta;
       const _i = currentIndex;
-      void (_v, _m, _d, _i);
+      void (_r, _s, _m, _d, _i);
       updateMap();
     }
   }
 
   $: currentTimeISO = timeline.length ? timeline[currentIndex] : null;
+  $: latestTimeISO = timeline.length ? timeline[timeline.length - 1] : null;
+  $: dataAgeMinutes = latestTimeISO
+    ? Math.max(0, Math.round((nowTick - new Date(latestTimeISO).getTime()) / 60000))
+    : null;
   $: previousTimeISO = currentTimeISO ? findPreviousTime(currentTimeISO, selectedDelta) : null;
   $: timespanMinutes = timelineDates.length >= 2
     ? Math.round((timelineDates[timelineDates.length - 1] - timelineDates[0]) / 60000)
@@ -520,6 +529,25 @@
     font-size: 0.75em;
     color: #555;
     margin-top: 0.35em;
+  }
+  .hint.stale {
+    color: #b00020;
+    font-weight: 600;
+  }
+  .check {
+    font-weight: 400 !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+  }
+  .link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #1f78b4;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 1em;
   }
   .popup h3 {
     margin: 0 0 0.3em;
@@ -608,17 +636,9 @@
   {:else}
     <div class="controls">
       <div class="control-row">
-        <label>View</label>
-        <div class="toggle">
-          {#each VIEW_OPTIONS as option}
-            <button
-              class:selected={selectedView === option.value}
-              on:click={() => { selectedView = option.value; }}
-            >
-              {option.label}
-            </button>
-          {/each}
-        </div>
+        <label>Show</label>
+        <label class="check"><input type="checkbox" bind:checked={showRegions} /> Regions</label>
+        <label class="check"><input type="checkbox" bind:checked={showStations} /> Stations</label>
       </div>
       <div class="control-row">
         <label>Metric</label>
@@ -652,14 +672,19 @@
         min="0"
         max={Math.max(0, timeline.length - 1)}
         bind:value={currentIndex}
+        on:input={() => { followLatest = currentIndex === timeline.length - 1; }}
       />
       <div class="timestamp">
         <span>{formatLongTime(currentTimeISO)}</span>
         <span>{timeline.length} obs</span>
       </div>
     </div>
+    <p class="hint" class:stale={dataAgeMinutes != null && dataAgeMinutes > 30}>
+      Latest KNMI obs {formatShortTime(latestTimeISO)} ({dataAgeMinutes} min ago){#if !followLatest}
+        &middot; <button class="link" on:click={() => { followLatest = true; currentIndex = timeline.length - 1; }}>jump to latest</button>{/if}
+    </p>
     <p class="hint">
-      Drag slider to explore last {timespanMinutes} min of KNMI data.
+      Drag slider to explore last {timespanMinutes} min. Auto-refreshes every minute{lastFetchedAt ? `, last checked ${formatShortTime(new Date(lastFetchedAt).toISOString())}` : ''}.
     </p>
   {/if}
 </section>

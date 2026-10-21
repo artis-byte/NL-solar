@@ -2,12 +2,19 @@ name: Update KNMI QG GeoJSON
 
 on:
   schedule:
-    - cron: "*/8 * * * *"  # every 8 minutes (best-effort by GitHub)
+    # GitHub throttles frequent schedules, so each run stays alive and watches
+    # KNMI itself; the hourly tick only restarts it if a run has ended.
+    - cron: "7 * * * *"
   workflow_dispatch:
+
+concurrency:
+  group: knmi-live-refresh
+  cancel-in-progress: false
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 355
     env:
       KNMI_API_KEY: ${{ secrets.KNMI_API_KEY }}
       GITHUB_PAT: ${{ secrets.REPO_UPLOAD_TOKEN }}
@@ -18,6 +25,8 @@ jobs:
       STATION_HISTORY_JSON: knmi_station_data/station_metrics_history.json
       STATION_HISTORY_GEOJSON: knmi_station_data/station_metrics_history.geojson
       BOOTSTRAP_FILES: 12
+      WATCH_MINUTES: 345
+      POLL_SECONDS: 60
       REPO_SLUG: artis-byte/NL-solar
     steps:
       - name: Checkout repository
@@ -44,7 +53,7 @@ jobs:
             exit 1
           fi
 
-          python src/knmi_qg_regions.py \
+          python -u src/knmi_qg_regions.py \
             --api-key "$KNMI_API_KEY" \
             --regions "$REGIONS_FILE" \
             --out "$OUTPUT_FILE" \
@@ -59,4 +68,6 @@ jobs:
             --gh-station-history-path "$STATION_HISTORY_GEOJSON" \
             --bootstrap-files "$BOOTSTRAP_FILES" \
             --gh-branch main \
-            --gh-token "$GITHUB_PAT"
+            --gh-token "$GITHUB_PAT" \
+            --watch-minutes "$WATCH_MINUTES" \
+            --poll-seconds "$POLL_SECONDS"

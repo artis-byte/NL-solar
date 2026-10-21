@@ -518,42 +518,82 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--gh-token", help="GitHub PAT (or set GITHUB_TOKEN env var)")
 
     parser.add_argument("--loop", action="store_true", help="Repeat every 10 min")
+    parser.add_argument(
+        "--watch-minutes",
+        type=float,
+        default=0,
+        help=(
+            "Poll KNMI for this many minutes and publish each new 10-minute file "
+            "as soon as it appears (0 = run once)"
+        ),
+    )
+    parser.add_argument(
+        "--poll-seconds",
+        type=int,
+        default=60,
+        help="Polling interval for --watch-minutes",
+    )
     parser.add_argument("--interval", type=int, default=600, help="Loop interval seconds")
 
     args = parser.parse_args(argv)
     max_history = max(1, args.max_history)
     bootstrap_files = max(1, args.bootstrap_files)
 
+    def _run(files: int) -> None:
+        run_once(
+            api_key=args.api_key,
+            regions_path=args.regions,
+            local_out=args.local_out,
+            history_out=args.history_out,
+            max_history=max_history,
+            s3_bucket=args.s3_bucket,
+            s3_key=args.s3_key,
+            s3_history_key=args.s3_history_key,
+            s3_stations_key=args.s3_stations_key,
+            gh_repo=args.gh_repo,
+            gh_path=args.gh_path,
+            gh_history_path=args.gh_history_path,
+            gh_branch=args.gh_branch,
+            gh_token=args.gh_token,
+            stations_out=args.stations_out,
+            gh_stations_path=args.gh_stations_path,
+            station_history_json=args.station_history_json,
+            station_history_geojson=args.station_history_geojson,
+            gh_station_history_path=args.gh_station_history_path,
+            bootstrap_files=files,
+        )
+
+    if args.watch_minutes > 0:
+        _watch(args, _run, bootstrap_files)
+        return
+
     while True:
         try:
-            run_once(
-                api_key=args.api_key,
-                regions_path=args.regions,
-                local_out=args.local_out,
-                history_out=args.history_out,
-                max_history=max_history,
-                s3_bucket=args.s3_bucket,
-                s3_key=args.s3_key,
-                s3_history_key=args.s3_history_key,
-                s3_stations_key=args.s3_stations_key,
-                gh_repo=args.gh_repo,
-                gh_path=args.gh_path,
-                gh_history_path=args.gh_history_path,
-                gh_branch=args.gh_branch,
-                gh_token=args.gh_token,
-                stations_out=args.stations_out,
-                gh_stations_path=args.gh_stations_path,
-                station_history_json=args.station_history_json,
-                station_history_geojson=args.station_history_geojson,
-                gh_station_history_path=args.gh_station_history_path,
-                bootstrap_files=bootstrap_files,
-            )
+            _run(bootstrap_files)
         except Exception as exc:  # pragma: no cover - runtime feedback
             print("Error:", exc, file=sys.stderr)
 
         if not args.loop:
             break
         time.sleep(args.interval)
+
+
+def _watch(args, run, bootstrap_files: int) -> None:
+    """Publish every new KNMI file shortly after it appears, until the deadline."""
+    deadline = time.monotonic() + args.watch_minutes * 60
+    last_seen: Optional[str] = None
+    while True:
+        try:
+            latest = list_latest_station_files(args.api_key, 1)
+            if latest and latest[0] != last_seen:
+                # Re-ingest the previous file too so a slow publish can't leave a gap.
+                run(bootstrap_files if last_seen is None else 2)
+                last_seen = latest[0]
+        except Exception as exc:  # pragma: no cover - runtime feedback
+            print("Error:", exc, file=sys.stderr, flush=True)
+        if time.monotonic() + args.poll_seconds >= deadline:
+            break
+        time.sleep(args.poll_seconds)
 
 
 if __name__ == "__main__":
