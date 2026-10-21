@@ -2,6 +2,10 @@ name: Publish Windy Plugin
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - knmi-windy-plugin/src/**
 
 jobs:
   publish:

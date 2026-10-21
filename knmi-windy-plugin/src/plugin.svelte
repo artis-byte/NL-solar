@@ -348,6 +348,24 @@
     console.log(`[KNMI] Drew ${drawn} region(s) for ${currentTime}`);
   };
 
+  const STATION_FALLBACK_MINUTES = 20;
+
+  const entryAtOrBefore = (history, currentTime) => {
+    const exact = history.get(currentTime);
+    if (exact) return exact;
+    const target = new Date(currentTime).getTime();
+    let best = null;
+    let bestTime = -Infinity;
+    history.forEach((entry, t) => {
+      const ts = new Date(t).getTime();
+      if (ts <= target && ts > bestTime && target - ts <= STATION_FALLBACK_MINUTES * 60000) {
+        best = entry;
+        bestTime = ts;
+      }
+    });
+    return best;
+  };
+
   const drawStationLayer = (currentTime) => {
     if (!ensureMap() || !currentTime) { scheduleMapPoll(); return; }
     const L = getLeaflet();
@@ -356,31 +374,45 @@
     stationLayer = clearLayer(stationLayer);
     stationLayer = L.layerGroup().addTo(mapInstance);
 
+    let drawn = 0;
+    let failed = 0;
     stationsIndex.forEach(({ geometry, history }, stationId) => {
       try {
         if (!geometry || geometry.type !== 'Point') return;
-        const entry = history.get(currentTime);
+        const entry = entryAtOrBefore(history, currentTime);
         if (!entry) return;
         const [lon, lat] = geometry.coordinates;
         const value = selectedMetric === 'wind' ? entry.ff : entry.qg;
         const color = getColor(value, selectedMetric);
-        const marker = L.circleMarker([lat, lon], {
-          radius: 6,
-          color: '#1c1c1c',
-          fillColor: color,
-          fillOpacity: 0.9,
-          weight: 1,
+        // HTML marker icons, like Windy's own plugin examples; Windy's Leaflet build
+        // does not reliably render circleMarker paths.
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2px solid #1c1c1c;box-shadow:0 0 0 1px #fff;box-sizing:border-box;"></div>`,
+          iconSize: [12, 12],
+          iconAnchor: [6, 6],
         });
-        marker.bindTooltip(
-          buildSimpleTooltip(`Stn ${stationId}`, entry.qg, entry.ff),
-          { permanent: false, direction: 'top', className: 'station-label', offset: [0, -8] },
-        );
+        const marker = L.marker([lat, lon], { icon, zIndexOffset: 1000, riseOnHover: true });
+        if (value != null) {
+          marker.bindTooltip(
+            selectedMetric === 'wind' ? formatNumber(value, 1, '') : formatNumber(value, 0, ''),
+            { permanent: true, direction: 'top', className: 'station-label', offset: [0, -6] },
+          );
+        } else {
+          marker.bindTooltip(
+            buildSimpleTooltip(`Stn ${stationId}`, entry.qg, entry.ff),
+            { direction: 'top', className: 'station-label', offset: [0, -6] },
+          );
+        }
         marker.bindPopup(() => buildStationPopupHTML(stationId, entry, history, currentTime));
         marker.addTo(stationLayer);
+        drawn += 1;
       } catch (err) {
+        failed += 1;
         console.warn('Station marker error:', err);
       }
     });
+    console.log(`[KNMI] Drew ${drawn} station(s) for ${currentTime}${failed ? `, ${failed} failed` : ''}`);
   };
 
   const updateMap = () => {
