@@ -1,6 +1,6 @@
 const __pluginConfig =  {
   "name": "windy-plugin-knmi-qg-regions",
-  "version": "3.9.0",
+  "version": "3.10.0",
   "icon": "☀",
   "title": "KNMI Solar Radiation",
   "description": "Overlay KNMI 10 minute irradiance and wind metrics for Dutch regions and stations.",
@@ -10,8 +10,8 @@ const __pluginConfig =  {
   "mobileUI": "fullscreen",
   "routerPath": "/knmi-solar",
   "private": false,
-  "built": 1792572656602,
-  "builtReadable": "2026-10-21T08:50:56.602Z",
+  "built": 1792574851523,
+  "builtReadable": "2026-10-21T09:27:31.523Z",
   "screenshot": "screenshot.jpg"
 };
 
@@ -664,17 +664,17 @@ function add_css(target) {
 
 function get_each_context(ctx, list, i) {
 	const child_ctx = ctx.slice();
-	child_ctx[66] = list[i];
+	child_ctx[67] = list[i];
 	return child_ctx;
 }
 
 function get_each_context_1(ctx, list, i) {
 	const child_ctx = ctx.slice();
-	child_ctx[66] = list[i];
+	child_ctx[67] = list[i];
 	return child_ctx;
 }
 
-// (636:2) {:else}
+// (668:2) {:else}
 function create_else_block(ctx) {
 	let div4;
 	let div0;
@@ -1046,7 +1046,7 @@ function create_else_block(ctx) {
 	};
 }
 
-// (634:29) 
+// (666:29) 
 function create_if_block_2(ctx) {
 	let p;
 
@@ -1068,7 +1068,7 @@ function create_if_block_2(ctx) {
 	};
 }
 
-// (632:25) 
+// (664:25) 
 function create_if_block_1(ctx) {
 	let p;
 	let t;
@@ -1094,7 +1094,7 @@ function create_if_block_1(ctx) {
 	};
 }
 
-// (630:2) {#if loading}
+// (662:2) {#if loading}
 function create_if_block(ctx) {
 	let p;
 
@@ -1116,22 +1116,22 @@ function create_if_block(ctx) {
 	};
 }
 
-// (646:10) {#each METRIC_OPTIONS as option}
+// (678:10) {#each METRIC_OPTIONS as option}
 function create_each_block_1(ctx) {
 	let button;
 	let mounted;
 	let dispose;
 
 	function click_handler() {
-		return /*click_handler*/ ctx[23](/*option*/ ctx[66]);
+		return /*click_handler*/ ctx[23](/*option*/ ctx[67]);
 	}
 
 	return {
 		c() {
 			button = element("button");
-			button.textContent = `${/*option*/ ctx[66].label} `;
+			button.textContent = `${/*option*/ ctx[67].label} `;
 			attr(button, "class", "svelte-1nu95pe");
-			toggle_class(button, "selected", /*selectedMetric*/ ctx[5] === /*option*/ ctx[66].value);
+			toggle_class(button, "selected", /*selectedMetric*/ ctx[5] === /*option*/ ctx[67].value);
 		},
 		m(target, anchor) {
 			insert(target, button, anchor);
@@ -1145,7 +1145,7 @@ function create_each_block_1(ctx) {
 			ctx = new_ctx;
 
 			if (dirty[0] & /*selectedMetric, METRIC_OPTIONS*/ 65568) {
-				toggle_class(button, "selected", /*selectedMetric*/ ctx[5] === /*option*/ ctx[66].value);
+				toggle_class(button, "selected", /*selectedMetric*/ ctx[5] === /*option*/ ctx[67].value);
 			}
 		},
 		d(detaching) {
@@ -1159,10 +1159,10 @@ function create_each_block_1(ctx) {
 	};
 }
 
-// (659:10) {#each DELTA_OPTIONS as option}
+// (691:10) {#each DELTA_OPTIONS as option}
 function create_each_block(ctx) {
 	let option_1;
-	let t0_value = /*option*/ ctx[66] + "";
+	let t0_value = /*option*/ ctx[67] + "";
 	let t0;
 	let t1;
 	let option_1_selected_value;
@@ -1172,9 +1172,9 @@ function create_each_block(ctx) {
 			option_1 = element("option");
 			t0 = text(t0_value);
 			t1 = text(" min\n            ");
-			option_1.__value = /*option*/ ctx[66];
+			option_1.__value = /*option*/ ctx[67];
 			set_input_value(option_1, option_1.__value);
-			option_1.selected = option_1_selected_value = /*option*/ ctx[66] === /*selectedDelta*/ ctx[6];
+			option_1.selected = option_1_selected_value = /*option*/ ctx[67] === /*selectedDelta*/ ctx[6];
 		},
 		m(target, anchor) {
 			insert(target, option_1, anchor);
@@ -1182,7 +1182,7 @@ function create_each_block(ctx) {
 			append(option_1, t1);
 		},
 		p(ctx, dirty) {
-			if (dirty[0] & /*selectedDelta*/ 64 && option_1_selected_value !== (option_1_selected_value = /*option*/ ctx[66] === /*selectedDelta*/ ctx[6])) {
+			if (dirty[0] & /*selectedDelta*/ 64 && option_1_selected_value !== (option_1_selected_value = /*option*/ ctx[67] === /*selectedDelta*/ ctx[6])) {
 				option_1.selected = option_1_selected_value;
 			}
 		},
@@ -1194,7 +1194,7 @@ function create_each_block(ctx) {
 	};
 }
 
-// (683:81) {#if !followLatest}
+// (715:81) {#if !followLatest}
 function create_if_block_3(ctx) {
 	let t0;
 	let button;
@@ -1291,6 +1291,7 @@ const STATION_HISTORY_URL = 'https://raw.githubusercontent.com/artis-byte/NL-sol
 const REFRESH_INTERVAL = 60_000;
 const DELTA_TOLERANCE_MINUTES = 5;
 const NO_VALUE = '--';
+const STATION_FALLBACK_MINUTES = 20;
 
 function instance($$self, $$props, $$invalidate) {
 	let currentTimeISO;
@@ -1751,6 +1752,25 @@ function instance($$self, $$props, $$invalidate) {
 		console.log(`[KNMI] Drew ${drawn} region(s) for ${currentTime}`);
 	};
 
+	const entryAtOrBefore = (history, currentTime) => {
+		const exact = history.get(currentTime);
+		if (exact) return exact;
+		const target = new Date(currentTime).getTime();
+		let best = null;
+		let bestTime = -Infinity;
+
+		history.forEach((entry, t) => {
+			const ts = new Date(t).getTime();
+
+			if (ts <= target && ts > bestTime && target - ts <= STATION_FALLBACK_MINUTES * 60000) {
+				best = entry;
+				bestTime = ts;
+			}
+		});
+
+		return best;
+	};
+
 	const drawStationLayer = currentTime => {
 		if (!ensureMap() || !currentTime) {
 			scheduleMapPoll();
@@ -1761,37 +1781,63 @@ function instance($$self, $$props, $$invalidate) {
 		if (!L) return;
 		stationLayer = clearLayer(stationLayer);
 		stationLayer = L.layerGroup().addTo(mapInstance);
+		let drawn = 0;
+		let failed = 0;
 
 		stationsIndex.forEach(({ geometry, history }, stationId) => {
 			try {
 				if (!geometry || geometry.type !== 'Point') return;
-				const entry = history.get(currentTime);
+				const entry = entryAtOrBefore(history, currentTime);
 				if (!entry) return;
 				const [lon, lat] = geometry.coordinates;
 				const value = selectedMetric === 'wind' ? entry.ff : entry.qg;
 				const color = getColor(value, selectedMetric);
 
-				const marker = L.circleMarker([lat, lon], {
-					radius: 6,
-					color: '#1c1c1c',
-					fillColor: color,
-					fillOpacity: 0.9,
-					weight: 1
+				// HTML marker icons, like Windy's own plugin examples; Windy's Leaflet build
+				// does not reliably render circleMarker paths.
+				const icon = L.divIcon({
+					className: '',
+					html: `<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2px solid #1c1c1c;box-shadow:0 0 0 1px #fff;box-sizing:border-box;"></div>`,
+					iconSize: [12, 12],
+					iconAnchor: [6, 6]
 				});
 
-				marker.bindTooltip(buildSimpleTooltip(`Stn ${stationId}`, entry.qg, entry.ff), {
-					permanent: false,
-					direction: 'top',
-					className: 'station-label',
-					offset: [0, -8]
+				const marker = L.marker([lat, lon], {
+					icon,
+					zIndexOffset: 1000,
+					riseOnHover: true
 				});
+
+				if (value != null) {
+					marker.bindTooltip(
+						selectedMetric === 'wind'
+						? formatNumber(value, 1, '')
+						: formatNumber(value, 0, ''),
+						{
+							permanent: true,
+							direction: 'top',
+							className: 'station-label',
+							offset: [0, -6]
+						}
+					);
+				} else {
+					marker.bindTooltip(buildSimpleTooltip(`Stn ${stationId}`, entry.qg, entry.ff), {
+						direction: 'top',
+						className: 'station-label',
+						offset: [0, -6]
+					});
+				}
 
 				marker.bindPopup(() => buildStationPopupHTML(stationId, entry, history, currentTime));
 				marker.addTo(stationLayer);
+				drawn += 1;
 			} catch(err) {
+				failed += 1;
 				console.warn('Station marker error:', err);
 			}
 		});
+
+		console.log(`[KNMI] Drew ${drawn} station(s) for ${currentTime}${failed ? `, ${failed} failed` : ''}`);
 	};
 
 	const updateMap = () => {
