@@ -906,14 +906,6 @@
         "name": "Drenthe",
         "history": [
           {
-            "observation_time": "2026-11-28T13:40:00Z",
-            "qg_mean": 120.5,
-            "wind_speed_mean": 4.915,
-            "wind_direction_mean": 126.15000000000002,
-            "estimated_output_mw": null,
-            "stations_count": 2
-          },
-          {
             "observation_time": "2026-11-28T13:50:00Z",
             "qg_mean": 109.0,
             "wind_speed_mean": 4.16,
@@ -1000,13 +992,21 @@
             "wind_direction_mean": 119.45,
             "estimated_output_mw": null,
             "stations_count": 2
+          },
+          {
+            "observation_time": "2026-11-28T15:40:00Z",
+            "qg_mean": 0.0,
+            "wind_speed_mean": 4.1,
+            "wind_direction_mean": 116.45,
+            "estimated_output_mw": null,
+            "stations_count": 2
           }
         ],
         "latest": {
-          "observation_time": "2026-11-28T15:30:00Z",
-          "qg_mean": 0.5,
-          "wind_speed_mean": 4.18,
-          "wind_direction_mean": 119.45,
+          "observation_time": "2026-11-28T15:40:00Z",
+          "qg_mean": 0.0,
+          "wind_speed_mean": 4.1,
+          "wind_direction_mean": 116.45,
           "estimated_output_mw": null,
           "stations_count": 2
         },
@@ -1486,14 +1486,6 @@
         "name": "Flevoland",
         "history": [
           {
-            "observation_time": "2026-11-28T13:40:00Z",
-            "qg_mean": 100.0,
-            "wind_speed_mean": 6.79,
-            "wind_direction_mean": 125.66146827564023,
-            "estimated_output_mw": null,
-            "stations_count": 3
-          },
-          {
             "observation_time": "2026-11-28T13:50:00Z",
             "qg_mean": 92.0,
             "wind_speed_mean": 6.5,
@@ -1580,13 +1572,21 @@
             "wind_direction_mean": 130.72252713510005,
             "estimated_output_mw": null,
             "stations_count": 3
+          },
+          {
+            "observation_time": "2026-11-28T15:40:00Z",
+            "qg_mean": 0.0,
+            "wind_speed_mean": 6.670000000000001,
+            "wind_direction_mean": 130.15178703219033,
+            "estimated_output_mw": null,
+            "stations_count": 3
           }
         ],
         "latest": {
-          "observation_time": "2026-11-28T15:30:00Z",
-          "qg_mean": 1.0,
-          "wind_speed_mean": 6.776666666666666,
-          "wind_direction_mean": 130.72252713510005,
+          "observation_time": "2026-11-28T15:40:00Z",
+          "qg_mean": 0.0,
+          "wind_speed_mean": 6.670000000000001,
+          "wind_direction_mean": 130.15178703219033,
           "estimated_output_mw": null,
           "stations_count": 3
         },
@@ -2274,14 +2274,6 @@
         "name": "Friesland (Frysl\u00e2n)",
         "history": [
           {
-            "observation_time": "2026-11-28T13:40:00Z",
-            "qg_mean": 98.33333333333333,
-            "wind_speed_mean": 7.81,
-            "wind_direction_mean": 129.6957873658041,
-            "estimated_output_mw": null,
-            "stations_count": 4
-          },
-          {
             "observation_time": "2026-11-28T13:50:00Z",
             "qg_mean": 89.0,
             "wind_speed_mean": 7.5075,
@@ -2364,17 +2356,25 @@
           {
             "observation_time": "2026-11-28T15:30:00Z",
             "qg_mean": 0.6666666666666666,
-            "wind_speed_mean": 8.290000000000001,
-            "wind_direction_mean": 125.92503380571846,
+            "wind_speed_mean": 8.29,
+            "wind_direction_mean": 125.92503380571843,
+            "estimated_output_mw": null,
+            "stations_count": 4
+          },
+          {
+            "observation_time": "2026-11-28T15:40:00Z",
+            "qg_mean": 0.0,
+            "wind_speed_mean": 8.775,
+            "wind_direction_mean": 126.97493668875568,
             "estimated_output_mw": null,
             "stations_count": 4
           }
         ],
         "latest": {
-          "observation_time": "2026-11-28T15:30:00Z",
-          "qg_mean": 0.6666666666666666,
-          "wind_speed_mean": 8.290000000000001,
-          "wind_direction_mean": 125.92503380571846,
+          "observation_time": "2026-11-28T15:40:00Z",
+          "qg_mean": 0.0,
+          "wind_speed_mean": 8.775,
+          "wind_direction_mean": 126.97493668875568,
           "estimated_output_mw": null,
           "stations_count": 4
         },
@@ -4806,14 +4806,6 @@
         "name": "Gelderland",
         "history": [
           {
-            "observation_time": "2026-11-28T13:40:00Z",
-            "qg_mean": 128.66666666666666,
-            "wind_speed_mean": 5.71,
-            "wind_direction_mean": 119.89847470611667,
-            "estimated_output_mw": null,
-            "stations_count": 3
-          },
-          {
             "observation_time": "2026-11-28T13:50:00Z",
             "qg_mean": 116.0,
             "wind_speed_mean": 5.6066666666666665,
@@ -4900,13 +4892,21 @@
             "wind_direction_mean": 119.20668832379944,
             "estimated_output_mw": null,
             "stations_count": 3
+          },
+          {
+            "observation_time": "2026-11-28T15:40:00Z",
+            "qg_mean": 0.3333333333333333,
+            "wind_speed_mean": 4.71,
+            "wind_direction_mean": 122.80432389168452,
+            "estimated_output_mw": null,
+            "stations_count": 3
           }
         ],
         "latest": {
-          "observation_time": "2026-11-28T15:30:00Z",
-          "qg_mean": 2.0,
-          "wind_speed_mean": 4.97,
-          "wind_direction_mean": 119.20668832379944,
+          "observation_time": "2026-11-28T15:40:00Z",
+          "qg_mean": 0.3333333333333333,
+          "wind_speed_mean": 4.71,
+          "wind_direction_mean": 122.80432389168452,
           "estimated_output_mw": null,
           "stations_count": 3
         },
@@ -5618,14 +5618,6 @@
         "name": "Groningen",
         "history": [
           {
-            "observation_time": "2026-11-28T13:40:00Z",
-            "qg_mean": 86.0,
-            "wind_speed_mean": 6.234999999999999,
-            "wind_direction_mean": 131.5,
-            "estimated_output_mw": null,
-            "stations_count": 2
-          },
-          {
             "observation_time": "2026-11-28T13:50:00Z",
             "qg_mean": 78.0,
             "wind_speed_mean": 6.08,
@@ -5712,13 +5704,21 @@
             "wind_direction_mean": 125.45,
             "estimated_output_mw": null,
             "stations_count": 2
+          },
+          {
+            "observation_time": "2026-11-28T15:40:00Z",
+            "qg_mean": 0.0,
+            "wind_speed_mean": 6.915,
+            "wind_direction_mean": 123.75000000000001,
+            "estimated_output_mw": null,
+            "stations_count": 2
           }
         ],
         "latest": {
-          "observation_time": "2026-11-28T15:30:00Z",
-          "qg_mean": 0.5,
-          "wind_speed_mean": 6.35,
-          "wind_direction_mean": 125.45,
+          "observation_time": "2026-11-28T15:40:00Z",
+          "qg_mean": 0.0,
+          "wind_speed_mean": 6.915,
+          "wind_direction_mean": 123.75000000000001,
           "estimated_output_mw": null,
           "stations_count": 2
         },
@@ -7606,14 +7606,6 @@
         "name": "Limburg",
         "history": [
           {
-            "observation_time": "2026-11-28T13:40:00Z",
-            "qg_mean": 184.0,
-            "wind_speed_mean": 4.683333333333334,
-            "wind_direction_mean": 105.29254550764892,
-            "estimated_output_mw": null,
-            "stations_count": 3
-          },
-          {
             "observation_time": "2026-11-28T13:50:00Z",
             "qg_mean": 171.0,
             "wind_speed_mean": 4.293333333333333,
@@ -7700,13 +7692,21 @@
             "wind_direction_mean": 108.44682679594209,
             "estimated_output_mw": null,
             "stations_count": 3
+          },
+          {
+            "observation_time": "2026-11-28T15:40:00Z",
+            "qg_mean": 0.6666666666666666,
+            "wind_speed_mean": 3.73,
+            "wind_direction_mean": 113.65313431874034,
+            "estimated_output_mw": null,
+            "stations_count": 3
           }
         ],
         "latest": {
-          "observation_time": "2026-11-28T15:30:00Z",
-          "qg_mean": 4.666666666666667,
-          "wind_speed_mean": 4.04,
-          "wind_direction_mean": 108.44682679594209,
+          "observation_time": "2026-11-28T15:40:00Z",
+          "qg_mean": 0.6666666666666666,
+          "wind_speed_mean": 3.73,
+          "wind_direction_mean": 113.65313431874034,
           "estimated_output_mw": null,
           "stations_count": 3
         },
@@ -9798,14 +9798,6 @@
         "name": "Noord-Brabant",
         "history": [
           {
-            "observation_time": "2026-11-28T13:40:00Z",
-            "qg_mean": 135.0,
-            "wind_speed_mean": 4.6675,
-            "wind_direction_mean": 124.89710144048273,
-            "estimated_output_mw": null,
-            "stations_count": 4
-          },
-          {
             "observation_time": "2026-11-28T13:50:00Z",
             "qg_mean": 113.66666666666667,
             "wind_speed_mean": 4.6225000000000005,
@@ -9892,13 +9884,21 @@
             "wind_direction_mean": 122.7920877475642,
             "estimated_output_mw": null,
             "stations_count": 4
+          },
+          {
+            "observation_time": "2026-11-28T15:40:00Z",
+            "qg_mean": 0.6666666666666666,
+            "wind_speed_mean": 3.965,
+            "wind_direction_mean": 120.48665688467398,
+            "estimated_output_mw": null,
+            "stations_count": 4
           }
         ],
         "latest": {
-          "observation_time": "2026-11-28T15:30:00Z",
-          "qg_mean": 4.666666666666667,
-          "wind_speed_mean": 3.8975,
-          "wind_direction_mean": 122.7920877475642,
+          "observation_time": "2026-11-28T15:40:00Z",
+          "qg_mean": 0.6666666666666666,
+          "wind_speed_mean": 3.965,
+          "wind_direction_mean": 120.48665688467398,
           "estimated_output_mw": null,
           "stations_count": 4
         },
@@ -10678,14 +10678,6 @@
         "name": "Noord-Holland",
         "history": [
           {
-            "observation_time": "2026-11-28T13:40:00Z",
-            "qg_mean": 93.85714285714286,
-            "wind_speed_mean": 6.21,
-            "wind_direction_mean": 130.55664949584147,
-            "estimated_output_mw": null,
-            "stations_count": 10
-          },
-          {
             "observation_time": "2026-11-28T13:50:00Z",
             "qg_mean": 83.0,
             "wind_speed_mean": 6.555555555555555,
@@ -10772,13 +10764,21 @@
             "wind_direction_mean": 133.732461235866,
             "estimated_output_mw": null,
             "stations_count": 10
+          },
+          {
+            "observation_time": "2026-11-28T15:40:00Z",
+            "qg_mean": 0.5714285714285714,
+            "wind_speed_mean": 7.547777777777778,
+            "wind_direction_mean": 134.75546088784458,
+            "estimated_output_mw": null,
+            "stations_count": 10
           }
         ],
         "latest": {
-          "observation_time": "2026-11-28T15:30:00Z",
-          "qg_mean": 2.0,
-          "wind_speed_mean": 7.402222222222223,
-          "wind_direction_mean": 133.732461235866,
+          "observation_time": "2026-11-28T15:40:00Z",
+          "qg_mean": 0.5714285714285714,
+          "wind_speed_mean": 7.547777777777778,
+          "wind_direction_mean": 134.75546088784458,
           "estimated_output_mw": null,
           "stations_count": 10
         },
@@ -12538,14 +12538,6 @@
         "name": "Overijssel",
         "history": [
           {
-            "observation_time": "2026-11-28T13:40:00Z",
-            "qg_mean": 125.0,
-            "wind_speed_mean": 4.35,
-            "wind_direction_mean": 125.5,
-            "estimated_output_mw": null,
-            "stations_count": 2
-          },
-          {
             "observation_time": "2026-11-28T13:50:00Z",
             "qg_mean": 99.5,
             "wind_speed_mean": 4.105,
@@ -12632,13 +12624,21 @@
             "wind_direction_mean": 113.24999999999999,
             "estimated_output_mw": null,
             "stations_count": 2
+          },
+          {
+            "observation_time": "2026-11-28T15:40:00Z",
+            "qg_mean": 0.0,
+            "wind_speed_mean": 4.22,
+            "wind_direction_mean": 116.84999999999998,
+            "estimated_output_mw": null,
+            "stations_count": 2
           }
         ],
         "latest": {
-          "observation_time": "2026-11-28T15:30:00Z",
-          "qg_mean": 0.5,
-          "wind_speed_mean": 4.2,
-          "wind_direction_mean": 113.24999999999999,
+          "observation_time": "2026-11-28T15:40:00Z",
+          "qg_mean": 0.0,
+          "wind_speed_mean": 4.22,
+          "wind_direction_mean": 116.84999999999998,
           "estimated_output_mw": null,
           "stations_count": 2
         },
@@ -13894,14 +13894,6 @@
         "name": "Utrecht",
         "history": [
           {
-            "observation_time": "2026-11-28T13:40:00Z",
-            "qg_mean": 117.0,
-            "wind_speed_mean": 5.25,
-            "wind_direction_mean": 130.95,
-            "estimated_output_mw": null,
-            "stations_count": 2
-          },
-          {
             "observation_time": "2026-11-28T13:50:00Z",
             "qg_mean": 104.5,
             "wind_speed_mean": 4.98,
@@ -13988,13 +13980,21 @@
             "wind_direction_mean": 135.1,
             "estimated_output_mw": null,
             "stations_count": 2
+          },
+          {
+            "observation_time": "2026-11-28T15:40:00Z",
+            "qg_mean": 1.0,
+            "wind_speed_mean": 5.095000000000001,
+            "wind_direction_mean": 132.45000000000002,
+            "estimated_output_mw": null,
+            "stations_count": 2
           }
         ],
         "latest": {
-          "observation_time": "2026-11-28T15:30:00Z",
-          "qg_mean": 3.0,
-          "wind_speed_mean": 5.02,
-          "wind_direction_mean": 135.1,
+          "observation_time": "2026-11-28T15:40:00Z",
+          "qg_mean": 1.0,
+          "wind_speed_mean": 5.095000000000001,
+          "wind_direction_mean": 132.45000000000002,
           "estimated_output_mw": null,
           "stations_count": 2
         },
@@ -14678,14 +14678,6 @@
         "name": "Zeeland",
         "history": [
           {
-            "observation_time": "2026-11-28T13:40:00Z",
-            "qg_mean": 121.33333333333333,
-            "wind_speed_mean": 7.03996625,
-            "wind_direction_mean": 138.84775101184093,
-            "estimated_output_mw": null,
-            "stations_count": 8
-          },
-          {
             "observation_time": "2026-11-28T13:50:00Z",
             "qg_mean": 99.33333333333333,
             "wind_speed_mean": 6.86151875,
@@ -14768,17 +14760,25 @@
           {
             "observation_time": "2026-11-28T15:30:00Z",
             "qg_mean": 7.666666666666667,
-            "wind_speed_mean": 6.983333333333333,
-            "wind_direction_mean": 137.89395977073846,
+            "wind_speed_mean": 7.0956075,
+            "wind_direction_mean": 136.2127756964278,
+            "estimated_output_mw": null,
+            "stations_count": 8
+          },
+          {
+            "observation_time": "2026-11-28T15:40:00Z",
+            "qg_mean": 3.0,
+            "wind_speed_mean": 7.1933333333333325,
+            "wind_direction_mean": 131.4662077205761,
             "estimated_output_mw": null,
             "stations_count": 3
           }
         ],
         "latest": {
-          "observation_time": "2026-11-28T15:30:00Z",
-          "qg_mean": 7.666666666666667,
-          "wind_speed_mean": 6.983333333333333,
-          "wind_direction_mean": 137.89395977073846,
+          "observation_time": "2026-11-28T15:40:00Z",
+          "qg_mean": 3.0,
+          "wind_speed_mean": 7.1933333333333325,
+          "wind_direction_mean": 131.4662077205761,
           "estimated_output_mw": null,
           "stations_count": 3
         },
@@ -15670,14 +15670,6 @@
         "name": "Zuid-Holland",
         "history": [
           {
-            "observation_time": "2026-11-28T13:40:00Z",
-            "qg_mean": 100.25,
-            "wind_speed_mean": 6.33,
-            "wind_direction_mean": 134.83874698705344,
-            "estimated_output_mw": null,
-            "stations_count": 5
-          },
-          {
             "observation_time": "2026-11-28T13:50:00Z",
             "qg_mean": 86.5,
             "wind_speed_mean": 6.442,
@@ -15764,13 +15756,21 @@
             "wind_direction_mean": 137.55042564970233,
             "estimated_output_mw": null,
             "stations_count": 5
+          },
+          {
+            "observation_time": "2026-11-28T15:40:00Z",
+            "qg_mean": 1.0,
+            "wind_speed_mean": 6.968000000000001,
+            "wind_direction_mean": 136.68779923800065,
+            "estimated_output_mw": null,
+            "stations_count": 5
           }
         ],
         "latest": {
-          "observation_time": "2026-11-28T15:30:00Z",
-          "qg_mean": 3.25,
-          "wind_speed_mean": 6.779999999999999,
-          "wind_direction_mean": 137.55042564970233,
+          "observation_time": "2026-11-28T15:40:00Z",
+          "qg_mean": 1.0,
+          "wind_speed_mean": 6.968000000000001,
+          "wind_direction_mean": 136.68779923800065,
           "estimated_output_mw": null,
           "stations_count": 5
         },
@@ -15778,6 +15778,6 @@
       }
     }
   ],
-  "generated_at": "2026-11-28T15:30:00Z",
+  "generated_at": "2026-11-28T15:40:00Z",
   "max_history": 12
 }
